@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Euterpe
+GenericName=Media player client for the Euterpe media server.
+Exec=euterpe-gtk
+Icon=com.doycho.euterpe.gtk
+Terminal=false
+Type=Application
+Categories=GTK;
+StartupNotify=true

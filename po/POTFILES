@@ -1,0 +1,7 @@
+data/com.doycho.euterpe.gtk.desktop.in
+data/com.doycho.euterpe.gtk.appdata.xml.in
+data/com.doycho.euterpe.gtk.gschema.xml
+src/window.ui
+src/main.py
+src/window.py
+
