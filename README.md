@@ -13,7 +13,7 @@ Still in very early development, don't waste much time with it!
 ## Building From Source
 
 ```
-meson . _build
+meson . _build --prefix=/usr
 ninja -C _build
 sudo ninja -C _build install
 ```
