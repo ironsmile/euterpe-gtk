@@ -19,8 +19,9 @@ import sys
 import gi
 gi.require_version('Handy', '1')
 gi.require_version('Gst', '1.0')
+gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, Handy, Gst
+from gi.repository import GLib, Gtk, Handy, Gst
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/window.ui')
@@ -40,6 +41,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     input_token = Gtk.Template.Child()
     input_track_url = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
+    track_progess = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -60,6 +62,13 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self.populate_about()
         self.playbin = None
+
+    def change_progress(self, prog):
+        if prog < 0:
+            prog = 0
+        if prog > 1:
+            prog = 1
+        self.track_progess.set_fraction(prog)
 
     def on_token_changed(self, entry):
         text = entry.get_text()
@@ -143,6 +152,26 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
     def _on_stream_start(self, bus, message):
         print("playbin stream_start", message)
+        GLib.timeout_add(priority=GLib.PRIORITY_DEFAULT, function=self._query_progress, interval=1000)
+
+    def _query_progress(self):
+        if self.playbin is None:
+            return False
+
+        (ok, dur) = self.playbin.query_duration(Gst.Format.TIME)
+        if not ok:
+            print("could not query playbin duration in ns")
+            return True
+        print("playbin duration:", dur)
+
+        (ok, ns) = self.playbin.query_position(Gst.Format.TIME)
+        if not ok:
+            print("could not query playbin position in ns")
+            return True
+        print("playbin ns:", ns)
+        self.change_progress(ns/dur)
+
+        return True
 
     def _on_bus_error(self, bus, message):
         (error, parsed) = message.parse_error()
