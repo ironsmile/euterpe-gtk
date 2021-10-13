@@ -31,6 +31,8 @@ class Player(GObject.Object):
 
         src = Gst.ElementFactory.make("curlhttpsrc", "source");
         src.set_property('location', play_uri)
+        src.set_property('user-agent', "Euterpe GTK Gstreamer")
+        src.set_property('timeout', 30)
 
         headers = Gst.Structure.new_empty('extra-headers')
         headers.set_value("Authorization", "Bearer " + token)
