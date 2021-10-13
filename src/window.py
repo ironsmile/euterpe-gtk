@@ -56,7 +56,12 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.input_track_url.connect("changed",
                               self.on_track_changed)
 
+        self.track_progess.connect("change-value",
+                                self.on_seek)
+
         Gst.init(None)
+
+        self.track_progess.set_range(0, 1)
 
         self.play_uri = None
         self.token = None
@@ -69,7 +74,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             prog = 0
         if prog > 1:
             prog = 1
-        self.track_progess.set_fraction(prog)
+        self.track_progess.set_value(prog)
 
     def on_token_changed(self, entry):
         text = entry.get_text()
@@ -108,6 +113,16 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.player.connect("state-changed",
                               self.on_player_state_changed)
         self.player.play()
+
+    def on_seek(self, slider, scroll, value):
+        if scroll != Gtk.ScrollType.JUMP:
+            return False
+
+        if self.player is None:
+            return
+
+        self.player.seek(value)
+        return False
 
     def _toggle_playing_state(self, button):
         print("executing on toggle playing state button")

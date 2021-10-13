@@ -97,6 +97,33 @@ class Player(GObject.Object):
 
         return ns/dur
 
+    def seek(self, position):
+        '''
+            Seek to a new position in the playbin. position
+            must be between 0 and 1. Values outside this range
+            will be clamped.
+        '''
+        val = position
+        if position > 1:
+            val = 1
+        if position < 0:
+            val = 0
+
+        (ok, dur) = self.playbin.query_duration(Gst.Format.TIME)
+        if not ok:
+            print("could not query playbin duration in ns")
+            return
+
+        seek_pos = int(dur * val)
+        print("seeking to", val, seek_pos)
+
+        seeked = self.playbin.seek_simple(Gst.Format.TIME,
+                                      Gst.SeekFlags.FLUSH |
+                                      Gst.SeekFlags.KEY_UNIT,
+                                      seek_pos)
+        if not seeked:
+            print("seeking was not succesful")
+
     def stop(self):
         self.playbin.set_state(Gst.State.NULL)
         self.playbin = None

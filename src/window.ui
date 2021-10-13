@@ -95,9 +95,11 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkProgressBar" id="track_progess">
+                      <object class="GtkScale" id="track_progess">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="round_digits">1</property>
+                        <property name="draw_value">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
