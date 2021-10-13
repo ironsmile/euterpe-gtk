@@ -17,12 +17,13 @@
 
 import sys
 import gi
+
 gi.require_version('Handy', '1')
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import GLib, Gtk, Handy, Gst
-
+from .player import Player
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/window.ui')
 class EuterpeGtkWindow(Gtk.ApplicationWindow):
@@ -61,7 +62,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.token = None
 
         self.populate_about()
-        self.playbin = None
+        self.player = None
 
     def change_progress(self, prog):
         if prog < 0:
@@ -99,85 +100,57 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             print("no token!")
             return
 
-        if self.playbin is not None:
-            self.playbin.set_state(Gst.State.NULL)
-            self.playbin = None
+        if self.player is not None:
+            self._toggle_playing_state(button)
+            return
 
-        pipeline = Gst.Pipeline.new('mainpipeline')
+        self.player = Player(self.token, self.play_uri)
+        self.player.connect("state-changed",
+                              self.on_player_state_changed)
+        self.player.play()
 
-        src = Gst.ElementFactory.make("curlhttpsrc", "source");
-        src.set_property('location', self.play_uri)
+    def _toggle_playing_state(self, button):
+        print("executing on toggle playing state button")
 
-        headers = Gst.Structure.new_empty('extra-headers')
-        headers.set_value("Authorization", "Bearer " + self.token)
-        src.set_property('extra-headers', headers)
+        if self.player is None:
+            # Nothing to do here, go away!
+            return
 
-        dec = Gst.ElementFactory.make("decodebin", "decoder")
+        if self.player.is_playing():
+            self.player.pause()
+        else:
+            self.player.play()
 
-        pipeline.add(src)
-        pipeline.add(dec)
-        src.link(dec)
+    def on_player_state_changed(self, player):
+        if player is not self.player:
+            return
 
-        audio = Gst.Bin.new('audiobin')
-        conv = Gst.ElementFactory.make("audioconvert", "aconv")
-        audiopad = conv.get_static_pad("sink")
-        sink = Gst.ElementFactory.make("autoaudiosink", "output")
-        audio.add(conv)
-        audio.add(sink)
-        conv.link(sink)
-        audio.add_pad(Gst.GhostPad.new('sink', audiopad))
-        pipeline.add(audio)
+        if player.is_playing():
+            self.play_button.set_label("Pause")
+            GLib.timeout_add(
+                priority=GLib.PRIORITY_DEFAULT,
+                function=self._query_progress,
+                interval=1000
+            )
+        else:
+            self.play_button.set_label("Play")
 
-        dec.connect("pad-added", self._on_newpad, audio)
-
-        bus = pipeline.get_bus()
-        bus.add_signal_watch()
-        bus.connect("message::error", self._on_bus_error)
-        bus.connect("message::eos", self._on_bus_eos)
-        bus.connect("message::stream-start", self._on_stream_start)
-
-        pipeline.set_state(Gst.State.PLAYING)
-        self.playbin = pipeline
-
-    def _on_newpad(self, dec, pad, audiosink):
-        print("newpad called")
-        #TODO: check caps!
-        audiopad = audiosink.get_static_pad("sink")
-        pad.link(audiopad)
-
-    def _on_bus_eos(self, bus, message):
-        print("playbin message: EOS")
-        self.playbin.set_state(Gst.State.NULL)
-        self.playbin = None
-
-    def _on_stream_start(self, bus, message):
-        print("playbin stream_start", message)
-        GLib.timeout_add(priority=GLib.PRIORITY_DEFAULT, function=self._query_progress, interval=1000)
+        if player.has_ended():
+            self.player = None
+            self.change_progress(0)
 
     def _query_progress(self):
-        if self.playbin is None:
+        if self.player is None or not self.player.is_playing():
+            print("stopping progress timeout callback")
             return False
 
-        (ok, dur) = self.playbin.query_duration(Gst.Format.TIME)
-        if not ok:
-            print("could not query playbin duration in ns")
+        progress = self.player.get_progress()
+        if progress is None:
+            print("could not yet obtain progress")
             return True
-        print("playbin duration:", dur)
 
-        (ok, ns) = self.playbin.query_position(Gst.Format.TIME)
-        if not ok:
-            print("could not query playbin position in ns")
-            return True
-        print("playbin ns:", ns)
-        self.change_progress(ns/dur)
-
+        self.change_progress(progress)
         return True
-
-    def _on_bus_error(self, bus, message):
-        (error, parsed) = message.parse_error()
-        # App().notify.send("Lollypop", parsed)
-        print("playbin error:", parsed)
-        self.playbin.set_state(Gst.State.NULL)
 
     def populate_about(self):
         self.about_python_version.set_label('{}.{}.{}'.format(

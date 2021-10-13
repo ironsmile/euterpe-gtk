@@ -29,6 +29,7 @@ euterpe_gtk_sources = [
   '__init__.py',
   'main.py',
   'window.py',
+  'player.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)
