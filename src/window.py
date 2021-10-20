@@ -22,7 +22,7 @@ gi.require_version('Handy', '1')
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
 
-from gi.repository import GLib, Gtk, Handy, Gst
+from gi.repository import GObject, GLib, Gtk, Handy, Gst
 from .player import Player
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/window.ui')
@@ -44,6 +44,15 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     play_button = Gtk.Template.Child()
     track_progess = Gtk.Template.Child()
 
+    logged_in_screen = Gtk.Template.Child()
+    login_scroll_view = Gtk.Template.Child()
+    login_status_stack = Gtk.Template.Child()
+    login_button = Gtk.Template.Child()
+    logout_button = Gtk.Template.Child()
+
+    service_password = Gtk.Template.Child()
+    service_password_show_toggle = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -59,6 +68,19 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.track_progess.connect("change-value",
                                 self.on_seek)
 
+        self.login_status_stack.connect("notify::visible-child",
+                              self.on_login_status_change)
+
+        self.login_button.connect("clicked", self.on_login_button)
+
+        self.logout_button.connect("clicked", self.on_logout_button)
+
+        self.service_password_show_toggle.bind_property(
+            'active',
+            self.service_password, 'visibility',
+            GObject.BindingFlags.SYNC_CREATE
+        )
+
         Gst.init(None)
 
         self.track_progess.set_range(0, 1)
@@ -68,6 +90,8 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self.populate_about()
         self.player = None
+
+        self.squeezer.set_visible(False)
 
     def change_progress(self, prog):
         if prog < 0:
@@ -89,6 +113,20 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self.play_uri = text
         else:
             self.play_uri = None
+
+    def on_login_status_change(self, stack, event):
+        show_squeezer = (self.logged_in_screen == stack.get_visible_child())
+        self.squeezer.set_visible(show_squeezer)
+
+    def on_login_button(self, buttn):
+        self.login_status_stack.set_visible_child(
+            self.logged_in_screen
+        )
+
+    def on_logout_button(self, button):
+        self.login_status_stack.set_visible_child(
+            self.login_scroll_view
+        )
 
     def on_headerbar_squeezer_notify(self, squeezer, event):
 	    child = squeezer.get_visible_child()

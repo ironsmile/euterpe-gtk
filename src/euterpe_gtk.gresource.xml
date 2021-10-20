@@ -2,5 +2,6 @@
 <gresources>
   <gresource prefix="/com/doycho/euterpe/gtk">
     <file>window.ui</file>
+    <file>assets/icon-128.png</file>
   </gresource>
 </gresources>
