@@ -26,7 +26,7 @@
                 <property name="margin_left">10</property>
                 <property name="margin_right">10</property>
                 <property name="policy">wide</property>
-                <property name="stack">stack1</property>
+                <property name="stack">main-stack</property>
               </object>
             </child>
             <child>
@@ -51,7 +51,7 @@
         <property name="vexpand">True</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkStack" id="stack1">
+          <object class="GtkStack" id="main-stack">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="vexpand">True</property>
@@ -336,7 +336,7 @@
           <object class="HdyViewSwitcherBar" id="bottom_switcher">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="stack">stack1</property>
+            <property name="stack">main-stack</property>
           </object>
           <packing>
             <property name="expand">False</property>
