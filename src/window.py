@@ -24,6 +24,8 @@ gi.require_version('GLib', '2.0')
 
 from gi.repository import GObject, GLib, Gtk, Handy, Gst
 from .player import Player
+from .service import Euterpe
+
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/window.ui')
 class EuterpeGtkWindow(Gtk.ApplicationWindow):
@@ -50,6 +52,9 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     login_button = Gtk.Template.Child()
     logout_button = Gtk.Template.Child()
 
+    login_spinner = Gtk.Template.Child()
+    server_url = Gtk.Template.Child()
+    service_username = Gtk.Template.Child()
     service_password = Gtk.Template.Child()
     service_password_show_toggle = Gtk.Template.Child()
 
@@ -85,11 +90,12 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self.track_progess.set_range(0, 1)
 
-        self.play_uri = None
-        self.token = None
+        self._play_uri = None
+        self._token = None
 
         self.populate_about()
-        self.player = None
+        self._player = None
+        self._euterpe = None
 
         self.squeezer.set_visible(False)
 
@@ -103,79 +109,123 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     def on_token_changed(self, entry):
         text = entry.get_text()
         if len(text) > 0:
-            self.token = text
+            self._token = text
         else:
-            self.token = None
+            self._token = None
 
     def on_track_changed(self, entry):
         text = entry.get_text()
         if len(text) > 0:
-            self.play_uri = text
+            self._play_uri = text
         else:
-            self.play_uri = None
+            self._play_uri = None
 
     def on_login_status_change(self, stack, event):
         show_squeezer = (self.logged_in_screen == stack.get_visible_child())
         self.squeezer.set_visible(show_squeezer)
 
     def on_login_button(self, buttn):
-        self.login_status_stack.set_visible_child(
-            self.logged_in_screen
-        )
+        remote_url = self.server_url.get_text().strip()
+
+        if remote_url == "":
+            print('Empty URL is not accepted')
+            return
+
+        if not remote_url.startswith("http://") and \
+                not remote_url.startswith("https://"):
+            remote_url = 'https://{}'.format(remote_url)
+
+        self.show_login_loading()
+
+        username = self.service_username.get_text().strip()
+        password = self.service_password.get_text()
+
+        if len(username) == 0:
+            username = None
+            password = None
+
+        try:
+            token = Euterpe.check_login_credentials(
+                remote_url,
+                username,
+                password,
+            )
+        except Exception as err:
+            print("error loggin in: {}".format(err))
+        else:
+            self._token = token
+            self._remote_address = remote_url
+
+            # Clean-up the username and password!
+            self.service_password.set_text("")
+            self.service_username.set_text("")
+
+            self.input_token.set_text(token)
+
+            self.login_status_stack.set_visible_child(
+                self.logged_in_screen
+            )
+        finally:
+            self.hide_login_loading()
 
     def on_logout_button(self, button):
+        self._token = None
+        self._remote_address = None
+
         self.login_status_stack.set_visible_child(
             self.login_scroll_view
         )
 
+    def show_login_loading(self):
+        self.login_spinner.props.active = True
+
+    def hide_login_loading(self):
+        self.login_spinner.props.active = False
+
     def on_headerbar_squeezer_notify(self, squeezer, event):
-	    child = squeezer.get_visible_child()
-	    self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
+        child = squeezer.get_visible_child()
+        self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
 
     def on_play_button_clicked(self, button):
         print("play button clicked")
 
-        if self.play_uri is None:
+        if self._play_uri is None:
             print("no play URI!")
             return
 
-        if self.token is None:
-            print("no token!")
-            return
-
-        if self.player is not None:
+        if self._player is not None:
             self._toggle_playing_state(button)
             return
 
-        self.player = Player(self.token, self.play_uri)
-        self.player.connect("state-changed",
+        self._player = Player(self._play_uri, self._token)
+        self._player.connect("state-changed",
                               self.on_player_state_changed)
-        self.player.play()
+        self._player.play()
 
     def on_seek(self, slider, scroll, value):
         if scroll != Gtk.ScrollType.JUMP:
             return False
 
-        if self.player is None:
+        if self._player is None:
             return
 
-        self.player.seek(value)
+        self._player.seek(value)
         return False
 
     def _toggle_playing_state(self, button):
         print("executing on toggle playing state button")
 
-        if self.player is None:
+        if self._player is None:
             # Nothing to do here, go away!
             return
 
-        if self.player.is_playing():
-            self.player.pause()
+        if self._player.is_playing():
+            self._player.pause()
         else:
-            self.player.play()
+            self._player.play()
 
     def on_player_state_changed(self, player):
-        if player is not self.player:
+        if player is not self._player:
             return
 
         if player.is_playing():
@@ -189,15 +239,15 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self.play_button.set_label("Play")
 
         if player.has_ended():
-            self.player = None
+            self._player = None
             self.change_progress(0)
 
     def _query_progress(self):
-        if self.player is None or not self.player.is_playing():
+        if self._player is None or not self._player.is_playing():
             print("stopping progress timeout callback")
             return False
 
-        progress = self.player.get_progress()
+        progress = self._player.get_progress()
         if progress is None:
             print("could not yet obtain progress")
             return True

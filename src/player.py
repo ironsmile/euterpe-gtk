@@ -24,19 +24,20 @@ class Player(GObject.Object):
         "state-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
-    def __init__(self, token, play_uri):
+    def __init__(self, play_uri, token):
         GObject.GObject.__init__(self)
 
         pipeline = Gst.Pipeline.new('mainpipeline')
 
-        src = Gst.ElementFactory.make("curlhttpsrc", "source");
+        src = Gst.ElementFactory.make("curlhttpsrc", "source")
         src.set_property('location', play_uri)
         src.set_property('user-agent', "Euterpe GTK Gstreamer")
         src.set_property('timeout', 30)
 
-        headers = Gst.Structure.new_empty('extra-headers')
-        headers.set_value("Authorization", "Bearer " + token)
-        src.set_property('extra-headers', headers)
+        if token is not None:
+            headers = Gst.Structure.new_empty('extra-headers')
+            headers.set_value("Authorization", "Bearer " + token)
+            src.set_property('extra-headers', headers)
 
         dec = Gst.ElementFactory.make("decodebin", "decoder")
 

@@ -44,6 +44,18 @@
             ]
         },
         {
+            "name": "requests",
+            "buildsystem": "simple",
+            "build-options": {
+                "build-args": [
+                    "--share=network"
+                ]
+            },
+            "build-commands": [
+                "pip3 install --prefix=/app --no-cache-dir requests"
+            ]
+        },
+        {
             "name" : "euterpe-gtk",
             "builddir" : true,
             "buildsystem" : "meson",
