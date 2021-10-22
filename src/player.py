@@ -15,8 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, GLib, Gst
-from threading import current_thread
+from gi.repository import GObject, Gst
+from .utils import emit_signal
 
 class Player(GObject.Object):
 
@@ -154,18 +154,3 @@ class Player(GObject.Object):
 
     def has_ended(self):
         return self.playbin is None
-
-
-def emit_signal(obj, signal, *args):
-    """
-        Emit signal
-        @param obj as GObject.Object
-        @param signal as str
-        @thread safe
-    """
-    if current_thread().getName() == "MainThread":
-        obj.emit(signal, *args)
-    else:
-        GLib.idle_add(obj.emit, signal, *args)
-
-

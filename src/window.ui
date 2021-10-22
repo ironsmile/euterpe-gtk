@@ -45,10 +45,27 @@
       </object>
     </child>
     <child>
-      <object class="GtkStack" id="login_status_stack">
+      <object class="GtkStack" id="app_stack">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="transition_type">crossfade</property>
+        <child>
+          <object class="GtkViewport" id="full_screen_loading">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkSpinner">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="active">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="name">page0</property>
+            <property name="title" translatable="yes">page0</property>
+          </packing>
+        </child>
         <child>
           <object class="GtkScrolledWindow" id="login_scroll_view">
             <property name="visible">True</property>
@@ -268,6 +285,9 @@
               </object>
             </child>
           </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
         </child>
         <child>
           <object class="GtkBox" id="logged_in_screen">
@@ -305,18 +325,6 @@
                             <property name="expand">False</property>
                             <property name="fill">True</property>
                             <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="input_token">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="placeholder_text" translatable="yes">Euterpe token...</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
@@ -586,7 +594,7 @@
           <packing>
             <property name="name">logged-in-page</property>
             <property name="title" translatable="yes">page0</property>
-            <property name="position">1</property>
+            <property name="position">2</property>
           </packing>
         </child>
       </object>
