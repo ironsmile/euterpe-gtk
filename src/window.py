@@ -74,7 +74,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self._play_uri = None
         self._token = None
 
-        self.populate_about()
         self._player = None
         self._euterpe = None
         self._remote_address = None
@@ -113,6 +112,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         )
 
         Gst.init(None)
+        self.populate_about()
 
         self.track_progess.set_range(0, 1)
 
