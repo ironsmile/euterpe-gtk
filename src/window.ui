@@ -304,7 +304,7 @@
                 <property name="vexpand">True</property>
                 <property name="transition_type">slide-left-right</property>
                 <child>
-                  <object class="GtkViewport">
+                  <object class="GtkViewport" id="home_screen">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="valign">center</property>
@@ -379,7 +379,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkLabel" id="browse_screen">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Browse</property>
@@ -392,10 +392,43 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkViewport" id="search_screen">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Search</property>
+                    <property name="shadow_type">none</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkSearchEntry" id="main_search_box">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="margin_top">5</property>
+                            <property name="primary_icon_name">edit-find-symbolic</property>
+                            <property name="primary_icon_activatable">False</property>
+                            <property name="primary_icon_sensitive">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkListBox">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                   <packing>
                     <property name="name">search</property>
@@ -405,7 +438,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkViewport">
+                  <object class="GtkViewport" id="about_screen">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">center</property>

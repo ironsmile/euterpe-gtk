@@ -68,6 +68,8 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     service_password = Gtk.Template.Child()
     service_password_show_toggle = Gtk.Template.Child()
 
+    main_search_box = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -92,18 +94,21 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             "clicked",
             self.on_play_button_clicked
         )
-        self.input_track_url.connect("changed",
-                                        self.on_track_changed)
-
-        self.track_progess.connect("change-value",
-                                self.on_seek)
-
-        self.app_stack.connect("notify::visible-child",
-                              self.on_login_status_change)
-
+        self.input_track_url.connect(
+            "changed",
+            self.on_track_changed
+        )
+        self.track_progess.connect(
+            "change-value",
+            self.on_seek
+        )
+        self.app_stack.connect(
+            "notify::visible-child",
+            self.on_login_status_change
+        )
         self.login_button.connect("clicked", self.on_login_button)
-
         self.logout_button.connect("clicked", self.on_logout_button)
+        self.main_search_box.connect("search-changed", self.on_search)
 
         self.service_password_show_toggle.bind_property(
             'active',
@@ -173,6 +178,64 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self._token = token
 
+    def change_progress(self, prog):
+        if prog < 0:
+            prog = 0
+        if prog > 1:
+            prog = 1
+        self.track_progess.set_value(prog)
+
+    def show_login_loading(self):
+        self.login_spinner.props.active = True
+
+    def hide_login_loading(self):
+        self.login_spinner.props.active = False
+
+    def _toggle_playing_state(self, button):
+        print("executing on toggle playing state button")
+
+        if self._player is None:
+            # Nothing to do here, go away!
+            return
+
+        if self._player.is_playing():
+            self._player.pause()
+        else:
+            self._player.play()
+
+    def _query_progress(self):
+        if self._player is None or not self._player.is_playing():
+            print("stopping progress timeout callback")
+            return False
+
+        progress = self._player.get_progress()
+        if progress is None:
+            print("could not yet obtain progress")
+            return True
+
+        self.change_progress(progress)
+        return True
+
+    def populate_about(self):
+        self.about_python_version.set_label('{}.{}.{}'.format(
+            sys.version_info.major,
+            sys.version_info.minor,
+            sys.version_info.micro,
+        ))
+
+        gstVer = Gst.version()
+        self.about_gstreamer_version.set_label('{}.{}.{}'.format(
+            gstVer.major,
+            gstVer.minor,
+            gstVer.micro
+        ))
+
+        self.about_gtk_version.set_label('{}.{}.{}'.format(
+            Gtk.get_major_version(),
+            Gtk.get_minor_version(),
+            Gtk.get_micro_version()
+        ))
+
     def on_state_restored(self, _):
         '''
             At this point the state of the application has been restored.
@@ -189,13 +252,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             screen = self.logged_in_screen
 
         self.app_stack.set_visible_child(screen)
-
-    def change_progress(self, prog):
-        if prog < 0:
-            prog = 0
-        if prog > 1:
-            prog = 1
-        self.track_progess.set_value(prog)
 
     def on_track_changed(self, entry):
         text = entry.get_text()
@@ -268,12 +324,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self.login_scroll_view
         )
 
-    def show_login_loading(self):
-        self.login_spinner.props.active = True
-
-    def hide_login_loading(self):
-        self.login_spinner.props.active = False
-
     def on_headerbar_squeezer_notify(self, squeezer, event):
         child = squeezer.get_visible_child()
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
@@ -291,7 +341,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self._player = Player(self._play_uri, self._token)
         self._player.connect("state-changed",
-                              self.on_player_state_changed)
+                             self.on_player_state_changed)
         self._player.play()
 
     def on_seek(self, slider, scroll, value):
@@ -303,18 +353,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self._player.seek(value)
         return False
-
-    def _toggle_playing_state(self, button):
-        print("executing on toggle playing state button")
-
-        if self._player is None:
-            # Nothing to do here, go away!
-            return
-
-        if self._player.is_playing():
-            self._player.pause()
-        else:
-            self._player.play()
 
     def on_player_state_changed(self, player):
         if player is not self._player:
@@ -334,35 +372,9 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self._player = None
             self.change_progress(0)
 
-    def _query_progress(self):
-        if self._player is None or not self._player.is_playing():
-            print("stopping progress timeout callback")
-            return False
+    def on_search(self, search_entry):
+        search_term = search_entry.get_text()
+        if search_term == "":
+            return
 
-        progress = self._player.get_progress()
-        if progress is None:
-            print("could not yet obtain progress")
-            return True
-
-        self.change_progress(progress)
-        return True
-
-    def populate_about(self):
-        self.about_python_version.set_label('{}.{}.{}'.format(
-            sys.version_info.major,
-            sys.version_info.minor,
-            sys.version_info.micro,
-        ))
-
-        gstVer = Gst.version()
-        self.about_gstreamer_version.set_label('{}.{}.{}'.format(
-            gstVer.major,
-            gstVer.minor,
-            gstVer.micro
-        ))
-
-        self.about_gtk_version.set_label('{}.{}.{}'.format(
-            Gtk.get_major_version(),
-            Gtk.get_minor_version(),
-            Gtk.get_micro_version()
-        ))
+        print("searching for stuff: {}".format(search_term))
