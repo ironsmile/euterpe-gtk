@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 import json
 import urllib
 from .http import Request
@@ -33,18 +34,17 @@ class Euterpe:
         '''
             This method checks whether the used address,
             username and password are usable for connecting
-            to an Euterpe instance. On success it returns a
-            token if authentication is required or None if
-            it is not. If something is wrong then it raises
-            an exception.
+            to an Euterpe instance.
         '''
 
         try:
             if username is None:
                 Euterpe.check_unauthenticated(address, callback, *args)
+                return
 
             Euterpe.get_token(address, username, password, callback, *args)
         except Exception:
+            sys.excepthook(*sys.exc_info())
             callback(None, None, *args)
 
     @staticmethod

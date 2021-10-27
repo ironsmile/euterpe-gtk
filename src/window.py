@@ -63,6 +63,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     logout_button = Gtk.Template.Child()
 
     login_spinner = Gtk.Template.Child()
+    login_failed_indicator = Gtk.Template.Child()
     server_url = Gtk.Template.Child()
     service_username = Gtk.Template.Child()
     service_password = Gtk.Template.Child()
@@ -115,6 +116,16 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self.service_password, 'visibility',
             GObject.BindingFlags.SYNC_CREATE
         )
+
+        for obj in [
+            self.server_url, self.login_button, self.service_username,
+            self.service_password, self.service_password_show_toggle,
+        ]:
+            self.login_spinner.bind_property(
+                'active',
+                obj, 'sensitive',
+                GObject.BindingFlags.INVERT_BOOLEAN
+            )
 
         Gst.init(None)
         self.populate_about()
@@ -299,8 +310,10 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.hide_login_loading()
 
         if status != 200:
-            self.failed_indicator.show()
-            print("Authentication unsuccessful")
+            self.login_failed_indicator.show()
+            print("Authentication unsuccessful. HTTP status code: {}".format(
+                status
+            ))
             return
 
         self.store_remote_address(remote_url)
@@ -313,23 +326,17 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.service_password.set_text("")
         self.service_username.set_text("")
 
-        if data is not None:
-            try:
-                response = json.loads(data)
-            except Exception as err:
-                print("Wrong JSON in response for authentication: {}".format(
-                    err
-                ))
-                self.failed_indicator.show()
-                return
+        try:
+            response = json.loads(data)
+        except Exception as err:
+            print("Wrong JSON in response for authentication: {}".format(
+                err
+            ))
+            self.login_failed_indicator.show()
+            return
 
-            if 'token' not in response:
-                print('No token in server response')
-                self.failed_indicator.show()
-                return
-
+        if 'token' in response:
             token = response['token']
-
             self._token = token
             keyring.set_password("euterpe", "token", token)
 

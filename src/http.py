@@ -78,7 +78,6 @@ class Request(object):
 
     def _call_callback(self, status, data):
         try:
-            print("self._args:", self._args)
             self._callback(status, data, *(self._args))
         except Exception:
             sys.excepthook(*sys.exc_info())
