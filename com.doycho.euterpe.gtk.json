@@ -52,7 +52,7 @@
                 ]
             },
             "build-commands": [
-                "pip3 install --prefix=/app --no-cache-dir requests keyring"
+                "pip3 install --prefix=/app --no-cache-dir keyring"
             ]
         },
         {

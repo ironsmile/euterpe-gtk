@@ -19,6 +19,7 @@ import sys
 import gi
 import threading
 import keyring
+import json
 
 gi.require_version('Handy', '1')
 gi.require_version('Gst', '1.0')
@@ -28,7 +29,6 @@ from gi.repository import GObject, GLib, Gtk, Handy, Gst
 from .player import Player
 from .service import Euterpe
 from .utils import emit_signal, config_file_name
-
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
@@ -83,7 +83,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.squeezer.set_visible(False)
 
         self.connect("show", self.on_activate)
-        self.connect("state-restored", self.on_state_restored)
+        self.connect(SIGNAL_STATE_RESTORED, self.on_state_restored)
 
     def on_activate(self, *args):
         self.squeezer.connect(
@@ -168,6 +168,9 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             return
 
         self._remote_address = address
+
+        # TODO: remove the next line, it is here for debugging
+        self.input_track_url.set_text(self._remote_address + '/v1/file/')
 
     def _restore_token(self):
         token = keyring.get_password("euterpe", "token")
@@ -284,34 +287,55 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             username = None
             password = None
 
-        try:
-            token = Euterpe.check_login_credentials(
-                remote_url,
-                username,
-                password,
-            )
-        except Exception as err:
-            print("error loggin in: {}".format(err))
-        else:
+        Euterpe.check_login_credentials(
+            remote_url,
+            self._on_login_request_response,
+            username,
+            password,
+            remote_url,
+        )
+
+    def _on_login_request_response(self, status, data, remote_url):
+        self.hide_login_loading()
+
+        if status != 200:
+            self.failed_indicator.show()
+            print("Authentication unsuccessful")
+            return
+
+        self.store_remote_address(remote_url)
+        keyring.set_password("euterpe", "token", "")
+
+        # TODO: remove the next line, it is here for debugging
+        self.input_track_url.set_text(remote_url + '/v1/file/')
+
+        # Clean-up the username and password!
+        self.service_password.set_text("")
+        self.service_username.set_text("")
+
+        if data is not None:
+            try:
+                response = json.loads(data)
+            except Exception as err:
+                print("Wrong JSON in response for authentication: {}".format(
+                    err
+                ))
+                self.failed_indicator.show()
+                return
+
+            if 'token' not in response:
+                print('No token in server response')
+                self.failed_indicator.show()
+                return
+
+            token = response['token']
+
             self._token = token
-            self._remote_address = remote_url
+            keyring.set_password("euterpe", "token", token)
 
-            if token is not None:
-                keyring.set_password("euterpe", "token", token)
-            else:
-                keyring.set_password("euterpe", "token", "")
-
-            self.store_remote_address(remote_url)
-
-            # Clean-up the username and password!
-            self.service_password.set_text("")
-            self.service_username.set_text("")
-
-            self.app_stack.set_visible_child(
-                self.logged_in_screen
-            )
-        finally:
-            self.hide_login_loading()
+        self.app_stack.set_visible_child(
+            self.logged_in_screen
+        )
 
     def on_logout_button(self, button):
         self._token = None

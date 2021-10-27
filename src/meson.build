@@ -32,6 +32,7 @@ euterpe_gtk_sources = [
   'player.py',
   'service.py',
   'utils.py',
+  'http.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)
