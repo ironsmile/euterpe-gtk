@@ -26,17 +26,18 @@ from .window import EuterpeGtkWindow
 
 
 class Application(Gtk.Application):
-    def __init__(self):
+    def __init__(self, version):
         super().__init__(application_id='com.doycho.euterpe.gtk',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
+        self._version = version
 
     def do_activate(self):
         win = self.props.active_window
         if not win:
-            win = EuterpeGtkWindow(application=self)
+            win = EuterpeGtkWindow(self._version, application=self)
         win.present()
 
 
 def main(version):
-    app = Application()
+    app = Application(version)
     return app.run(sys.argv)

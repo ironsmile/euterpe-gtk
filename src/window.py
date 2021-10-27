@@ -51,6 +51,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     about_gtk_version = Gtk.Template.Child()
     about_gstreamer_version = Gtk.Template.Child()
     about_python_version = Gtk.Template.Child()
+    about_euterpe_version = Gtk.Template.Child()
 
     input_track_url = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
@@ -71,9 +72,10 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
     main_search_box = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    def __init__(self, appVersion, **kwargs):
         super().__init__(**kwargs)
 
+        self._appVersion = appVersion
         self._play_uri = None
         self._token = None
 
@@ -249,6 +251,8 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             Gtk.get_minor_version(),
             Gtk.get_micro_version()
         ))
+
+        self.about_euterpe_version.set_label(self._appVersion)
 
     def on_state_restored(self, _):
         '''
