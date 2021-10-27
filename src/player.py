@@ -67,7 +67,7 @@ class Player(GObject.Object):
 
     def _on_newpad(self, dec, pad, audiosink):
         print("newpad called")
-        #TODO: check caps!
+        # TODO: check caps!
         audiopad = audiosink.get_static_pad("sink")
         pad.link(audiopad)
 
@@ -98,7 +98,7 @@ class Player(GObject.Object):
             print("could not query playbin position in ns")
             return None
 
-        return ns/dur
+        return ns / dur
 
     def seek(self, position):
         '''
@@ -120,10 +120,11 @@ class Player(GObject.Object):
         seek_pos = int(dur * val)
         print("seeking to", val, seek_pos)
 
-        seeked = self.playbin.seek_simple(Gst.Format.TIME,
-                                      Gst.SeekFlags.FLUSH |
-                                      Gst.SeekFlags.KEY_UNIT,
-                                      seek_pos)
+        seeked = self.playbin.seek_simple(
+            Gst.Format.TIME,
+            Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+            seek_pos
+        )
         if not seeked:
             print("seeking was not succesful")
 
