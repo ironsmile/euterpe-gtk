@@ -33,6 +33,7 @@ euterpe_gtk_sources = [
   'service.py',
   'utils.py',
   'http.py',
+  'track.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

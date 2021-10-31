@@ -35,6 +35,10 @@ class Euterpe:
             This method checks whether the used address,
             username and password are usable for connecting
             to an Euterpe instance.
+
+            It calls callback(<status>, <data>, *args) ad its
+            end. Where <status> is the HTTP status of the auth
+            request response and <data> is the response body.
         '''
 
         try:
@@ -85,6 +89,41 @@ class Euterpe:
     def __init__(self, address, token=None):
         self._remote_address = address
         self._token = token
+
+    def search(self, query, callback):
+        cb = JSONBodyCallback(callback)
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_SEARCH)
+        address = "{}?q={}".format(address, urllib.parse.quote(query, safe=''))
+        req = self._create_request(address, cb)
+        req.get(query)
+
+    def _create_request(self, address, callback):
+        req = Request(address, callback)
+        if self._token is not None:
+            req.set_header("Authorization", "Bearer {}".format(self._token))
+        return req
+
+    def get_track_url(self, trackID):
+        return Euterpe.build_url(
+            self._remote_address,
+            ENDPOINT_FILE.format(trackID),
+        )
+
+class JSONBodyCallback(object):
+
+    def __init__(self, callback):
+        self._callback = callback
+
+    def __call__(self, status, body, *args):
+        try:
+            responseJSON = json.loads(body)
+        except Exception as err:
+            print("Failed to parse JSON response: {}".format(
+                err
+            ))
+            self._callback(status, None, *args)
+        else:
+            self._callback(status, responseJSON, *args)
 
 
 ENDPOINT_LOGIN = '/v1/login/token/'

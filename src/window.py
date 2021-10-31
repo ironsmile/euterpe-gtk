@@ -29,12 +29,13 @@ from gi.repository import GObject, GLib, Gtk, Handy, Gst
 from .player import Player
 from .service import Euterpe
 from .utils import emit_signal, config_file_name
+from .track import EuterpeTrack
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
 
 
-@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/window.ui')
+@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/window.ui')
 class EuterpeGtkWindow(Gtk.ApplicationWindow):
     __gtype_name__ = 'EuterpeGtkWindow'
 
@@ -71,6 +72,15 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     service_password_show_toggle = Gtk.Template.Child()
 
     main_search_box = Gtk.Template.Child()
+
+    pause_button_icon = Gtk.Template.Child()
+    play_button_icon = Gtk.Template.Child()
+
+    search_results_container = Gtk.Template.Child()
+    search_result_viewport = Gtk.Template.Child()
+    search_loading_indicator = Gtk.Template.Child()
+    search_empty_content = Gtk.Template.Child()
+    search_result_list = Gtk.Template.Child()
 
     def __init__(self, appVersion, **kwargs):
         super().__init__(**kwargs)
@@ -119,6 +129,12 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             GObject.BindingFlags.SYNC_CREATE
         )
 
+        self.search_loading_indicator.bind_property(
+            'active',
+            self.search_results_container, 'visible',
+            GObject.BindingFlags.INVERT_BOOLEAN
+        )
+
         for obj in [
             self.server_url, self.login_button, self.service_username,
             self.service_password, self.service_password_show_toggle,
@@ -151,6 +167,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         try:
             self._restore_address()
             self._restore_token()
+            self._euterpe = Euterpe(self._remote_address, self._token)
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
@@ -322,6 +339,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self.store_remote_address(remote_url)
         keyring.set_password("euterpe", "token", "")
+        self._remote_address = remote_url
 
         # TODO: remove the next line, it is here for debugging
         self.input_track_url.set_text(remote_url + '/v1/file/')
@@ -344,6 +362,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self._token = token
             keyring.set_password("euterpe", "token", token)
 
+        self._euterpe = Euterpe(self._remote_address, self._token)
         self.app_stack.set_visible_child(
             self.logged_in_screen
         )
@@ -379,6 +398,20 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
                              self.on_player_state_changed)
         self._player.play()
 
+    def on_track_set(self, trackObj):
+        if self._player is not None:
+            self._player.stop()
+            self._player = None
+
+        track = trackObj.get_track()
+
+        self._play_uri = self._euterpe.get_track_url(track["id"])
+
+        self._player = Player(self._play_uri, self._token)
+        self._player.connect("state-changed",
+                             self.on_player_state_changed)
+        self._player.play()
+
     def on_seek(self, slider, scroll, value):
         if scroll != Gtk.ScrollType.JUMP:
             return False
@@ -395,6 +428,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         if player.is_playing():
             self.play_button.set_label("Pause")
+            self.play_button.set_image(self.pause_button_icon)
             GLib.timeout_add(
                 priority=GLib.PRIORITY_DEFAULT,
                 function=self._query_progress,
@@ -402,6 +436,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             )
         else:
             self.play_button.set_label("Play")
+            self.play_button.set_image(self.play_button_icon)
 
         if player.has_ended():
             self._player = None
@@ -410,6 +445,50 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     def on_search(self, search_entry):
         search_term = search_entry.get_text()
         if search_term == "":
+            self.search_result_viewport.foreach(
+                self.search_result_viewport.remove
+            )
+            self.search_result_viewport.add(
+                self.search_empty_content,
+            )
             return
 
-        print("searching for stuff: {}".format(search_term))
+        print("searching for stuff: '{}', type: {}".format(
+            search_term,
+            type(search_term)
+        ))
+        self.search_loading_indicator.start()
+        self.search_loading_indicator.set_visible(True)
+        self._euterpe.search(search_term, self._on_search_result)
+
+    def _on_search_result(self, status, body, query):
+        self.search_loading_indicator.stop()
+        self.search_loading_indicator.set_visible(False)
+
+        self.search_result_viewport.foreach(self.search_result_viewport.remove)
+        self.search_result_list.foreach(self.search_result_list.remove)
+
+        if status != 200:
+            label = Gtk.Label.new()
+            label.set_text("Error searching. HTTP response code {}.".format(
+                status
+            ))
+            self.search_result_viewport.add(label)
+            label.show()
+            return
+
+        if len(body) == 0:
+            label = Gtk.Label.new()
+            label.set_text("Nothing found for '{}'.".format(query))
+            self.search_result_viewport.add(label)
+            label.show()
+            return
+
+        for track in body:
+            trObj = EuterpeTrack(track)
+            self.search_result_list.add(trObj)
+            trObj.connect("play-button-clicked", self.on_track_set)
+            trObj.show()
+
+        self.search_result_viewport.add(self.search_result_list)
+        self.search_result_list.show()

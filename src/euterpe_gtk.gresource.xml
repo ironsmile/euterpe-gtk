@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gresources>
   <gresource prefix="/com/doycho/euterpe/gtk">
-    <file>window.ui</file>
+    <file>ui/window.ui</file>
+    <file>ui/track.ui</file>
     <file>assets/icon-128.png</file>
   </gresource>
 </gresources>
