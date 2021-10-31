@@ -121,7 +121,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         )
         self.login_button.connect("clicked", self.on_login_button)
         self.logout_button.connect("clicked", self.on_logout_button)
-        self.main_search_box.connect("search-changed", self.on_search)
+        self.main_search_box.connect("activate", self.on_search_changed)
 
         self.service_password_show_toggle.bind_property(
             'active',
@@ -442,7 +442,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self._player = None
             self.change_progress(0)
 
-    def on_search(self, search_entry):
+    def on_search_changed(self, search_entry):
         search_term = search_entry.get_text()
         if search_term == "":
             self.search_result_viewport.foreach(
@@ -457,6 +457,14 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             search_term,
             type(search_term)
         ))
+
+        self.search_for(search_term)
+
+    def search_for(self, search_term):
+        if search_term is None:
+            print("received None instead of a search term, aborting")
+            return
+
         self.search_loading_indicator.start()
         self.search_loading_indicator.set_visible(True)
         self._euterpe.search(search_term, self._on_search_result)
