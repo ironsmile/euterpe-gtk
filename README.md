@@ -6,9 +6,12 @@ It is developed with mobile Linux environments in mind. Such as
 [Plasma Mobile](https://www.plasma-mobile.org/). But it is completely usable as a normal
 desktop application as well.
 
+[![Screenshot](repo/alpha-screenshots.png)](repo/alpha-screenshots.png)
+
 ## Project Status
 
-Still in very early development, don't waste much time with it!
+Still in very early development, don't waste much time with it! But now it could play
+some music!
 
 ## Building From Source
 
@@ -17,4 +20,3 @@ meson . _build --prefix=/usr
 ninja -C _build
 sudo ninja -C _build install
 ```
-
