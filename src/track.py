@@ -16,6 +16,7 @@ class EuterpeTrack(Gtk.Viewport):
     track_name = Gtk.Template.Child()
     track_info = Gtk.Template.Child()
     track_play_button = Gtk.Template.Child()
+    track_duration = Gtk.Template.Child()
 
     def __init__(self, track, **kwargs):
         super().__init__(**kwargs)
@@ -28,8 +29,24 @@ class EuterpeTrack(Gtk.Viewport):
                 track.get("album", "<N/A>"),
             )
         )
+        ms = track.get("duration", None)
+        self._set_duration(ms)
 
         self.track_play_button.connect("clicked", self._on_play_button)
+
+    def _format_duration(self, milliseconds):
+        '''
+            Accepts duration in milliseconds and returns a string
+            representation in the format XX:YY.
+        '''
+        minutes, seconds = divmod(milliseconds / 1000, 60)
+        return "{:0>2}:{:0>2}".format(int(minutes), int(seconds))
+
+    def _set_duration(self, ms):
+        duration = "n/a"
+        if ms is not None:
+            duration = self._format_duration(ms)
+        self.track_duration.set_label(duration)
 
     def _on_play_button(self, pb):
         emit_signal(self, PLAY_BUTTON_CLICKED)
