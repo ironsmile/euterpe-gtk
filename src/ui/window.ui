@@ -728,6 +728,19 @@
     <property name="spacing">10</property>
     <property name="baseline_position">top</property>
     <child>
+      <object class="GtkButton" id="play_all_search_results">
+        <property name="label" translatable="yes">Play All</property>
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
+        <property name="receives_default">True</property>
+      </object>
+      <packing>
+        <property name="expand">False</property>
+        <property name="fill">True</property>
+        <property name="position">0</property>
+      </packing>
+    </child>
+    <child>
       <placeholder/>
     </child>
   </object>

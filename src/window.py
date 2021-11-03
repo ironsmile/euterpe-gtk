@@ -80,6 +80,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     search_loading_indicator = Gtk.Template.Child()
     search_empty_content = Gtk.Template.Child()
     search_result_list = Gtk.Template.Child()
+    play_all_search_results = Gtk.Template.Child()
 
     def __init__(self, appVersion, **kwargs):
         super().__init__(**kwargs)
@@ -116,6 +117,10 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.login_button.connect("clicked", self.on_login_button)
         self.logout_button.connect("clicked", self.on_logout_button)
         self.main_search_box.connect("activate", self.on_search_changed)
+        self.play_all_search_results.connect(
+            "clicked",
+            self.on_play_all_search_results
+        )
 
         self.service_password_show_toggle.bind_property(
             'active',
@@ -128,6 +133,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self.search_results_container, 'visible',
             GObject.BindingFlags.INVERT_BOOLEAN
         )
+
 
         for obj in [
             self.server_url, self.login_button, self.service_username,
@@ -456,6 +462,9 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             label.show()
             return
 
+        self._search_results = body
+        self.search_result_list.add(self.play_all_search_results)
+
         for track in body:
             trObj = EuterpeTrack(track)
             self.search_result_list.add(trObj)
@@ -464,3 +473,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self.search_result_viewport.add(self.search_result_list)
         self.search_result_list.show()
+
+    def on_play_all_search_results(self, btn):
+        self._player.set_playlist(self._search_results)
+        self._player.play()
