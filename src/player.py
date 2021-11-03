@@ -15,17 +15,58 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gst
+from gi.repository import GObject, GLib, Gst
 from .utils import emit_signal
+from functools import partial
+
+SIGNAL_PROGRESS = "progress"
+SIGNAL_STATE_CHANGED = "state-changed"
+SIGNAL_TRACK_ENDED = "track-ended"
+
 
 class Player(GObject.Object):
 
     __gsignals__ = {
-        "state-changed": (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_STATE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_TRACK_ENDED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_PROGRESS: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
     }
 
-    def __init__(self, play_uri, token):
+    def __init__(self, euterpeService):
         GObject.GObject.__init__(self)
+        self._playlist = []
+        self._current_playlist_index = None
+        self._playbin = None
+        self._progress_id = 0
+        self._service = euterpeService
+
+    def set_playlist(self, playlist):
+        self.stop()
+        self._playlist = playlist
+        if len(playlist) > 0:
+            self._current_playlist_index = 0
+
+    def _load_from_current_index(self):
+        '''
+            Moves forward the current index if there is one. Stops the
+            currently playing track if any and then creates a new playbin.
+        '''
+        pl_len = len(self._playlist)
+
+        if pl_len == 0:
+            return
+
+        if self._current_playlist_index >= pl_len:
+            self._current_playlist_index = 0
+
+        track = self._playlist[self._current_playlist_index]
+        track_url = self._service.get_track_url(track["id"])
+        token = self._service.get_token()
+
+        self._setup_new_playbin(track_url, token)
+
+    def _setup_new_playbin(self, play_uri, token):
+        self.stop()
 
         pipeline = Gst.Pipeline.new('mainpipeline')
 
@@ -63,7 +104,7 @@ class Player(GObject.Object):
         bus.connect("message::eos", self._on_bus_eos)
         bus.connect("message::stream-start", self._on_stream_start)
 
-        self.playbin = pipeline
+        self._playbin = pipeline
 
     def _on_newpad(self, dec, pad, audiosink):
         print("newpad called")
@@ -79,6 +120,7 @@ class Player(GObject.Object):
     def _on_bus_eos(self, bus, message):
         print("playbin message: EOS")
         self.stop()
+        self.next()
 
     def _on_stream_start(self, bus, message):
         print("playbin stream_start", message)
@@ -88,12 +130,12 @@ class Player(GObject.Object):
             Returns the current playback progress in [0:1] range.
             May be None when progress could not be obtained.
         '''
-        (ok, dur) = self.playbin.query_duration(Gst.Format.TIME)
+        (ok, dur) = self._playbin.query_duration(Gst.Format.TIME)
         if not ok:
             print("could not query playbin duration in ns")
             return None
 
-        (ok, ns) = self.playbin.query_position(Gst.Format.TIME)
+        (ok, ns) = self._playbin.query_position(Gst.Format.TIME)
         if not ok:
             print("could not query playbin position in ns")
             return None
@@ -112,7 +154,7 @@ class Player(GObject.Object):
         if position < 0:
             val = 0
 
-        (ok, dur) = self.playbin.query_duration(Gst.Format.TIME)
+        (ok, dur) = self._playbin.query_duration(Gst.Format.TIME)
         if not ok:
             print("could not query playbin duration in ns")
             return
@@ -120,7 +162,7 @@ class Player(GObject.Object):
         seek_pos = int(dur * val)
         print("seeking to", val, seek_pos)
 
-        seeked = self.playbin.seek_simple(
+        seeked = self._playbin.seek_simple(
             Gst.Format.TIME,
             Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
             seek_pos
@@ -129,23 +171,73 @@ class Player(GObject.Object):
             print("seeking was not succesful")
 
     def stop(self):
-        self.playbin.set_state(Gst.State.NULL)
-        self.playbin = None
-        emit_signal(self, "state-changed")
+        if self._playbin is None:
+            return
+
+        self._playbin.set_state(Gst.State.NULL)
+        self._playbin = None
+        emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def play(self):
-        self.playbin.set_state(Gst.State.PLAYING)
-        emit_signal(self, "state-changed")
+        if self._playbin is None:
+            self._load_from_current_index()
 
-    def pause(self):
-        self.playbin.set_state(Gst.State.PAUSED)
-        emit_signal(self, "state-changed")
+        if self._playbin is None:
+            print("trying to play when there are not racks in the playlist")
+            return
 
-    def is_playing(self):
-        if self.playbin is None:
+        self._playbin.set_state(Gst.State.PLAYING)
+        emit_signal(self, SIGNAL_STATE_CHANGED)
+
+        self._progress_id += 1
+
+        GLib.timeout_add(
+            priority=GLib.PRIORITY_DEFAULT,
+            function=partial(self._query_progress, self._progress_id),
+            interval=1000
+        )
+
+    def _query_progress(self, progress_id):
+        if self._playbin is None or not self.is_playing():
+            print("no track playing, stopping progress timeout callback")
             return False
 
-        ok, state, pending = self.playbin.get_state(Gst.CLOCK_TIME_NONE)
+        if self._progress_id != progress_id:
+            print("progress ID changed, stopping progress timeout callback")
+            return False
+
+        progress = self.get_progress()
+        if progress is None:
+            print("could not yet obtain progress")
+            return True
+
+        emit_signal(self, SIGNAL_PROGRESS, progress)
+        return True
+
+    def pause(self):
+        if self._playbin is None:
+            print("trying to pause when there is no _playbin created")
+            return
+
+        self._playbin.set_state(Gst.State.PAUSED)
+        emit_signal(self, SIGNAL_STATE_CHANGED)
+
+    def next(self):
+        ind = self._current_playlist_index
+        ind += 1
+        if ind >= len(self._playlist):
+            print("trying to play track beyond the playlist length")
+            return
+
+        self._current_playlist_index = ind
+        self._load_from_current_index()
+        self.play()
+
+    def is_playing(self):
+        if self._playbin is None:
+            return False
+
+        ok, state, pending = self._playbin.get_state(Gst.CLOCK_TIME_NONE)
         if ok == Gst.StateChangeReturn.ASYNC:
             return pending == Gst.State.PLAYING
         elif ok == Gst.StateChangeReturn.SUCCESS:
@@ -154,4 +246,4 @@ class Player(GObject.Object):
             return False
 
     def has_ended(self):
-        return self.playbin is None
+        return self._playbin is None

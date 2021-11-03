@@ -54,7 +54,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     about_python_version = Gtk.Template.Child()
     about_euterpe_version = Gtk.Template.Child()
 
-    input_track_url = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
     track_progess = Gtk.Template.Child()
 
@@ -86,7 +85,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         super().__init__(**kwargs)
 
         self._appVersion = appVersion
-        self._play_uri = None
         self._token = None
 
         self._player = None
@@ -106,10 +104,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         self.play_button.connect(
             "clicked",
             self.on_play_button_clicked
-        )
-        self.input_track_url.connect(
-            "changed",
-            self.on_track_changed
         )
         self.track_progess.connect(
             "change-value",
@@ -159,6 +153,12 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         t.daemon = True
         t.start()
 
+    def connect_player_signals(self):
+        self._player.connect("state-changed",
+                             self.on_player_state_changed)
+        self._player.connect("progress",
+                             self.on_track_progress_changed)
+
     def restore_state(self):
         '''
             Restores the application state from the last time it was
@@ -168,6 +168,8 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self._restore_address()
             self._restore_token()
             self._euterpe = Euterpe(self._remote_address, self._token)
+            self._player = Player(self._euterpe)
+            self.connect_player_signals()
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
@@ -198,9 +200,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             return
 
         self._remote_address = address
-
-        # TODO: remove the next line, it is here for debugging
-        self.input_track_url.set_text(self._remote_address + '/v1/file/')
 
     def _restore_token(self):
         token = keyring.get_password("euterpe", "token")
@@ -236,18 +235,8 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         else:
             self._player.play()
 
-    def _query_progress(self):
-        if self._player is None or not self._player.is_playing():
-            print("stopping progress timeout callback")
-            return False
-
-        progress = self._player.get_progress()
-        if progress is None:
-            print("could not yet obtain progress")
-            return True
-
+    def on_track_progress_changed(self, player, progress):
         self.change_progress(progress)
-        return True
 
     def populate_about(self):
         self.about_python_version.set_label('{}.{}.{}'.format(
@@ -287,13 +276,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             screen = self.logged_in_screen
 
         self.app_stack.set_visible_child(screen)
-
-    def on_track_changed(self, entry):
-        text = entry.get_text()
-        if len(text) > 0:
-            self._play_uri = text
-        else:
-            self._play_uri = None
 
     def on_login_status_change(self, stack, event):
         show_squeezer = (self.logged_in_screen == stack.get_visible_child())
@@ -341,9 +323,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         keyring.set_password("euterpe", "token", "")
         self._remote_address = remote_url
 
-        # TODO: remove the next line, it is here for debugging
-        self.input_track_url.set_text(remote_url + '/v1/file/')
-
         # Clean-up the username and password!
         self.service_password.set_text("")
         self.service_username.set_text("")
@@ -363,6 +342,8 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             keyring.set_password("euterpe", "token", token)
 
         self._euterpe = Euterpe(self._remote_address, self._token)
+        self._player = Player(self._euterpe)
+        self.connect_player_signals()
         self.app_stack.set_visible_child(
             self.logged_in_screen
         )
@@ -385,31 +366,20 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     def on_play_button_clicked(self, button):
         print("play button clicked")
 
-        if self._play_uri is None:
-            print("no play URI!")
+        if self._player is None:
+            print("no player is set!")
             return
 
-        if self._player is not None:
-            self._toggle_playing_state(button)
-            return
-
-        self._player = Player(self._play_uri, self._token)
-        self._player.connect("state-changed",
-                             self.on_player_state_changed)
-        self._player.play()
+        self._toggle_playing_state(button)
 
     def on_track_set(self, trackObj):
-        if self._player is not None:
-            self._player.stop()
-            self._player = None
+        if self._player is None:
+            print("trying to set track when there is no player active")
+            return
 
         track = trackObj.get_track()
 
-        self._play_uri = self._euterpe.get_track_url(track["id"])
-
-        self._player = Player(self._play_uri, self._token)
-        self._player.connect("state-changed",
-                             self.on_player_state_changed)
+        self._player.set_playlist([track])
         self._player.play()
 
     def on_seek(self, slider, scroll, value):
@@ -429,17 +399,11 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
         if player.is_playing():
             self.play_button.set_label("Pause")
             self.play_button.set_image(self.pause_button_icon)
-            GLib.timeout_add(
-                priority=GLib.PRIORITY_DEFAULT,
-                function=self._query_progress,
-                interval=1000
-            )
         else:
             self.play_button.set_label("Play")
             self.play_button.set_image(self.play_button_icon)
 
         if player.has_ended():
-            self._player = None
             self.change_progress(0)
 
     def on_search_changed(self, search_entry):

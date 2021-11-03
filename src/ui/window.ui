@@ -327,18 +327,6 @@
                         <property name="orientation">vertical</property>
                         <property name="spacing">10</property>
                         <child>
-                          <object class="GtkEntry" id="input_track_url">
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="placeholder_text" translatable="yes">Track URL...</property>
-                          </object>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                        <child>
                           <object class="GtkScale" id="track_progess">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>

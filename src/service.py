@@ -46,7 +46,13 @@ class Euterpe:
                 Euterpe.check_unauthenticated(address, callback, *args)
                 return
 
-            Euterpe.get_token(address, username, password, callback, *args)
+            Euterpe.check_authenticated(
+                address,
+                username,
+                password,
+                callback,
+                *args,
+            )
         except Exception:
             sys.excepthook(*sys.exc_info())
             callback(None, None, *args)
@@ -58,7 +64,7 @@ class Euterpe:
         req.get(*args)
 
     @staticmethod
-    def get_token(address, username, password, callback, *args):
+    def check_authenticated(address, username, password, callback, *args):
         body = {
             "username": username,
             "password": password,
@@ -108,6 +114,9 @@ class Euterpe:
             self._remote_address,
             ENDPOINT_FILE.format(trackID),
         )
+
+    def get_token(self):
+        return self._token
 
 class JSONBodyCallback(object):
 
