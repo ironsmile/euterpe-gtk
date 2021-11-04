@@ -483,6 +483,7 @@
                                 <property name="focus_on_click">False</property>
                                 <property name="receives_default">True</property>
                                 <property name="image">next_button_image</property>
+                                <property name="image_position">right</property>
                                 <property name="always_show_image">True</property>
                               </object>
                               <packing>
