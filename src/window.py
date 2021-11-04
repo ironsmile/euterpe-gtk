@@ -54,7 +54,13 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     about_python_version = Gtk.Template.Child()
     about_euterpe_version = Gtk.Template.Child()
 
+    home_track_name = Gtk.Template.Child()
+    home_artist_name = Gtk.Template.Child()
+    home_album_name = Gtk.Template.Child()
+
     play_button = Gtk.Template.Child()
+    next_button = Gtk.Template.Child()
+    prev_button = Gtk.Template.Child()
     track_progess = Gtk.Template.Child()
 
     logged_in_screen = Gtk.Template.Child()
@@ -106,6 +112,14 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             "clicked",
             self.on_play_button_clicked
         )
+        self.next_button.connect(
+            "clicked",
+            self.on_next_button_clicked
+        )
+        self.prev_button.connect(
+            "clicked",
+            self.on_prev_button_clicked
+        )
         self.track_progess.connect(
             "change-value",
             self.on_seek
@@ -133,7 +147,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             self.search_results_container, 'visible',
             GObject.BindingFlags.INVERT_BOOLEAN
         )
-
 
         for obj in [
             self.server_url, self.login_button, self.service_username,
@@ -164,6 +177,17 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
                              self.on_player_state_changed)
         self._player.connect("progress",
                              self.on_track_progress_changed)
+        self._player.connect("track-changed",
+                             self.on_track_changed)
+
+    def on_track_changed(self, player):
+        track = player.get_track_info()
+        if track is None:
+            return
+
+        self.home_track_name.set_label(track.get("title", "n/a"))
+        self.home_album_name.set_label(track.get("album", "n/a"))
+        self.home_artist_name.set_label(track.get("artist", "n/a"))
 
     def restore_state(self):
         '''
@@ -377,6 +401,16 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             return
 
         self._toggle_playing_state(button)
+
+    def on_next_button_clicked(self, button):
+        if self._player is None:
+            return
+        self._player.next()
+
+    def on_prev_button_clicked(self, button):
+        if self._player is None:
+            return
+        self._player.previous()
 
     def on_track_set(self, trackObj):
         if self._player is None:

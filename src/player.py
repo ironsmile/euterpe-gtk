@@ -21,14 +21,14 @@ from functools import partial
 
 SIGNAL_PROGRESS = "progress"
 SIGNAL_STATE_CHANGED = "state-changed"
-SIGNAL_TRACK_ENDED = "track-ended"
+SIGNAL_TRACK_CHANGED = "track-changed"
 
 
 class Player(GObject.Object):
 
     __gsignals__ = {
         SIGNAL_STATE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
-        SIGNAL_TRACK_ENDED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_TRACK_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_PROGRESS: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
     }
 
@@ -105,6 +105,7 @@ class Player(GObject.Object):
         bus.connect("message::stream-start", self._on_stream_start)
 
         self._playbin = pipeline
+        emit_signal(self, SIGNAL_TRACK_CHANGED)
 
     def _on_newpad(self, dec, pad, audiosink):
         print("newpad called")
@@ -233,6 +234,20 @@ class Player(GObject.Object):
         self._load_from_current_index()
         self.play()
 
+    def previous(self):
+        if len(self._playlist) == 0:
+            return
+
+        ind = self._current_playlist_index
+        ind -= 1
+        if ind < 0:
+            print("trying to play track before the start of playlist")
+            return
+
+        self._current_playlist_index = ind
+        self._load_from_current_index()
+        self.play()
+
     def is_playing(self):
         if self._playbin is None:
             return False
@@ -247,3 +262,9 @@ class Player(GObject.Object):
 
     def has_ended(self):
         return self._playbin is None
+
+    def get_track_info(self):
+        if self._current_playlist_index >= len(self._playlist):
+            return None
+
+        return self._playlist[self._current_playlist_index]
