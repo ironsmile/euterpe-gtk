@@ -6,8 +6,10 @@
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
 	<description>
-		Mobile and desktop player for the self-hosted Euterpe streaming
-		server. You need an access to the server running somewhere in order
-		to use this program effectively.
+		<p>
+			Mobile and desktop player for the self-hosted Euterpe streaming
+			server. You need an access to the server running somewhere in order
+			to use this program effectively.
+		</p>
 	</description>
 </component>
