@@ -44,7 +44,7 @@
             ]
         },
         {
-            "name": "pip stuff",
+            "name": "pip-stuff",
             "buildsystem": "simple",
             "build-options": {
                 "build-args": [
