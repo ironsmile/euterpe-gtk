@@ -3,6 +3,7 @@
   <gresource prefix="/com/doycho/euterpe/gtk">
     <file>ui/window.ui</file>
     <file>ui/track.ui</file>
+    <file>ui/browse-screen.ui</file>
     <file>assets/icon-128.png</file>
   </gresource>
 </gresources>

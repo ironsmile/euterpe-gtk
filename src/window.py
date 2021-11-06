@@ -30,6 +30,7 @@ from .player import Player
 from .service import Euterpe
 from .utils import emit_signal, config_file_name
 from .track import EuterpeTrack
+from .browse_screen import EuterpeBrowseScreen
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
@@ -48,6 +49,10 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     squeezer = Gtk.Template.Child()
     headerbar_switcher = Gtk.Template.Child()
     bottom_switcher = Gtk.Template.Child()
+    main_stack = Gtk.Template.Child()
+
+    search_screen = Gtk.Template.Child()
+    browse_screen = Gtk.Template.Child()
 
     about_gtk_version = Gtk.Template.Child()
     about_gstreamer_version = Gtk.Template.Child()
@@ -163,8 +168,16 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
 
         self.track_progess.set_range(0, 1)
 
+        self.browse_screen_obj = EuterpeBrowseScreen()
+        self.browse_screen.add(self.browse_screen_obj)
+        self.browse_screen_obj.connect(
+            'search-button-clicked',
+            self.open_search_screen
+        )
+
         self._config_file = config_file_name()
 
+        print("staring RestoreStateThread")
         t = threading.Thread(
             target=self.restore_state,
             name="RestoreStateThread"
@@ -457,7 +470,7 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             )
             return
 
-        print("searching for stuff: '{}', type: {}".format(
+        print("searching for '{}'".format(
             search_term,
             type(search_term)
         ))
@@ -503,7 +516,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
             trObj = EuterpeTrack(track)
             self.search_result_list.add(trObj)
             trObj.connect("play-button-clicked", self.on_track_set)
-            trObj.show()
 
         self.search_result_viewport.add(self.search_result_list)
         self.search_result_list.show()
@@ -511,3 +523,6 @@ class EuterpeGtkWindow(Gtk.ApplicationWindow):
     def on_play_all_search_results(self, btn):
         self._player.set_playlist(self._search_results)
         self._player.play()
+
+    def open_search_screen(self, btn):
+        self.main_stack.set_visible_child(self.search_screen)
