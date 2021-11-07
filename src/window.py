@@ -58,6 +58,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     about_gstreamer_version = Gtk.Template.Child()
     about_python_version = Gtk.Template.Child()
     about_euterpe_version = Gtk.Template.Child()
+    about_libhandy_version = Gtk.Template.Child()
 
     home_track_name = Gtk.Template.Child()
     home_artist_name = Gtk.Template.Child()
@@ -208,10 +209,15 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             run.
         '''
         try:
+            print("restoring address...")
             self._restore_address()
+            print("restoring token...")
             self._restore_token()
+            print("creating Euterpe instance...")
             self._euterpe = Euterpe(self._remote_address, self._token)
+            print("creating player...")
             self._player = Player(self._euterpe)
+            print("connecting signals...")
             self.connect_player_signals()
         except Exception as err:
             print("Restoring state failed: {}".format(err))
@@ -301,6 +307,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             Gtk.get_micro_version()
         ))
 
+        self.about_libhandy_version.set_label("unknown")
+
         self.about_euterpe_version.set_label(self._appVersion)
 
     def on_state_restored(self, _):
@@ -313,11 +321,13 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             * Remote Euterpe address from GSettings
             * Euterpe token from the OS keyring
         '''
+        print("state restored")
 
         screen = self.login_scroll_view
         if self._remote_address is not None:
             screen = self.logged_in_screen
 
+        print("showing screen {}".format(screen))
         self.app_stack.set_visible_child(screen)
 
     def on_login_status_change(self, stack, event):
