@@ -4,6 +4,8 @@
     <file>ui/window.ui</file>
     <file>ui/track.ui</file>
     <file>ui/browse-screen.ui</file>
+    <file>ui/small-album.ui</file>
+    <file>ui/small-artist.ui</file>
     <file>assets/icon-128.png</file>
   </gresource>
 </gresources>

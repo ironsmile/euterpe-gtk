@@ -30,6 +30,8 @@ from .player import Player
 from .service import Euterpe
 from .utils import emit_signal, config_file_name
 from .track import EuterpeTrack
+from .small_album import EuterpeSmallAlbum
+from .small_artist import EuterpeSmallArtist
 from .browse_screen import EuterpeBrowseScreen
 
 
@@ -50,6 +52,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     headerbar_switcher = Gtk.Template.Child()
     bottom_switcher = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
+    title_tab_bar = Gtk.Template.Child()
 
     search_screen = Gtk.Template.Child()
     browse_screen = Gtk.Template.Child()
@@ -92,6 +95,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     search_loading_indicator = Gtk.Template.Child()
     search_empty_content = Gtk.Template.Child()
     search_result_list = Gtk.Template.Child()
+    search_result_songs = Gtk.Template.Child()
+    search_result_albums = Gtk.Template.Child()
+    search_result_artists = Gtk.Template.Child()
     play_all_search_results = Gtk.Template.Child()
 
     def __init__(self, appVersion, **kwargs):
@@ -174,6 +180,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.browse_screen_obj.connect(
             'search-button-clicked',
             self.open_search_screen
+        )
+        self.browse_screen_obj.connect(
+            'header-changed',
+            self._on_header_changed
         )
 
         self._config_file = config_file_name()
@@ -501,7 +511,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.search_loading_indicator.set_visible(False)
 
         self.search_result_viewport.foreach(self.search_result_viewport.remove)
-        self.search_result_list.foreach(self.search_result_list.remove)
+        self.search_result_songs.foreach(self.search_result_songs.remove)
+        self.search_result_albums.foreach(self.search_result_albums.remove)
+        self.search_result_artists.foreach(self.search_result_artists.remove)
 
         if status != 200:
             label = Gtk.Label.new()
@@ -520,12 +532,60 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             return
 
         self._search_results = body
-        self.search_result_list.add(self.play_all_search_results)
 
+        album_to_tracks = {}
+        artists_to_tracks = {}
         for track in body:
-            trObj = EuterpeTrack(track)
-            self.search_result_list.add(trObj)
-            trObj.connect("play-button-clicked", self.on_track_set)
+            album_id = track["album_id"]
+            album = album_to_tracks.get(album_id, {
+                "tracks": 0,
+                "artist": track.get("artist", "n/a"),
+                "album": track.get("album", "n/a")
+            })
+            if album["tracks"] == 0:
+                album_to_tracks[album_id] = album
+            album["tracks"] += 1
+
+            artist_id = track["artist_id"]
+            artist = artists_to_tracks.get(artist_id, {
+                "tracks": 0,
+                "artist": track.get("artist", "n/a")
+            })
+            if artist["tracks"] == 0:
+                artists_to_tracks[artist_id] = artist
+            artist["tracks"] += 1
+
+        albums = sorted(
+            album_to_tracks.items(),
+            key=lambda v: v[1]["tracks"],
+            reverse=True
+        )
+
+        # Try to remove this from memory as fast as possible.
+        album_to_tracks = None
+
+        for album_id, album_info in albums[:10]:
+            album_info["album_id"] = album_id
+            al_obj = EuterpeSmallAlbum(album_info)
+            self.search_result_albums.add(al_obj)
+
+        artists = sorted(
+            artists_to_tracks.items(),
+            key=lambda v: v[1]["tracks"],
+            reverse=True
+        )
+
+        artists_to_tracks = None
+
+        for artist_id, artist_info in artists[:10]:
+            artist_info["artist_id"] = artist_id
+            al_obj = EuterpeSmallArtist(artist_info)
+            self.search_result_artists.add(al_obj)
+
+        for track in body[:5]:
+            tr_obj = EuterpeTrack(track)
+            self.search_result_songs.add(tr_obj)
+            tr_obj.connect("play-button-clicked", self.on_track_set)
 
         self.search_result_viewport.add(self.search_result_list)
         self.search_result_list.show()
@@ -536,3 +596,18 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     def open_search_screen(self, btn):
         self.main_stack.set_visible_child(self.search_screen)
+
+    def _on_header_changed(self, obj, showMainHeader):
+        if showMainHeader:
+            self._show_navigation()
+        else:
+            self._hide_navigation()
+
+    def _hide_navigation(self):
+        self.title_tab_bar.hide()
+        self.bottom_switcher.set_reveal(False)
+
+    def _show_navigation(self):
+        self.title_tab_bar.show()
+        child = self.squeezer.get_visible_child()
+        self.bottom_switcher.set_reveal(child != self.headerbar_switcher)

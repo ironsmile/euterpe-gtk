@@ -3,6 +3,7 @@ from .utils import emit_signal
 
 
 SEARCH_BUTTON_CLICKED = "search-button-clicked"
+HEADER_CHANGED = "header-changed"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/browse-screen.ui')
@@ -11,6 +12,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
 
     __gsignals__ = {
         SEARCH_BUTTON_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        HEADER_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
     }
 
     show_artists_button = Gtk.Template.Child()
@@ -24,6 +26,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
     not_implemented = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
     browse_main = Gtk.Template.Child()
+    header_bar = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -68,8 +71,10 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self.browse_stack.set_visible_child(self.not_implemented)
 
     def _on_browse_stack_change_child(self, stack, event):
-        hide_back = (self.browse_main == stack.get_visible_child())
-        if hide_back:
-            self.back_button.hide()
+        is_main = (self.browse_main is stack.get_visible_child())
+        if is_main:
+            self.header_bar.hide()
+            emit_signal(self, HEADER_CHANGED, True)
         else:
-            self.back_button.show()
+            self.header_bar.show()
+            emit_signal(self, HEADER_CHANGED, False)

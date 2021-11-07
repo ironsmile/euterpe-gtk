@@ -38,13 +38,14 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="HdyHeaderBar">
-            <property name="visible">True</property>
+          <object class="HdyHeaderBar" id="header_bar">
             <property name="can_focus">False</property>
             <property name="title" translatable="yes">Browse</property>
             <property name="has_subtitle">False</property>
+            <property name="show_close_button">True</property>
             <child>
               <object class="GtkButton" id="back_button">
+                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="image">header_back_button</property>
