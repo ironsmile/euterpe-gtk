@@ -37,7 +37,7 @@ SIGNAL_STATE_RESTORED = "state-restored"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/window.ui')
-class EuterpeGtkWindow(Gtk.ApplicationWindow):
+class EuterpeGtkWindow(Handy.ApplicationWindow):
     __gtype_name__ = 'EuterpeGtkWindow'
 
     __gsignals__ = {
