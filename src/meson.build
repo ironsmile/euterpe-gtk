@@ -35,8 +35,10 @@ euterpe_gtk_sources = [
   'http.py',
   'track.py',
   'browse_screen.py',
+  'search_screen.py',
   'small_album.py',
   'small_artist.py',
+  'album.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

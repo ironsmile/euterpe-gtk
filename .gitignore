@@ -1,5 +1,6 @@
 *~
 /_build/*
 /build/*
+/build-dir/*
 /.flatpak-builder/*
 /flatpak/*
