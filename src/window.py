@@ -126,6 +126,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             "notify::visible-child",
             self.on_login_status_change
         )
+        self.main_stack.connect(
+            "notify::visible-child",
+            self.on_main_stack_change
+        )
         self.login_button.connect("clicked", self.on_login_button)
         self.logout_button.connect("clicked", self.on_logout_button)
 
@@ -150,15 +154,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self.track_progess.set_range(0, 1)
 
-        self.browse_screen_obj = EuterpeBrowseScreen()
-        self.browse_screen.add(self.browse_screen_obj)
-        self.browse_screen_obj.connect(
+        browse_screen = EuterpeBrowseScreen()
+        self.browse_screen.add(browse_screen)
+        browse_screen.connect(
             'search-button-clicked',
             self.open_search_screen
-        )
-        self.browse_screen_obj.connect(
-            'header-changed',
-            self._on_header_changed
         )
 
         self._config_file = config_file_name()
@@ -317,6 +317,17 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         print("showing screen {}".format(screen))
         self.app_stack.set_visible_child(screen)
+
+    def on_main_stack_change(self, stack, event):
+        self.title_tab_bar.foreach(self.title_tab_bar.remove)
+        visible_child = stack.get_visible_child()
+        if issubclass(type(visible_child), Gtk.Container):
+            grand_children = visible_child.get_children()
+            if len(grand_children) == 1:
+                screen = grand_children[0]
+                if hasattr(screen, 'get_back_button'):
+                    back_button = screen.get_back_button()
+                    self.title_tab_bar.add(back_button)
 
     def on_login_status_change(self, stack, event):
         show_squeezer = (self.logged_in_screen == stack.get_visible_child())
