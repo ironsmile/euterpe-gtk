@@ -1,18 +1,13 @@
-from gi.repository import GObject, Gtk
+from gi.repository import Gtk
 from .track import EuterpeTrack
 from .utils import emit_signal
-
-
-BUTTON_PLAY_CLICKED = "play-button-clicked"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/album.ui')
 class EuterpeAlbum(Gtk.Viewport):
     __gtype_name__ = 'EuterpeAlbum'
 
-    __gsignals__ = {
-        BUTTON_PLAY_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
-    }
+    __gsignals__ = {}
 
     play_button = Gtk.Template.Child()
     album_name = Gtk.Template.Child()
@@ -35,9 +30,16 @@ class EuterpeAlbum(Gtk.Viewport):
         ))
 
         win.get_euterpe().search(album_name, self._on_search_result)
+        self.play_button.connect(
+            "clicked",
+            self._on_play_button
+        )
+
 
     def _on_play_button(self, pb):
-        emit_signal(self, BUTTON_PLAY_CLICKED)
+        player = self._win.get_player()
+        player.set_playlist(self._album_tracks)
+        player.play()
 
     def _on_search_result(self, status, body, query):
         self.track_list.foreach(self.track_list.remove)
