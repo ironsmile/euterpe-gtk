@@ -67,7 +67,7 @@
               <object class="GtkButton" id="play_button">
                 <property name="label" translatable="yes">PLAY</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
                 <property name="receives_default">True</property>
                 <property name="halign">center</property>
               </object>
@@ -80,7 +80,7 @@
             <child>
               <object class="GtkMenuButton" id="more_button">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
                 <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
                 <property name="popover">more_menu_popover</property>
@@ -154,7 +154,27 @@
     <property name="relative_to">more_button</property>
     <property name="position">bottom</property>
     <child>
-      <placeholder/>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkModelButton">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="receives_default">True</property>
+            <property name="text" translatable="yes">Add to play queue</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+      </object>
+      <packing>
+        <property name="submenu">submenu0</property>
+      </packing>
     </child>
   </object>
 </interface>
