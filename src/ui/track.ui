@@ -10,6 +10,7 @@
   <template class="EuterpeTrack" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
+    <property name="shadow_type">none</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>

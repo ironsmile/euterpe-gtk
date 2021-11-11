@@ -101,6 +101,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.connect("show", self.on_activate)
         self.connect(SIGNAL_STATE_RESTORED, self.on_state_restored)
 
+    def get_player(self):
+        return self._player
+
+    def get_euterpe(self):
+        return self._euterpe
+
     def on_activate(self, *args):
         self.squeezer.connect(
             "notify::visible-child",
@@ -161,6 +167,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self.open_search_screen
         )
 
+        search = EuterpeSearchScreen(self)
+        self.search_screen.add(search)
+
         self._config_file = config_file_name()
 
         print("staring RestoreStateThread")
@@ -178,9 +187,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                              self.on_track_progress_changed)
         self._player.connect("track-changed",
                              self.on_track_changed)
-
-        search = EuterpeSearchScreen(self._euterpe, self._player)
-        self.search_screen.add(search)
 
     def on_track_changed(self, player):
         track = player.get_track_info()

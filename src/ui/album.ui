@@ -16,6 +16,7 @@
           <object class="GtkImage" id="image">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_top">10</property>
             <property name="pixel_size">100</property>
             <property name="icon_name">media-optical-cd-audio-symbolic</property>
             <property name="icon_size">6</property>
@@ -27,7 +28,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="name">
+          <object class="GtkLabel" id="album_name">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="label" translatable="yes">Album Name</property>
@@ -123,13 +124,24 @@
           <object class="GtkBox" id="track_list">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="margin_bottom">10</property>
             <property name="orientation">vertical</property>
+            <property name="spacing">10</property>
             <child>
-              <placeholder/>
+              <object class="GtkSpinner">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="active">True</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
+            <property name="expand">True</property>
             <property name="fill">True</property>
             <property name="position">5</property>
           </packing>
@@ -141,5 +153,8 @@
     <property name="can_focus">False</property>
     <property name="relative_to">more_button</property>
     <property name="position">bottom</property>
+    <child>
+      <placeholder/>
+    </child>
   </object>
 </interface>
