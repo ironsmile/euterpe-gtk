@@ -31,6 +31,7 @@ from .service import Euterpe
 from .utils import emit_signal, config_file_name
 from .browse_screen import EuterpeBrowseScreen
 from .search_screen import EuterpeSearchScreen
+from .mini_player import EuterpeMiniPlayer
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
@@ -85,6 +86,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     pause_button_icon = Gtk.Template.Child()
     play_button_icon = Gtk.Template.Child()
+
+    miniplayer_position = Gtk.Template.Child()
 
     def __init__(self, appVersion, **kwargs):
         super().__init__(**kwargs)
@@ -187,6 +190,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                              self.on_track_progress_changed)
         self._player.connect("track-changed",
                              self.on_track_changed)
+        mini_player = EuterpeMiniPlayer(self._player)
+        self.miniplayer_position.add(mini_player)
 
     def on_track_changed(self, player):
         track = player.get_track_info()

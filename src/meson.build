@@ -39,6 +39,7 @@ euterpe_gtk_sources = [
   'small_album.py',
   'small_artist.py',
   'album.py',
+  'mini_player.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)
