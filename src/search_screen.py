@@ -1,5 +1,4 @@
 from gi.repository import GObject, Gtk
-from .utils import emit_signal
 
 from .small_album import EuterpeSmallAlbum
 from .small_artist import EuterpeSmallArtist

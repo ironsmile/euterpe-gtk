@@ -1,6 +1,5 @@
-from gi.repository import Gtk
+from gi.repository import GObject, Gtk
 from .track import EuterpeTrack
-from .utils import emit_signal
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/album.ui')
@@ -14,6 +13,7 @@ class EuterpeAlbum(Gtk.Viewport):
     artist_info = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
     track_list = Gtk.Template.Child()
+    loading_spinner = Gtk.Template.Child()
 
     def __init__(self, album, win, **kwargs):
         super().__init__(**kwargs)
@@ -35,6 +35,12 @@ class EuterpeAlbum(Gtk.Viewport):
             self._on_play_button
         )
 
+        for obj in [self.play_button, self.more_button]:
+            self.loading_spinner.bind_property(
+                'active',
+                obj, 'sensitive',
+                GObject.BindingFlags.INVERT_BOOLEAN
+            )
 
     def _on_play_button(self, pb):
         player = self._win.get_player()
