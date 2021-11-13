@@ -14,6 +14,7 @@ class EuterpeAlbum(Gtk.Viewport):
     more_button = Gtk.Template.Child()
     track_list = Gtk.Template.Child()
     loading_spinner = Gtk.Template.Child()
+    append_to_queue = Gtk.Template.Child()
 
     def __init__(self, album, win, **kwargs):
         super().__init__(**kwargs)
@@ -34,6 +35,10 @@ class EuterpeAlbum(Gtk.Viewport):
             "clicked",
             self._on_play_button
         )
+        self.append_to_queue.connect(
+            "clicked",
+            self._on_append_button
+        )
 
         for obj in [self.play_button, self.more_button]:
             self.loading_spinner.bind_property(
@@ -46,6 +51,10 @@ class EuterpeAlbum(Gtk.Viewport):
         player = self._win.get_player()
         player.set_playlist(self._album_tracks)
         player.play()
+
+    def _on_append_button(self, ab):
+        player = self._win.get_player()
+        player.append_to_playlist(self._album_tracks)
 
     def _on_search_result(self, status, body, query):
         self.track_list.foreach(self.track_list.remove)

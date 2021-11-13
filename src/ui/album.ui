@@ -2,6 +2,10 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <object class="GtkMenu" id="more_popup_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
   <template class="EuterpeAlbum" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -94,6 +98,7 @@
                         <property name="can_focus">False</property>
                         <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
+                        <property name="popup">more_popup_menu</property>
                         <property name="popover">more_menu_popover</property>
                         <child>
                           <object class="GtkImage" id="more-button-dots">
@@ -174,7 +179,7 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkModelButton">
+          <object class="GtkModelButton" id="append_to_queue">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="receives_default">True</property>

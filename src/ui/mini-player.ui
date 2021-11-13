@@ -19,6 +19,7 @@
   </object>
   <template class="EuterpeMiniPlayer" parent="GtkViewport">
     <property name="can_focus">False</property>
+    <property name="shadow_type">none</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>

@@ -25,6 +25,11 @@ SIGNAL_TRACK_CHANGED = "track-changed"
 
 
 class Player(GObject.Object):
+    '''
+        Player is the class responsible for dealing with the media playback. It
+        holds the playlist and deals with Gstreamer stuff. It provides higher
+        level methods such as play/pause/set_playlist and such.
+    '''
 
     __gsignals__ = {
         SIGNAL_STATE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
@@ -45,6 +50,9 @@ class Player(GObject.Object):
         self._playlist = playlist
         if len(playlist) > 0:
             self._current_playlist_index = 0
+
+    def append_to_playlist(self, tracks):
+        self._playlist.extend(tracks)
 
     def _load_from_current_index(self):
         '''
@@ -108,7 +116,6 @@ class Player(GObject.Object):
         emit_signal(self, SIGNAL_TRACK_CHANGED)
 
     def _on_newpad(self, dec, pad, audiosink):
-        print("newpad called")
         # TODO: check caps!
         audiopad = audiosink.get_static_pad("sink")
         pad.link(audiopad)
@@ -119,12 +126,11 @@ class Player(GObject.Object):
         self.stop()
 
     def _on_bus_eos(self, bus, message):
-        print("playbin message: EOS")
         self.stop()
         self.next()
 
     def _on_stream_start(self, bus, message):
-        print("playbin stream_start", message)
+        pass
 
     def get_progress(self):
         '''
