@@ -459,6 +459,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if player is not self._player:
             return
 
+        self.play_button.set_sensitive(True)
+        self.next_button.set_sensitive(player.has_next())
+        self.prev_button.set_sensitive(player.has_previous())
+
         if player.is_playing():
             self.play_button.set_label("Pause")
             self.play_button.set_image(self.pause_button_icon)

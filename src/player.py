@@ -50,9 +50,11 @@ class Player(GObject.Object):
         self._playlist = playlist
         if len(playlist) > 0:
             self._current_playlist_index = 0
+        emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def append_to_playlist(self, tracks):
         self._playlist.extend(tracks)
+        emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def _load_from_current_index(self):
         '''
@@ -239,6 +241,16 @@ class Player(GObject.Object):
         self._current_playlist_index = ind
         self._load_from_current_index()
         self.play()
+
+    def has_next(self):
+        if self._current_playlist_index + 1 >= len(self._playlist):
+            return False
+        return True
+
+    def has_previous(self):
+        if self._current_playlist_index - 1 < 0:
+            return False
+        return True
 
     def previous(self):
         if len(self._playlist) == 0:
