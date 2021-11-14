@@ -27,6 +27,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
     search_result_albums = Gtk.Template.Child()
     search_result_artists = Gtk.Template.Child()
     play_all_search_results = Gtk.Template.Child()
+    not_implemented = Gtk.Template.Child()
 
     screen_stack = Gtk.Template.Child()
     search_main = Gtk.Template.Child()
@@ -164,8 +165,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
         for album_id, album_info in albums[:10]:
             album_info["album_id"] = album_id
             album_widget = EuterpeSmallAlbum(album_info)
-            self.search_result_albums.add(album_widget)
             album_widget.connect("button-next-clicked", self.on_album_next)
+            self.search_result_albums.add(album_widget)
 
         artists = sorted(
             artists_to_tracks.items(),
@@ -178,6 +179,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
         for artist_id, artist_info in artists[:10]:
             artist_info["artist_id"] = artist_id
             artist_obj = EuterpeSmallArtist(artist_info)
+            artist_obj.connect("button-next-clicked", self.on_artist_next)
             self.search_result_artists.add(artist_obj)
 
         for track in body[:10]:
@@ -198,6 +200,10 @@ class EuterpeSearchScreen(Gtk.Viewport):
         album_screen = EuterpeAlbum(album_dict, self._win)
         self.screen_stack.add(album_screen)
         self.screen_stack.set_visible_child(album_screen)
+
+    def on_artist_next(self, artist_widget):
+        self.screen_stack.add(self.not_implemented)
+        self.screen_stack.set_visible_child(self.not_implemented)
 
     def on_track_set(self, track_widget):
         player = self._win.get_player()

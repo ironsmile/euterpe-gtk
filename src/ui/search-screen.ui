@@ -2,6 +2,7 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
+  <requires lib="libhandy" version="1.2"/>
   <template class="EuterpeSearchScreen" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -147,6 +148,16 @@
     <property name="image">back_button_icon</property>
     <property name="always_show_image">True</property>
   </object>
+  <object class="HdyStatusPage" id="not_implemented">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">dialog-warning-symbolic</property>
+    <property name="title" translatable="yes">Not Implemented</property>
+    <property name="description" translatable="yes">This feature is meant to be here at some point but I hadn't time to get to it yet!</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkImage" id="see_all_albums_button_image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -201,9 +212,10 @@
       </packing>
     </child>
     <child>
-      <object class="GtkButton">
+      <object class="GtkButton" id="see_all_artists_button">
         <property name="label" translatable="yes">See all artists</property>
         <property name="visible">True</property>
+        <property name="sensitive">False</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
         <property name="halign">end</property>
@@ -247,9 +259,10 @@
       </packing>
     </child>
     <child>
-      <object class="GtkButton">
+      <object class="GtkButton" id="see_all_albums_button">
         <property name="label" translatable="yes">See all albums</property>
         <property name="visible">True</property>
+        <property name="sensitive">False</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
         <property name="halign">end</property>
@@ -307,9 +320,10 @@
       </packing>
     </child>
     <child>
-      <object class="GtkButton">
+      <object class="GtkButton" id="see_all_songs_button">
         <property name="label" translatable="yes">See all songs</property>
         <property name="visible">True</property>
+        <property name="sensitive">False</property>
         <property name="can_focus">True</property>
         <property name="receives_default">True</property>
         <property name="halign">end</property>
