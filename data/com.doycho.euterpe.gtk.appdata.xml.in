@@ -16,6 +16,20 @@
 			It may be good enough for listening a song or an album. But at the
 			same time big chunks of what is to come are still missing.
 		</p>
+		<p>
+			With that said, this is what the client supports now:
+		</p>
+		<ul>
+			<li>
+				Accessing Euterpe server with or without password.
+			</li>
+			<li>
+				Playing albums or a single tracks.
+			</li>
+			<li>
+				Searching the database for music.
+			</li>
+		</ul>
 	</description>
 		<screenshots>
 			<screenshot type="default">
