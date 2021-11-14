@@ -62,7 +62,7 @@
             "sources" : [
                 {
                     "type" : "git",
-                    "url" : "file:///home/iron4o/workspace/euterpe-gtk"
+                    "url" : "https://github.com/ironsmile/euterpe-gtk.git"
                 }
             ]
         }
