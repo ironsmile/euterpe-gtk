@@ -4,7 +4,7 @@ project('euterpe-gtk',
   default_options: [ 'warning_level=2',
                    ],
 )
-dependency('libhandy-1', version: '>= 1.4.0')
+dependency('libhandy-1', version: '>= 1.2.0')
 
 i18n = import('i18n')
 
