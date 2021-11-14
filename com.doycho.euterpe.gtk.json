@@ -43,7 +43,18 @@
                 }
             ]
         },
-        "pypi-dependencies.json",
+        {
+            "name": "pip-stuff",
+            "buildsystem": "simple",
+            "build-options": {
+                "build-args": [
+                    "--share=network"
+                ]
+            },
+            "build-commands": [
+                "pip3 install --prefix=${FLATPAK_DEST} --no-cache-dir keyring"
+            ]
+        },
         {
             "name" : "euterpe-gtk",
             "builddir" : true,
