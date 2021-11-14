@@ -11,5 +11,20 @@
 			server. You need an access to the server running somewhere in order
 			to use this program effectively.
 		</p>
+		<p>
+			Keep in mind that this is still an alpha stage for this application.
+			It may be good enough for listening a song or an album. But at the
+			same time big chunks of what is to come are still missing.
+		</p>
 	</description>
+		<screenshots>
+			<screenshot type="default">
+				<image type="source" width="1025" height="497">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/master/repo/alpha-screenshots.png</image>
+			</screenshot>
+		</screenshots>
+
+	<custom>
+		<value key="Purism::form_factor">workstation</value>
+		<value key="Purism::form_factor">mobile</value>
+	</custom>
 </component>
