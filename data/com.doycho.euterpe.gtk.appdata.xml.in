@@ -31,14 +31,32 @@
 			</li>
 		</ul>
 	</description>
-		<screenshots>
-			<screenshot type="default">
-				<image type="source" width="1025" height="497">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/master/repo/alpha-screenshots.png</image>
-			</screenshot>
-		</screenshots>
+	<screenshots>
+		<screenshot type="default">
+			<image type="source" width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/alpha-screenshots.png</image>
+			<image width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/convergent-screenshots.png</image>
+		</screenshot>
+	</screenshots>
+	<content_rating type="oars-1.0" />
+	<url type="homepage">https://listen-to-euterpe.eu</url>
+	<url type="bugtracker">https://github.com/ironsmile/euterpe-gtk/issues</url>
+	<url type="help">https://listen-to-euterpe.eu/docs</url>
+	<url type="donation">https://github.com/sponsors/ironsmile</url>
+
+	<releases>
+		<release version="0.1.1" date="2021-11-15">
+			<description>
+				<p>
+					The first version of the Euterpe GTK client which is
+					ready to be used for listening to your music day-to-day.
+				</p>
+			</description>
+		</release>
+	</releases>
 
 	<custom>
 		<value key="Purism::form_factor">workstation</value>
 		<value key="Purism::form_factor">mobile</value>
 	</custom>
+
 </component>
