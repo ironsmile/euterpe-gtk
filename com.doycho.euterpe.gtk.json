@@ -1,7 +1,7 @@
 {
     "app-id" : "com.doycho.euterpe.gtk",
     "runtime" : "org.gnome.Sdk",
-    "runtime-version" : "3.38",
+    "runtime-version" : "41",
     "sdk" : "org.gnome.Sdk",
     "command" : "euterpe-gtk",
     "finish-args" : [
@@ -44,14 +44,14 @@
             ]
         },
         {
-            "name": "pip-stuff",
-            "buildsystem": "simple",
-            "build-options": {
-                "build-args": [
+            "name" : "pip-stuff",
+            "buildsystem" : "simple",
+            "build-options" : {
+                "build-args" : [
                     "--share=network"
                 ]
             },
-            "build-commands": [
+            "build-commands" : [
                 "pip3 install --prefix=${FLATPAK_DEST} --no-cache-dir keyring"
             ]
         },
