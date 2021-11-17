@@ -134,17 +134,21 @@ class Player(GObject.Object):
     def _on_stream_start(self, bus, message):
         pass
 
-    def get_progress(self):
+    def _get_progress(self, playbin):
         '''
             Returns the current playback progress in [0:1] range.
             May be None when progress could not be obtained.
         '''
-        (ok, dur) = self._playbin.query_duration(Gst.Format.TIME)
+        if playbin is None:
+            print("trying to get progress self._playbin which is None")
+            return None
+
+        (ok, dur) = playbin.query_duration(Gst.Format.TIME)
         if not ok:
             print("could not query playbin duration in ns")
             return None
 
-        (ok, ns) = self._playbin.query_position(Gst.Format.TIME)
+        (ok, ns) = playbin.query_position(Gst.Format.TIME)
         if not ok:
             print("could not query playbin position in ns")
             return None
@@ -207,7 +211,9 @@ class Player(GObject.Object):
         )
 
     def _query_progress(self, progress_id):
-        if self._playbin is None or not self.is_playing():
+        playbin = self._playbin
+
+        if playbin is None or not self.is_playing():
             print("no track playing, stopping progress timeout callback")
             return False
 
@@ -215,7 +221,7 @@ class Player(GObject.Object):
             print("progress ID changed, stopping progress timeout callback")
             return False
 
-        progress = self.get_progress()
+        progress = self._get_progress(playbin)
         if progress is None:
             print("could not yet obtain progress")
             return True
