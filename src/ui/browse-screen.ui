@@ -3,12 +3,6 @@
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="libhandy" version="1.2"/>
-  <object class="GtkButton" id="back_button">
-    <property name="can_focus">True</property>
-    <property name="receives_default">True</property>
-    <property name="image">header_back_button</property>
-    <property name="always_show_image">True</property>
-  </object>
   <object class="GtkImage" id="browse-albums-button-image">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -109,6 +103,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">View a list with all artists</property>
                         <property name="image">browse-artists-button-image</property>
                         <property name="always_show_image">True</property>
                       </object>
@@ -165,6 +160,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">View a list with all albums</property>
                         <property name="image">browse-albums-button-image</property>
                         <property name="always_show_image">True</property>
                       </object>
@@ -221,6 +217,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">View a list with all tracks</property>
                         <property name="image">browse-songs-button-image</property>
                         <property name="always_show_image">True</property>
                       </object>
@@ -277,6 +274,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
+                        <property name="tooltip_text" translatable="yes">View the songs available offline</property>
                         <property name="image">browse-offline-library-image</property>
                         <property name="always_show_image">True</property>
                       </object>
@@ -316,6 +314,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
+                    <property name="tooltip_text" translatable="yes">Go to the search screen</property>
                     <property name="halign">center</property>
                   </object>
                   <packing>
@@ -339,6 +338,12 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="icon_name">go-previous-symbolic</property>
+  </object>
+  <object class="GtkButton" id="back_button">
+    <property name="can_focus">True</property>
+    <property name="receives_default">True</property>
+    <property name="image">header_back_button</property>
+    <property name="always_show_image">True</property>
   </object>
   <object class="HdyStatusPage" id="not_implemented">
     <property name="visible">True</property>
