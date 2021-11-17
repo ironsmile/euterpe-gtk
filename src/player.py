@@ -128,7 +128,9 @@ class Player(GObject.Object):
         self.stop()
 
     def _on_bus_eos(self, bus, message):
-        self.stop()
+        if message.type != Gst.MessageType.EOS:
+            print("unexpected eos message type: {}".format(message.type))
+        print("end-of-stream bus message received")
         self.next()
 
     def _on_stream_start(self, bus, message):
