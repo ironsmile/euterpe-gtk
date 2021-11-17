@@ -23,6 +23,32 @@
     <property name="can_focus">False</property>
     <property name="icon_name">go-next-symbolic</property>
   </object>
+  <object class="GtkImage" id="header_back_button">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">go-previous-symbolic</property>
+  </object>
+  <object class="GtkButton" id="back_button">
+    <property name="can_focus">True</property>
+    <property name="receives_default">True</property>
+    <property name="image">header_back_button</property>
+    <property name="always_show_image">True</property>
+  </object>
+  <object class="HdyStatusPage" id="not_implemented">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">dialog-warning-symbolic</property>
+    <property name="title" translatable="yes">Not Implemented</property>
+    <property name="description" translatable="yes">This feature is meant to be here at some point but I hadn't time to get to it yet!</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkImage" id="search-button-icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">system-search-symbolic</property>
+  </object>
   <template class="EuterpeBrowseScreen" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -316,6 +342,8 @@
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Go to the search screen</property>
                     <property name="halign">center</property>
+                    <property name="image">search-button-icon</property>
+                    <property name="always_show_image">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -334,25 +362,4 @@
       </object>
     </child>
   </template>
-  <object class="GtkImage" id="header_back_button">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">go-previous-symbolic</property>
-  </object>
-  <object class="GtkButton" id="back_button">
-    <property name="can_focus">True</property>
-    <property name="receives_default">True</property>
-    <property name="image">header_back_button</property>
-    <property name="always_show_image">True</property>
-  </object>
-  <object class="HdyStatusPage" id="not_implemented">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">dialog-warning-symbolic</property>
-    <property name="title" translatable="yes">Not Implemented</property>
-    <property name="description" translatable="yes">This feature is meant to be here at some point but I hadn't time to get to it yet!</property>
-    <child>
-      <placeholder/>
-    </child>
-  </object>
 </interface>
