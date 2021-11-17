@@ -80,7 +80,7 @@ class Player(GObject.Object):
 
         pipeline = Gst.Pipeline.new('mainpipeline')
 
-        src = Gst.ElementFactory.make("curlhttpsrc", "source")
+        src = Gst.ElementFactory.make("souphttpsrc", "source")
         src.set_property('location', play_uri)
         src.set_property('user-agent', "Euterpe GTK Gstreamer")
         src.set_property('timeout', 30)
