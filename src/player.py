@@ -175,7 +175,6 @@ class Player(GObject.Object):
             return
 
         seek_pos = int(dur * val)
-        print("seeking to", val, seek_pos)
 
         seeked = self._playbin.seek_simple(
             Gst.Format.TIME,
