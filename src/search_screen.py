@@ -3,7 +3,9 @@ from gi.repository import GObject, Gtk
 from .small_album import EuterpeSmallAlbum
 from .small_artist import EuterpeSmallArtist
 from .album import EuterpeAlbum
+from .artist import EuterpeArtist
 from .track import EuterpeTrack
+from .navigator import Navigator
 
 
 HEADER_CHANGED = "header-changed"
@@ -65,6 +67,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
             "notify::visible-child",
             self._on_screen_stack_change_child
         )
+        self._nav = Navigator(self.screen_stack)
 
     def get_back_button(self):
         return self.back_button
@@ -215,12 +218,12 @@ class EuterpeSearchScreen(Gtk.Viewport):
     def on_album_next(self, album_widget):
         album_dict = album_widget.get_album()
         album_screen = EuterpeAlbum(album_dict, self._win)
-        self.screen_stack.add(album_screen)
-        self.screen_stack.set_visible_child(album_screen)
+        self._nav.show_screen(album_screen)
 
     def on_artist_next(self, artist_widget):
-        self.screen_stack.add(self.not_implemented)
-        self.screen_stack.set_visible_child(self.not_implemented)
+        artist_dict = artist_widget.get_artist()
+        artist_screen = EuterpeArtist(artist_dict, self._win, self._nav)
+        self._nav.show_screen(artist_screen)
 
     def on_track_set(self, track_widget):
         player = self._win.get_player()
