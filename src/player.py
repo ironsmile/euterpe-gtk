@@ -53,7 +53,12 @@ class Player(GObject.Object):
         emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def append_to_playlist(self, tracks):
+        if len(tracks) == 0:
+            return
+
         self._playlist.extend(tracks)
+        if self._current_playlist_index is None:
+            self._current_playlist_index = 0
         emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def _load_from_current_index(self):
