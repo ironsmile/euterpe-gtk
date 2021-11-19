@@ -8,10 +8,13 @@ desktop application as well.
 
 [![Screenshot](repo/alpha-screenshots.png)](repo/alpha-screenshots.png)
 
+<a href="https://flathub.org/apps/details/com.doycho.euterpe.gtk"><img height="50" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.png"/></a>
+
 ## Project Status
 
-Still in very early development, don't waste much time with it! But now it could play
-some music!
+The program is at the stage where it _could_ be used for your day-to-day Euterpe player.
+But this comes with the huge disclaimer that there is quite a lot more to be done before
+one could consider it "complete".
 
 ## Building From Source
 
