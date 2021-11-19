@@ -198,6 +198,9 @@ class EuterpeSearchScreen(Gtk.Viewport):
                 artists_to_tracks[artist_id] = artist
             artist["tracks"] += 1
 
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
+
         albums = sorted(
             album_to_tracks.items(),
             key=lambda v: v[1]["tracks"],
