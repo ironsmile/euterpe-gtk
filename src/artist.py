@@ -75,6 +75,8 @@ class EuterpeArtist(Gtk.Viewport):
             alb_obj = EuterpeSmallAlbum(album)
             self.album_list.add(alb_obj)
             alb_obj.connect("button-next-clicked", self.on_on_album_clicked)
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
 
     def on_on_album_clicked(self, album_widget):
         album_dict = album_widget.get_album()
