@@ -6,6 +6,7 @@ from .album import EuterpeAlbum
 from .artist import EuterpeArtist
 from .track import EuterpeTrack
 from .navigator import Navigator
+from .simple_list import EuterpeSimpleList
 
 
 HEADER_CHANGED = "header-changed"
@@ -31,6 +32,10 @@ class EuterpeSearchScreen(Gtk.Viewport):
     play_all_search_results = Gtk.Template.Child()
     not_implemented = Gtk.Template.Child()
 
+    see_all_albums_button = Gtk.Template.Child()
+    see_all_artists_button = Gtk.Template.Child()
+    see_all_songs_button = Gtk.Template.Child()
+
     screen_stack = Gtk.Template.Child()
     search_main = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
@@ -41,6 +46,9 @@ class EuterpeSearchScreen(Gtk.Viewport):
         self._win = win
 
         self._search_results = []
+        self._found_albums = []
+        self._found_artists = []
+        self._search_query = ""
 
         self.back_button.connect(
             "clicked",
@@ -57,6 +65,18 @@ class EuterpeSearchScreen(Gtk.Viewport):
         self.play_all_search_results.connect(
             "clicked",
             self.on_play_all_search_results
+        )
+        self.see_all_albums_button.connect(
+            "clicked",
+            self.on_see_all_albums
+        )
+        self.see_all_artists_button.connect(
+            "clicked",
+            self.on_see_all_artists
+        )
+        self.see_all_songs_button.connect(
+            "clicked",
+            self.on_see_all_songs
         )
         self.search_loading_indicator.bind_property(
             'active',
@@ -86,6 +106,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
             self.search_result_artists.remove
         )
         self._search_results = []
+        self._found_albums = []
+        self._found_artists = []
 
     def on_search(self, entry):
         search_term = entry.get_text()
@@ -149,6 +171,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
             label.show()
             return
 
+        self._search_query = query
         self._search_results = body
 
         album_to_tracks = {}
@@ -158,7 +181,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
             album = album_to_tracks.get(album_id, {
                 "tracks": 0,
                 "artist": track.get("artist", "n/a"),
-                "album": track.get("album", "n/a")
+                "album": track.get("album", "n/a"),
+                "album_id": album_id,
             })
             if album["tracks"] == 0:
                 album_to_tracks[album_id] = album
@@ -167,7 +191,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
             artist_id = track["artist_id"]
             artist = artists_to_tracks.get(artist_id, {
                 "tracks": 0,
-                "artist": track.get("artist", "n/a")
+                "artist": track.get("artist", "n/a"),
+                "artist_id": artist_id,
             })
             if artist["tracks"] == 0:
                 artists_to_tracks[artist_id] = artist
@@ -178,12 +203,12 @@ class EuterpeSearchScreen(Gtk.Viewport):
             key=lambda v: v[1]["tracks"],
             reverse=True
         )
+        self._found_albums = [t[1] for t in albums]
 
         # Try to remove this from memory as fast as possible.
         album_to_tracks = None
 
-        for album_id, album_info in albums[:10]:
-            album_info["album_id"] = album_id
+        for album_info in self._found_albums[:10]:
             album_widget = EuterpeSmallAlbum(album_info)
             album_widget.connect("button-next-clicked", self.on_album_next)
             self.search_result_albums.add(album_widget)
@@ -193,11 +218,12 @@ class EuterpeSearchScreen(Gtk.Viewport):
             key=lambda v: v[1]["tracks"],
             reverse=True
         )
+        self._found_artists = [t[1] for t in artists]
 
+        # Try to remove this from memory as fast as possible.
         artists_to_tracks = None
 
-        for artist_id, artist_info in artists[:10]:
-            artist_info["artist_id"] = artist_id
+        for artist_info in self._found_artists[:10]:
             artist_obj = EuterpeSmallArtist(artist_info)
             artist_obj.connect("button-next-clicked", self.on_artist_next)
             self.search_result_artists.add(artist_obj)
@@ -236,6 +262,45 @@ class EuterpeSearchScreen(Gtk.Viewport):
 
         player.set_playlist([track])
         player.play()
+
+    def on_see_all_artists(self, btn):
+        artist_list = EuterpeSimpleList()
+        artist_list.set_title("Artists for search \"{}\"".format(
+            self._search_query
+        ))
+
+        for artist_info in self._found_artists:
+            artist_obj = EuterpeSmallArtist(artist_info)
+            artist_obj.connect("button-next-clicked", self.on_artist_next)
+            artist_list.add(artist_obj)
+
+        self._nav.show_screen(artist_list)
+
+    def on_see_all_albums(self, btn):
+        album_list = EuterpeSimpleList()
+        album_list.set_title("Albums for search \"{}\"".format(
+            self._search_query
+        ))
+
+        for album_info in self._found_albums:
+            album_obj = EuterpeSmallAlbum(album_info)
+            album_obj.connect("button-next-clicked", self.on_album_next)
+            album_list.add(album_obj)
+
+        self._nav.show_screen(album_list)
+
+    def on_see_all_songs(self, btn):
+        songs_list = EuterpeSimpleList()
+        songs_list.set_title("Songs for search \"{}\"".format(
+            self._search_query
+        ))
+
+        for song_info in self._search_results:
+            song_obj = EuterpeTrack(song_info)
+            song_obj.connect("play-button-clicked", self.on_track_set)
+            songs_list.add(song_obj)
+
+        self._nav.show_screen(songs_list)
 
     def _on_screen_stack_change_child(self, stack, event):
         is_main = (self.search_main is stack.get_visible_child())

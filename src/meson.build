@@ -42,6 +42,7 @@ euterpe_gtk_sources = [
   'artist.py',
   'mini_player.py',
   'navigator.py',
+  'simple_list.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

@@ -10,6 +10,7 @@
     <file>ui/mini-player.ui</file>
     <file>ui/album.ui</file>
     <file>ui/artist.ui</file>
+    <file>ui/simple-list.ui</file>
     <file>assets/icon-128.png</file>
   </gresource>
 </gresources>
