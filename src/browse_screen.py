@@ -58,7 +58,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
 
     def _on_back_button(self, btn):
         children = self.browse_stack.get_children()
-        if len(children) == 1:
+        if len(children) <= 1:
             return
 
         visible_child = self.browse_stack.get_visible_child()
