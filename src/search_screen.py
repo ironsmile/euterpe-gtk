@@ -291,11 +291,11 @@ class EuterpeSearchScreen(Gtk.Viewport):
 
     def on_see_all_songs(self, btn):
         songs_list = EuterpeSimpleList()
-        songs_list.set_title("Songs for search \"{}\"".format(
+        songs_list.set_title("First 100 songs for search \"{}\"".format(
             self._search_query
         ))
 
-        for song_info in self._search_results:
+        for song_info in self._search_results[:100]:
             song_obj = EuterpeTrack(song_info)
             song_obj.connect("play-button-clicked", self.on_track_set)
             songs_list.add(song_obj)
