@@ -37,3 +37,8 @@ def emit_signal(obj, signal, *args):
 def config_file_name():
     config_dir = GLib.get_user_config_dir()
     return os.path.join(config_dir, 'euterpe.config')
+
+
+def state_file_name():
+    state_dir = GLib.get_user_cache_dir()
+    return os.path.join(state_dir, 'euterpe.state')

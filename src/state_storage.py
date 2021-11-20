@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from gi.repository import GLib
 
 class StateStorage:
@@ -42,6 +43,30 @@ class StateStorage:
 
     def get_string(self, key):
         return self._kf.get_string(self._namespace, key)
+
+    def set_object(self, key, object):
+        try:
+            object_str = json.dumps(object)
+        except ValueError as err:
+            print("Storing object with key {} to storage failed: {}".format(
+                key, err
+            ))
+            return
+        self.set_string(key, object_str)
+
+    def get_object(self, key):
+        object_str = self.get_string(key)
+        if object_str == "":
+            return None
+
+        try:
+            return json.loads(object_str)
+        except ValueError as err:
+            print("Parsing object with key {} as JSON: {}".format(
+                key, err
+            ))
+
+        return None
 
     def _store_kf_file(self):
         try:

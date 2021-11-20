@@ -28,7 +28,7 @@ gi.require_version('GLib', '2.0')
 from gi.repository import GObject, GLib, Gtk, Handy, Gst
 from .player import Player
 from .service import Euterpe
-from .utils import emit_signal, config_file_name
+from .utils import emit_signal, config_file_name, state_file_name
 from .browse_screen import EuterpeBrowseScreen
 from .search_screen import EuterpeSearchScreen
 from .mini_player import EuterpeMiniPlayer
@@ -171,10 +171,13 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self.open_search_screen
         )
 
-        search = EuterpeSearchScreen(self)
-        self.search_screen.add(search)
+        self._search_widget = EuterpeSearchScreen(self)
+        self.search_screen.add(self._search_widget)
 
-        self._store = StateStorage(config_file_name(), "config")
+        self._config_store = StateStorage(config_file_name(), "config")
+        self._cache_store = StateStorage(state_file_name(), "app_state")
+
+        self.connect("delete-event", self._on_program_exit)
 
         print("staring RestoreStateThread")
         t = threading.Thread(
@@ -214,7 +217,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             run.
         '''
         try:
-            self._store.load()
+            print("reading key-value files from disk...")
+            self._config_store.load()
+            self._cache_store.load()
             print("restoring address...")
             self._restore_address()
             print("restoring token...")
@@ -225,16 +230,18 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._player = Player(self._euterpe)
             print("connecting signals...")
             self._on_player_created()
+            print("restoring search state...")
+            self._search_widget.restore_state(self._cache_store)
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
             emit_signal(self, SIGNAL_STATE_RESTORED)
 
     def store_remote_address(self, address):
-        self._store.set_string("address", address)
+        self._config_store.set_string("address", address)
 
     def _restore_address(self):
-        address = self._store.get_string("address")
+        address = self._config_store.get_string("address")
 
         if address == "":
             return
@@ -482,3 +489,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.title_tab_bar.show()
         child = self.squeezer.get_visible_child()
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
+
+    def _on_program_exit(self, *args):
+        self._search_widget.store_state(self._cache_store)

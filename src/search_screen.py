@@ -1,5 +1,6 @@
 from gi.repository import GObject, Gtk
 
+from .utils import emit_signal
 from .small_album import EuterpeSmallAlbum
 from .small_artist import EuterpeSmallArtist
 from .album import EuterpeAlbum
@@ -9,7 +10,7 @@ from .navigator import Navigator
 from .simple_list import EuterpeSimpleList
 
 
-HEADER_CHANGED = "header-changed"
+STATE_RESTORED = "state-restored"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/search-screen.ui')
@@ -17,7 +18,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
     __gtype_name__ = 'EuterpeSearchScreen'
 
     __gsignals__ = {
-        HEADER_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, (bool,)),
+        STATE_RESTORED: (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     main_search_box = Gtk.Template.Child()
@@ -88,6 +89,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
             self._on_screen_stack_change_child
         )
         self._nav = Navigator(self.screen_stack)
+        self.connect(STATE_RESTORED, self._on_state_restored)
 
     def get_back_button(self):
         return self.back_button
@@ -206,9 +208,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
         # Try to remove this from memory as fast as possible.
         album_to_tracks = None
 
-        for album_info in self._found_albums[:10]:
-            album_widget = self._create_small_album_widget(album_info)
-            self.search_result_albums.add(album_widget)
+        self._populate_search_preview_albums()
 
         artists = sorted(
             artists_to_tracks.items(),
@@ -220,16 +220,26 @@ class EuterpeSearchScreen(Gtk.Viewport):
         # Try to remove this from memory as fast as possible.
         artists_to_tracks = None
 
+        self._populate_search_preview_artists()
+        self._populate_search_preview_songs()
+
+        self.search_result_viewport.add(self.search_result_list)
+        self.search_result_list.show()
+
+    def _populate_search_preview_songs(self):
+        for track in self._search_results[:10]:
+            tr_obj = self._create_track_widget(track)
+            self.search_result_songs.add(tr_obj)
+
+    def _populate_search_preview_artists(self):
         for artist_info in self._found_artists[:10]:
             artist_obj = self._create_small_artists_widget(artist_info)
             self.search_result_artists.add(artist_obj)
 
-        for track in body[:10]:
-            tr_obj = self._create_track_widget(track)
-            self.search_result_songs.add(tr_obj)
-
-        self.search_result_viewport.add(self.search_result_list)
-        self.search_result_list.show()
+    def _populate_search_preview_albums(self):
+        for album_info in self._found_albums[:10]:
+            album_widget = self._create_small_album_widget(album_info)
+            self.search_result_albums.add(album_widget)
 
     def on_play_all_search_results(self, btn):
         player = self._win.get_player()
@@ -325,3 +335,47 @@ class EuterpeSearchScreen(Gtk.Viewport):
         previous_child = children[-2]
         self.screen_stack.set_visible_child(previous_child)
         self.screen_stack.remove(visible_child)
+
+    def restore_state(self, store):
+        state = store.get_object("search_state")
+        if state is None:
+            return
+
+        if 'tracks' not in state or len(state['tracks']) == 0:
+            return
+
+        self._search_results = state["tracks"]
+        print("search restored {} tracks".format(len(self._search_results)))
+
+        if 'found_artists' in state:
+            self._found_artists = state['found_artists']
+            print("search restored {} artists".format(len(self._found_artists)))
+
+        if 'found_albums' in state:
+            self._found_albums = state['found_albums']
+            print("search restored {} albums".format(len(self._found_albums)))
+
+        if 'search_term' in state and len(state['search_term']) > 0:
+            self._search_query = state['search_term']
+            self.main_search_box.set_text(state['search_term'])
+
+        emit_signal(self, STATE_RESTORED)
+
+    def store_state(self, store):
+        state = {
+            "search_term": self._search_query,
+            "tracks": self._search_results,
+            "found_artists": self._found_artists,
+            "found_albums": self._found_albums,
+        }
+        store.set_object("search_state", state)
+
+    def _on_state_restored(self, *args):
+        self.search_result_viewport.foreach(
+            self.search_result_viewport.remove
+        )
+        self._populate_search_preview_songs()
+        self._populate_search_preview_albums()
+        self._populate_search_preview_artists()
+        self.search_result_viewport.add(self.search_result_list)
+        self.search_result_list.show()
