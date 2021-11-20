@@ -47,6 +47,8 @@ class EuterpeAlbum(Gtk.Viewport):
                 GObject.BindingFlags.INVERT_BOOLEAN
             )
 
+        self.connect("unrealize", self._on_unrealize)
+
     def _on_play_button(self, pb):
         player = self._win.get_player()
         player.set_playlist(self._album_tracks)
@@ -100,3 +102,7 @@ class EuterpeAlbum(Gtk.Viewport):
         player = self._win.get_player()
         player.set_playlist([track])
         player.play()
+
+    def _on_unrealize(self, *args):
+        for child in self.track_list.get_children():
+            child.destroy()

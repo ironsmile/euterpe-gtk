@@ -35,6 +35,7 @@ class EuterpeArtist(Gtk.Viewport):
         self.artist_name.set_label(artist_name)
 
         win.get_euterpe().search(artist_name, self._on_search_result)
+        self.connect("unrealize", self._on_unrealize)
 
     def _on_search_result(self, status, body, query):
         self.album_list.foreach(self.album_list.remove)
@@ -82,3 +83,7 @@ class EuterpeArtist(Gtk.Viewport):
         album_dict = album_widget.get_album()
         album_screen = EuterpeAlbum(album_dict, self._win)
         self._nav.show_screen(album_screen)
+
+    def _on_unrealize(self, *args):
+        for child in self.album_list.get_children():
+            child.destroy()
