@@ -97,13 +97,13 @@ class EuterpeSearchScreen(Gtk.Viewport):
             self.search_result_viewport.remove
         )
         self.search_result_songs.foreach(
-            self.search_result_songs.remove
+            lambda s: s.destroy()
         )
         self.search_result_albums.foreach(
-            self.search_result_albums.remove
+            lambda a: a.destroy()
         )
         self.search_result_artists.foreach(
-            self.search_result_artists.remove
+            lambda a: a.destroy()
         )
         self._search_results = []
         self._found_albums = []
