@@ -32,6 +32,7 @@ from .utils import emit_signal, config_file_name
 from .browse_screen import EuterpeBrowseScreen
 from .search_screen import EuterpeSearchScreen
 from .mini_player import EuterpeMiniPlayer
+from .state_storage import StateStorage
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
@@ -173,7 +174,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         search = EuterpeSearchScreen(self)
         self.search_screen.add(search)
 
-        self._config_file = config_file_name()
+        self._store = StateStorage(config_file_name(), "config")
 
         print("staring RestoreStateThread")
         t = threading.Thread(
@@ -208,6 +209,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             run.
         '''
         try:
+            self._store.load()
             print("restoring address...")
             self._restore_address()
             print("restoring token...")
@@ -224,26 +226,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             emit_signal(self, SIGNAL_STATE_RESTORED)
 
     def store_remote_address(self, address):
-        kf = GLib.KeyFile.new()
-        kf.set_string("config", "address", address)
-
-        try:
-            kf.save_to_file(self._config_file)
-        except GLib.Error as err:
-            print('Saving config file failed: {}'.format(err))
+        self._store.set_string("address", address)
 
     def _restore_address(self):
-        kf = GLib.KeyFile.new()
-        try:
-            kf.load_from_file(self._config_file, GLib.KeyFileFlags.NONE)
-        except GLib.Error as err:
-            print('Loading config file ({}) failed: {}'.format(
-                self._config_file,
-                err,
-            ))
-            return
+        address = self._store.get_string("address")
 
-        address = kf.get_string("config", "address")
         if address == "":
             return
 
