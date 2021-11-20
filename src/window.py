@@ -318,7 +318,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if self._remote_address is not None:
             screen = self.logged_in_screen
 
-        print("showing screen {}".format(screen))
         self.app_stack.set_visible_child(screen)
 
     def on_main_stack_change(self, stack, event):
