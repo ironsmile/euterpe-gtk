@@ -44,6 +44,7 @@ class Player(GObject.Object):
         self._playbin = None
         self._progress_id = 0
         self._service = euterpeService
+        self._seek_to = None
 
     def set_playlist(self, playlist):
         self.stop()
@@ -120,6 +121,7 @@ class Player(GObject.Object):
         bus.connect("message::stream-start", self._on_stream_start)
 
         self._playbin = pipeline
+        self._seek_to = None
         emit_signal(self, SIGNAL_TRACK_CHANGED)
 
     def _on_newpad(self, dec, pad, audiosink):
@@ -139,7 +141,19 @@ class Player(GObject.Object):
         self.next()
 
     def _on_stream_start(self, bus, message):
-        pass
+        if self._seek_to is None:
+            return
+
+        seek_to = self._seek_to
+        self._seek_to = None
+
+        seeked = self._playbin.seek_simple(
+            Gst.Format.TIME,
+            Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+            seek_to
+        )
+        if not seeked:
+            print("seeking after state restore failed")
 
     def _get_progress(self, playbin):
         '''
@@ -298,3 +312,58 @@ class Player(GObject.Object):
             return None
 
         return self._playlist[self._current_playlist_index]
+
+    def is_active(self):
+        '''
+        Returns true when the player is in state where playback is
+        possible. This means it has current index and a playlist.
+        '''
+        ind = self._current_playlist_index
+        pl_len = len(self._playlist)
+
+        return pl_len > 0 and ind is not None
+
+    def restore_state(self, store):
+        state = store.get_object("player_state")
+        if state is None:
+            return
+
+        if 'playlist' not in state or len(state['playlist']) == 0:
+            return
+
+        self._playlist = state['playlist']
+
+        if 'index' in state:
+            self._current_playlist_index = state['index']
+
+        if self._current_playlist_index is None:
+            return
+
+        self._load_from_current_index()
+        emit_signal(self, SIGNAL_STATE_CHANGED)
+
+        if 'progress' not in state and state['progress'] is not None:
+            return
+        emit_signal(self, SIGNAL_PROGRESS, state['progress'])
+
+        if 'position' in state:
+            self._seek_to = state['position']
+
+    def store_state(self, store):
+        progress = None
+        position = None
+        if self._playbin is not None:
+            (durOK, dur) = self._playbin.query_duration(Gst.Format.TIME)
+            (posOK, pos) = self._playbin.query_position(Gst.Format.TIME)
+            if durOK and posOK:
+                position = pos
+                progress = pos / dur
+
+        state = {
+            "index": self._current_playlist_index,
+            "playlist": self._playlist,
+            "progress": progress,
+            "position": position,
+        }
+
+        store.set_object("player_state", state)

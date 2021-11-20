@@ -40,8 +40,10 @@ class EuterpeMiniPlayer(Gtk.Viewport):
         if player is not self._player:
             return
 
-        if player.is_playing():
+        if player.is_active():
             self.show()
+
+        if player.is_playing():
             self.play_pause_button.set_image(self.pause_button_icon)
         else:
             self.play_pause_button.set_image(self.play_button_icon)

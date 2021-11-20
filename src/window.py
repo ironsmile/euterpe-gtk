@@ -232,6 +232,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._on_player_created()
             print("restoring search state...")
             self._search_widget.restore_state(self._cache_store)
+            print("restoring playing state...")
+            self._player.restore_state(self._cache_store)
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
@@ -492,3 +494,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     def _on_program_exit(self, *args):
         self._search_widget.store_state(self._cache_store)
+
+        if self._player is not None:
+            self._player.store_state(self._cache_store)
