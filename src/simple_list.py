@@ -1,4 +1,4 @@
-from gi.repository import Gtk
+from gi.repository import Gtk, GLib
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/simple-list.ui')
@@ -24,20 +24,32 @@ class EuterpeSimpleList(Gtk.Viewport):
         self._create_item_func = create_item_func
         self._widgets_created = False
 
-        self.connect("realize", self._on_create_widgets)
+        self.connect("realize", self._create_widgets)
         self.connect("unrealize", self._on_unrealize)
 
-    def _on_create_widgets(self, *args):
+    def _create_widgets(self, *args):
         if self._widgets_created:
             return
 
         self._widgets_created = True
 
+        # Start populating the contents _after_ returning from the "realize".
+        # Otherwise this widget is not shown for a long time while its children
+        # are being created.
+        GLib.timeout_add(
+            priority=GLib.PRIORITY_DEFAULT,
+            function=self._populate_items,
+            interval=50
+        )
+
+    def _populate_items(self):
         for item in self._items:
             widget = self._create_item_func(item)
             self.add(widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
+
+        return False
 
     def _on_unrealize(self, *args):
         for child in self.contents.get_children():
