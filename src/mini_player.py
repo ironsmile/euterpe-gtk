@@ -1,11 +1,33 @@
+# mini_player.py
+#
+# Copyright 2021 Doychin Atanasov
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from gi.repository import GObject, Gtk
+from .utils import emit_signal
+
+SIGNAL_PAN_UP = "pan-up"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/mini-player.ui')
 class EuterpeMiniPlayer(Gtk.Viewport):
     __gtype_name__ = 'EuterpeMiniPlayer'
 
-    __gsignals__ = {}
+    __gsignals__ = {
+        SIGNAL_PAN_UP: (GObject.SignalFlags.RUN_FIRST, None, ()),
+    }
 
     play_pause_button = Gtk.Template.Child()
     track_name = Gtk.Template.Child()
@@ -13,6 +35,7 @@ class EuterpeMiniPlayer(Gtk.Viewport):
     track_progess = Gtk.Template.Child()
     play_button_icon = Gtk.Template.Child()
     pause_button_icon = Gtk.Template.Child()
+    show_big_player_button = Gtk.Template.Child()
 
     def __init__(self, player, **kwargs):
         super().__init__(**kwargs)
@@ -22,6 +45,10 @@ class EuterpeMiniPlayer(Gtk.Viewport):
         self.play_pause_button.connect(
             "clicked",
             self.on_play_button_clicked
+        )
+        self.show_big_player_button.connect(
+            "clicked",
+            self.on_show_big_player_clicked
         )
         self._player.connect(
             "state-changed",
@@ -77,3 +104,6 @@ class EuterpeMiniPlayer(Gtk.Viewport):
             self._player.pause()
         else:
             self._player.play()
+
+    def on_show_big_player_clicked(self, btn):
+        emit_signal(self, SIGNAL_PAN_UP)

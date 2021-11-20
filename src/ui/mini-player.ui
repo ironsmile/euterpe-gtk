@@ -45,7 +45,7 @@
             <property name="margin_top">5</property>
             <property name="margin_bottom">5</property>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="show_big_player_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>

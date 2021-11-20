@@ -42,3 +42,12 @@ def config_file_name():
 def state_file_name():
     state_dir = GLib.get_user_cache_dir()
     return os.path.join(state_dir, 'euterpe.state')
+
+
+def format_duration(milliseconds):
+    '''
+        Accepts duration in milliseconds and returns a string
+        representation in the format XX:YY.
+    '''
+    minutes, seconds = divmod(milliseconds / 1000, 60)
+    return "{:0>2}:{:0>2}".format(int(minutes), int(seconds))

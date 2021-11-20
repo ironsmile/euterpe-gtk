@@ -33,6 +33,7 @@ from .browse_screen import EuterpeBrowseScreen
 from .search_screen import EuterpeSearchScreen
 from .mini_player import EuterpeMiniPlayer
 from .state_storage import StateStorage
+from .player_ui import EuterpePlayerUI
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
@@ -48,6 +49,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     Handy.init()
 
+    browsing_ui = Gtk.Template.Child()
     squeezer = Gtk.Template.Child()
     headerbar_switcher = Gtk.Template.Child()
     bottom_switcher = Gtk.Template.Child()
@@ -175,6 +177,30 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._search_widget = EuterpeSearchScreen(self)
         self.search_screen.add(self._search_widget)
 
+        self._player_ui = EuterpePlayerUI()
+        self.logged_in_screen.add(self._player_ui)
+        self.logged_in_screen.child_set(self._player_ui, name="player_ui")
+
+        pan_down_btn = self._player_ui.get_pan_down_button()
+        print("pan_down_btn: {}".format(pan_down_btn))
+
+        self.logged_in_screen.bind_property(
+            'folded',
+            self.miniplayer_position, 'visible',
+            GObject.BindingFlags.SYNC_CREATE
+        )
+
+        self.logged_in_screen.bind_property(
+            'folded',
+            pan_down_btn, 'visible',
+            GObject.BindingFlags.SYNC_CREATE
+        )
+
+        self._player_ui.connect(
+            "pan-down",
+            self._on_hide_big_player
+        )
+
         self._config_store = StateStorage(config_file_name(), "config")
         self._cache_store = StateStorage(state_file_name(), "app_state")
 
@@ -201,7 +227,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             mini_player.destroy()
 
         mini_player = EuterpeMiniPlayer(self._player)
+        mini_player.connect(
+            "pan-up",
+            self._on_show_big_player
+        )
         self.miniplayer_position.add(mini_player)
+        self._player_ui.set_player(self._player)
 
     def on_track_changed(self, player):
         track = player.get_track_info()
@@ -501,6 +532,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.title_tab_bar.show()
         child = self.squeezer.get_visible_child()
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
+
+    def _on_show_big_player(self, *args):
+        self.logged_in_screen.set_visible_child(self._player_ui)
+
+    def _on_hide_big_player(self, *args):
+        self.logged_in_screen.set_visible_child(self.browsing_ui)
 
     def _on_program_exit(self, *args):
         if self._search_widget is not None:

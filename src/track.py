@@ -1,5 +1,5 @@
 from gi.repository import GObject, Gtk
-from .utils import emit_signal
+from .utils import emit_signal, format_duration
 
 
 PLAY_BUTTON_CLICKED = "play-button-clicked"
@@ -34,18 +34,10 @@ class EuterpeTrack(Gtk.Viewport):
 
         self.track_play_button.connect("clicked", self._on_play_button)
 
-    def _format_duration(self, milliseconds):
-        '''
-            Accepts duration in milliseconds and returns a string
-            representation in the format XX:YY.
-        '''
-        minutes, seconds = divmod(milliseconds / 1000, 60)
-        return "{:0>2}:{:0>2}".format(int(minutes), int(seconds))
-
     def _set_duration(self, ms):
         duration = "n/a"
         if ms is not None:
-            duration = self._format_duration(ms)
+            duration = format_duration(ms)
         self.track_duration.set_label(duration)
 
     def _on_play_button(self, pb):

@@ -3,10 +3,21 @@
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="libhandy" version="1.2"/>
+  <object class="GtkImage" id="down_icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">pan-down-symbolic</property>
+  </object>
   <object class="GtkImage" id="next_icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="icon_name">go-next-symbolic</property>
+  </object>
+  <object class="GtkImage" id="pause_icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixel_size">70</property>
+    <property name="icon_name">media-playback-pause-symbolic</property>
   </object>
   <object class="GtkImage" id="play_icon">
     <property name="visible">True</property>
@@ -47,11 +58,12 @@
       <object class="GtkScrolledWindow">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="min_content_width">200</property>
         <child>
           <object class="GtkViewport">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="valign">center</property>
+            <property name="valign">start</property>
             <property name="margin_left">10</property>
             <property name="margin_right">10</property>
             <property name="shadow_type">none</property>
@@ -68,14 +80,41 @@
                     <property name="orientation">vertical</property>
                     <property name="spacing">20</property>
                     <child>
-                      <object class="GtkLabel">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="margin_top">10</property>
-                        <property name="margin_bottom">10</property>
-                        <property name="label" translatable="yes">NOW PLAYING</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
+                        <child>
+                          <object class="GtkButton" id="pan_down_button">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="valign">center</property>
+                            <property name="image">down_icon</property>
+                            <property name="always_show_image">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="margin_top">10</property>
+                            <property name="margin_bottom">10</property>
+                            <property name="label" translatable="yes">NOW PLAYING</property>
+                            <property name="justify">center</property>
+                            <property name="wrap">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -113,6 +152,7 @@
                         <child>
                           <object class="GtkButton" id="add_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="valign">center</property>
@@ -173,6 +213,7 @@
                         <child>
                           <object class="GtkButton" id="share_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="valign">center</property>
@@ -249,6 +290,7 @@
                         <child>
                           <object class="GtkToggleButton" id="shuffle_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="valign">center</property>
@@ -264,6 +306,7 @@
                         <child>
                           <object class="GtkButton" id="prev_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="valign">center</property>
@@ -277,8 +320,9 @@
                           </packing>
                         </child>
                         <child>
-                          <object class="GtkButton" id="play_button">
+                          <object class="GtkButton" id="play_pause_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="image">play_icon</property>
@@ -293,6 +337,7 @@
                         <child>
                           <object class="GtkButton" id="next_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="valign">center</property>
@@ -308,6 +353,7 @@
                         <child>
                           <object class="GtkToggleButton" id="repeat_button">
                             <property name="visible">True</property>
+                            <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="valign">center</property>
