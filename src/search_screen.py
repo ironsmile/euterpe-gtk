@@ -118,11 +118,6 @@ class EuterpeSearchScreen(Gtk.Viewport):
             )
             return
 
-        print("searching for '{}'".format(
-            search_term,
-            type(search_term)
-        ))
-
         self.search_for(search_term)
 
     def on_search_term_changed(self, entry):
