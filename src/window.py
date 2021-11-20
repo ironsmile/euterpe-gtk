@@ -191,6 +191,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                              self.on_track_progress_changed)
         self._player.connect("track-changed",
                              self.on_track_changed)
+
+        mini_player = self.miniplayer_position.get_child()
+        if mini_player is not None:
+            mini_player.destroy()
+
         mini_player = EuterpeMiniPlayer(self._player)
         self.miniplayer_position.add(mini_player)
 
