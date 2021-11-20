@@ -212,8 +212,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
         album_to_tracks = None
 
         for album_info in self._found_albums[:10]:
-            album_widget = EuterpeSmallAlbum(album_info)
-            album_widget.connect("button-next-clicked", self.on_album_next)
+            album_widget = self._create_small_album_widget(album_info)
             self.search_result_albums.add(album_widget)
 
         artists = sorted(
@@ -227,14 +226,12 @@ class EuterpeSearchScreen(Gtk.Viewport):
         artists_to_tracks = None
 
         for artist_info in self._found_artists[:10]:
-            artist_obj = EuterpeSmallArtist(artist_info)
-            artist_obj.connect("button-next-clicked", self.on_artist_next)
+            artist_obj = self._create_small_artists_widget(artist_info)
             self.search_result_artists.add(artist_obj)
 
         for track in body[:10]:
-            tr_obj = EuterpeTrack(track)
+            tr_obj = self._create_track_widget(track)
             self.search_result_songs.add(tr_obj)
-            tr_obj.connect("play-button-clicked", self.on_track_set)
 
         self.search_result_viewport.add(self.search_result_list)
         self.search_result_list.show()
@@ -266,42 +263,54 @@ class EuterpeSearchScreen(Gtk.Viewport):
         player.set_playlist([track])
         player.play()
 
+    def _create_small_artists_widget(self, artist_info):
+        artist_obj = EuterpeSmallArtist(artist_info)
+        artist_obj.connect("button-next-clicked", self.on_artist_next)
+        return artist_obj
+
+    def _create_small_album_widget(self, album_info):
+        album_obj = EuterpeSmallAlbum(album_info)
+        album_obj.connect("button-next-clicked", self.on_album_next)
+        return album_obj
+
+    def _create_track_widget(self, track_info):
+        track_obj = EuterpeTrack(track_info)
+        track_obj.connect("play-button-clicked", self.on_track_set)
+        return track_obj
+
     def on_see_all_artists(self, btn):
-        artist_list = EuterpeSimpleList()
+        artist_list = EuterpeSimpleList(
+            self._found_artists,
+            self._create_small_artists_widget,
+        )
         artist_list.set_title("Artists for search \"{}\"".format(
             self._search_query
         ))
 
-        for artist_info in self._found_artists:
-            artist_obj = EuterpeSmallArtist(artist_info)
-            artist_obj.connect("button-next-clicked", self.on_artist_next)
-            artist_list.add(artist_obj)
-
         self._nav.show_screen(artist_list)
 
     def on_see_all_albums(self, btn):
-        album_list = EuterpeSimpleList()
+        album_list = EuterpeSimpleList(
+            self._found_albums,
+            self._create_small_album_widget,
+        )
         album_list.set_title("Albums for search \"{}\"".format(
             self._search_query
         ))
 
-        for album_info in self._found_albums:
-            album_obj = EuterpeSmallAlbum(album_info)
-            album_obj.connect("button-next-clicked", self.on_album_next)
-            album_list.add(album_obj)
-
         self._nav.show_screen(album_list)
 
     def on_see_all_songs(self, btn):
-        songs_list = EuterpeSimpleList()
-        songs_list.set_title("First 100 songs for search \"{}\"".format(
+        limit = 500
+
+        songs_list = EuterpeSimpleList(
+            self._search_results[:limit],
+            self._create_track_widget,
+        )
+        songs_list.set_title("First {} songs for search \"{}\"".format(
+            limit,
             self._search_query
         ))
-
-        for song_info in self._search_results[:100]:
-            song_obj = EuterpeTrack(song_info)
-            song_obj.connect("play-button-clicked", self.on_track_set)
-            songs_list.add(song_obj)
 
         self._nav.show_screen(songs_list)
 
