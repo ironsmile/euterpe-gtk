@@ -65,15 +65,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     about_euterpe_version = Gtk.Template.Child()
     about_libhandy_version = Gtk.Template.Child()
 
-    home_track_name = Gtk.Template.Child()
-    home_artist_name = Gtk.Template.Child()
-    home_album_name = Gtk.Template.Child()
-
-    play_button = Gtk.Template.Child()
-    next_button = Gtk.Template.Child()
-    prev_button = Gtk.Template.Child()
-    track_progess = Gtk.Template.Child()
-
     logged_in_screen = Gtk.Template.Child()
     login_scroll_view = Gtk.Template.Child()
     app_stack = Gtk.Template.Child()
@@ -86,9 +77,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     service_username = Gtk.Template.Child()
     service_password = Gtk.Template.Child()
     service_password_show_toggle = Gtk.Template.Child()
-
-    pause_button_icon = Gtk.Template.Child()
-    play_button_icon = Gtk.Template.Child()
 
     miniplayer_position = Gtk.Template.Child()
 
@@ -118,22 +106,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.squeezer.connect(
             "notify::visible-child",
             self.on_headerbar_squeezer_notify
-        )
-        self.play_button.connect(
-            "clicked",
-            self.on_play_button_clicked
-        )
-        self.next_button.connect(
-            "clicked",
-            self.on_next_button_clicked
-        )
-        self.prev_button.connect(
-            "clicked",
-            self.on_prev_button_clicked
-        )
-        self.track_progess.connect(
-            "change-value",
-            self.on_seek
         )
         self.app_stack.connect(
             "notify::visible-child",
@@ -165,8 +137,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         Gst.init(None)
         self.populate_about()
 
-        self.track_progess.set_range(0, 1)
-
         browse_screen = EuterpeBrowseScreen()
         self.browse_screen.add(browse_screen)
         browse_screen.connect(
@@ -182,7 +152,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.logged_in_screen.child_set(self._player_ui, name="player_ui")
 
         pan_down_btn = self._player_ui.get_pan_down_button()
-        print("pan_down_btn: {}".format(pan_down_btn))
 
         self.logged_in_screen.bind_property(
             'folded',
@@ -215,13 +184,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         t.start()
 
     def _on_player_created(self):
-        self._player.connect("state-changed",
-                             self.on_player_state_changed)
-        self._player.connect("progress",
-                             self.on_track_progress_changed)
-        self._player.connect("track-changed",
-                             self.on_track_changed)
-
         mini_player = self.miniplayer_position.get_child()
         if mini_player is not None:
             mini_player.destroy()
@@ -233,15 +195,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         )
         self.miniplayer_position.add(mini_player)
         self._player_ui.set_player(self._player)
-
-    def on_track_changed(self, player):
-        track = player.get_track_info()
-        if track is None:
-            return
-
-        self.home_track_name.set_label(track.get("title", "n/a"))
-        self.home_album_name.set_label(track.get("album", "n/a"))
-        self.home_artist_name.set_label(track.get("artist", "n/a"))
 
     def restore_state(self):
         '''
@@ -291,33 +244,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._token = token
 
-    def change_progress(self, prog):
-        if prog < 0:
-            prog = 0
-        if prog > 1:
-            prog = 1
-        self.track_progess.set_value(prog)
-
     def show_login_loading(self):
         self.login_spinner.props.active = True
 
     def hide_login_loading(self):
         self.login_spinner.props.active = False
-
-    def _toggle_playing_state(self, button):
-        print("executing on toggle playing state button")
-
-        if self._player is None:
-            # Nothing to do here, go away!
-            return
-
-        if self._player.is_playing():
-            self._player.pause()
-        else:
-            self._player.play()
-
-    def on_track_progress_changed(self, player, progress):
-        self.change_progress(progress)
 
     def populate_about(self):
         self.about_python_version.set_label('{}.{}.{}'.format(
@@ -466,54 +397,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     def on_headerbar_squeezer_notify(self, squeezer, event):
         child = squeezer.get_visible_child()
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
-
-    def on_play_button_clicked(self, button):
-        print("play button clicked")
-
-        if self._player is None:
-            print("no player is set!")
-            return
-
-        self._toggle_playing_state(button)
-
-    def on_next_button_clicked(self, button):
-        if self._player is None:
-            return
-        self._player.next()
-
-    def on_prev_button_clicked(self, button):
-        if self._player is None:
-            return
-        self._player.previous()
-
-    def on_seek(self, slider, scroll, value):
-        if scroll != Gtk.ScrollType.JUMP:
-            return False
-
-        if self._player is None:
-            return
-
-        self._player.seek(value)
-        return False
-
-    def on_player_state_changed(self, player):
-        if player is not self._player:
-            return
-
-        self.track_progess.set_sensitive(True)
-        self.play_button.set_sensitive(True)
-        self.next_button.set_sensitive(player.has_next())
-        self.prev_button.set_sensitive(player.has_previous())
-
-        if player.is_playing():
-            self.play_button.set_label("Pause")
-            self.play_button.set_image(self.pause_button_icon)
-        else:
-            self.play_button.set_label("Play")
-            self.play_button.set_image(self.play_button_icon)
-
-        if player.has_ended():
-            self.change_progress(0)
 
     def open_search_screen(self, btn):
         self.main_stack.set_visible_child(self.search_screen)
