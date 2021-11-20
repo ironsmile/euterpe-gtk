@@ -23,6 +23,7 @@ class EuterpeSimpleList(Gtk.Viewport):
         self._items = items
         self._create_item_func = create_item_func
         self._widgets_created = False
+        self._removed = False
 
         self.connect("realize", self._create_widgets)
         self.connect("unrealize", self._on_unrealize)
@@ -48,12 +49,17 @@ class EuterpeSimpleList(Gtk.Viewport):
             self.add(widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
+            if self._removed or not self.get_realized():
+                break
 
         return False
 
     def _on_unrealize(self, *args):
+        self._removed = True
         for child in self.contents.get_children():
             child.destroy()
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
 
     def add(self, widget):
         self.contents.add(widget)
