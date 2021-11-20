@@ -1,4 +1,4 @@
-# player.py
+# state_storage.py
 #
 # Copyright 2021 Doychin Atanasov
 #
@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
+import os
 from gi.repository import GLib
 
 class StateStorage:
@@ -32,7 +33,7 @@ class StateStorage:
         try:
             self._kf.load_from_file(self._config_file, GLib.KeyFileFlags.NONE)
         except GLib.Error as err:
-            print('Loading config file ({}) failed: {}'.format(
+            print('Loading configuration file ({}) failed: {}'.format(
                 self._config_file,
                 err,
             ))
@@ -68,8 +69,22 @@ class StateStorage:
 
         return None
 
+    def truncate(self):
+        '''
+        Truncate removes everything stored settings in the storage file.
+        '''
+        try:
+            os.remove(self._config_file)
+        except Exception as err:
+            print("Truncating {} failed: {}".format(
+                self._config_file,
+                err
+            ))
+
+        self._kf = GLib.KeyFile.new()
+
     def _store_kf_file(self):
         try:
             self._kf.save_to_file(self._config_file)
         except GLib.Error as err:
-            print('Saving config file failed: {}'.format(err))
+            print('Saving configuration file failed: {}'.format(err))

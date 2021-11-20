@@ -336,6 +336,14 @@ class EuterpeSearchScreen(Gtk.Viewport):
         self.screen_stack.set_visible_child(previous_child)
         self.screen_stack.remove(visible_child)
 
+    def factory_reset(self):
+        '''
+        Restores the search screen to its initial state before any
+        searches were made.
+        '''
+        self._cleanup_search_results()
+        self.main_search_box.set_text("")
+
     def restore_state(self, store):
         state = store.get_object("search_state")
         if state is None:
@@ -345,15 +353,12 @@ class EuterpeSearchScreen(Gtk.Viewport):
             return
 
         self._search_results = state["tracks"]
-        print("search restored {} tracks".format(len(self._search_results)))
 
         if 'found_artists' in state:
             self._found_artists = state['found_artists']
-            print("search restored {} artists".format(len(self._found_artists)))
 
         if 'found_albums' in state:
             self._found_albums = state['found_albums']
-            print("search restored {} albums".format(len(self._found_albums)))
 
         if 'search_term' in state and len(state['search_term']) > 0:
             self._search_query = state['search_term']

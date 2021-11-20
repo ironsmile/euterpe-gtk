@@ -99,6 +99,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._player = None
         self._euterpe = None
         self._remote_address = None
+        self._search_widget = None
 
         self.squeezer.set_visible(False)
 
@@ -418,6 +419,15 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         keyring.set_password("euterpe", "token", "")
         self.store_remote_address("")
 
+        if self._player is not None:
+            self._player.stop()
+            self._player.set_playlist([])
+
+        if self._search_widget is not None:
+            self._search_widget.factory_reset()
+
+        self._cache_store.truncate()
+
         self.app_stack.set_visible_child(
             self.login_scroll_view
         )
@@ -493,7 +503,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
 
     def _on_program_exit(self, *args):
-        self._search_widget.store_state(self._cache_store)
+        if self._search_widget is not None:
+            self._search_widget.store_state(self._cache_store)
 
         if self._player is not None:
             self._player.store_state(self._cache_store)
