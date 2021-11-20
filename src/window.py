@@ -450,6 +450,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if player is not self._player:
             return
 
+        self.track_progess.set_sensitive(True)
         self.play_button.set_sensitive(True)
         self.next_button.set_sensitive(player.has_next())
         self.prev_button.set_sensitive(player.has_previous())
