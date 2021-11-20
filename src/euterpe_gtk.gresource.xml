@@ -11,6 +11,7 @@
     <file>ui/album.ui</file>
     <file>ui/artist.ui</file>
     <file>ui/simple-list.ui</file>
+    <file>ui/player.ui</file>
     <file>assets/icon-128.png</file>
   </gresource>
 </gresources>

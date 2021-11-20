@@ -30,6 +30,7 @@ euterpe_gtk_sources = [
   'main.py',
   'window.py',
   'player.py',
+  'player_ui.py',
   'service.py',
   'utils.py',
   'http.py',
