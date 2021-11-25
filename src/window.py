@@ -50,6 +50,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     Handy.init()
 
     browsing_ui = Gtk.Template.Child()
+    main_leaflet_separator = Gtk.Template.Child()
     squeezer = Gtk.Template.Child()
     headerbar_switcher = Gtk.Template.Child()
     bottom_switcher = Gtk.Template.Child()
@@ -163,6 +164,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             'folded',
             pan_down_btn, 'visible',
             GObject.BindingFlags.SYNC_CREATE
+        )
+
+        self.logged_in_screen.bind_property(
+            'folded',
+            self.main_leaflet_separator, 'visible',
+            GObject.BindingFlags.INVERT_BOOLEAN
         )
 
         self._player_ui.connect(
