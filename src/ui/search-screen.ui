@@ -95,12 +95,20 @@
     <property name="image">back_button_icon</property>
     <property name="always_show_image">True</property>
   </object>
-  <object class="HdyStatusPage" id="not_implemented">
+  <object class="HdyStatusPage" id="nothing_found">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="icon_name">dialog-warning-symbolic</property>
-    <property name="title" translatable="yes">Not Implemented</property>
-    <property name="description" translatable="yes">This feature is meant to be here at some point but I hadn't time to get to it yet!</property>
+    <property name="icon_name">emblem-important-symbolic</property>
+    <property name="title" translatable="yes">Nothing Found</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+  <object class="HdyStatusPage" id="search_error">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">dialog-error-symbolic</property>
+    <property name="title" translatable="yes">Error Searching</property>
     <child>
       <placeholder/>
     </child>

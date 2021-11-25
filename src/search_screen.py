@@ -31,7 +31,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
     search_result_albums = Gtk.Template.Child()
     search_result_artists = Gtk.Template.Child()
     play_all_search_results = Gtk.Template.Child()
-    not_implemented = Gtk.Template.Child()
+    nothing_found = Gtk.Template.Child()
+    search_error = Gtk.Template.Child()
 
     see_all_albums_button = Gtk.Template.Child()
     see_all_artists_button = Gtk.Template.Child()
@@ -136,19 +137,17 @@ class EuterpeSearchScreen(Gtk.Viewport):
         self._cleanup_search_results()
 
         if status != 200:
-            label = Gtk.Label.new()
-            label.set_text("Error searching. HTTP response code {}.".format(
-                status
-            ))
-            self.search_result_viewport.add(label)
-            label.show()
+            self.search_error.set_description(
+                "HTTP response code {}.".format(status)
+            )
+            self.search_result_viewport.add(self.search_error)
             return
 
         if len(body) == 0:
-            label = Gtk.Label.new()
-            label.set_text("Nothing found for '{}'.".format(query))
-            self.search_result_viewport.add(label)
-            label.show()
+            self.nothing_found.set_description(
+                "Nothing found for '{}'.".format(query)
+            )
+            self.search_result_viewport.add(self.nothing_found)
             return
 
         self._search_query = query
