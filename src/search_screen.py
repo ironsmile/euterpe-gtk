@@ -59,10 +59,6 @@ class EuterpeSearchScreen(Gtk.Viewport):
             "activate",
             self.on_search
         )
-        self.main_search_box.connect(
-            "search-changed",
-            self.on_search_term_changed
-        )
         self.play_all_search_results.connect(
             "clicked",
             self.on_play_all_search_results
@@ -121,19 +117,6 @@ class EuterpeSearchScreen(Gtk.Viewport):
             return
 
         self.search_for(search_term)
-
-    def on_search_term_changed(self, entry):
-        search_term = entry.get_text()
-        if search_term != "":
-            return
-
-        # The search entry was set to empty. This is most probably due
-        # to clicking on the "backspace" button on the search entry. So
-        # just remove all the search results.
-        self._cleanup_search_results()
-        self.search_result_viewport.add(
-            self.search_empty_content,
-        )
 
     def search_for(self, search_term):
         if search_term is None:
