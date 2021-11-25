@@ -13,7 +13,7 @@
 			to use this program effectively.
 		</p>
 		<p>
-			Keep in mind that this is still an alpha stage for this application.
+			Keep in mind that this is still an early stage for this application.
 			It may be good enough for listening a song or an album. But at the
 			same time big chunks of what is to come are still missing.
 		</p>
@@ -30,12 +30,16 @@
 			<li>
 				Searching the database for music.
 			</li>
+			<li>
+				Mobile first but convergent. It works on both mobile Linux and desktop.
+			</li>
 		</ul>
 	</description>
 	<developer_name>Doychin Atanasov</developer_name>
 	<screenshots>
 		<screenshot type="default">
 			<image type="source" width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/alpha-screenshots.png</image>
+			<image width="1690" height="819">https://i.imgur.com/yHaxgN7.png</image>
 			<image width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/convergent-screenshots.png</image>
 		</screenshot>
 	</screenshots>
@@ -46,6 +50,35 @@
 	<url type="donation">https://github.com/sponsors/ironsmile</url>
 
 	<releases>
+		<release version="0.2.0" date="2021-11-25">
+			<description>
+				<p>
+					This version comes with a huge pile of improvements,
+					bugfixes and new features. I will list the most notable.
+				</p>
+				<ul>
+					<li>
+						Switched to libsoup from libcurl. This makes seeking and
+						recovering from network changes rock solid.
+					</li>
+					<li>
+						Added "artist" and "album" screens which list all albums
+						for an artist or all tracks for an album. Accessible from
+						the search results.
+					</li>
+					<li>
+						The application state is stored on quitting and restored on
+						staring. Including the progress of the currently playing
+						track.
+					</li>
+					<li>
+						Created an improved player controls widget with convergent
+						support. On the desktop it is always visible in one half
+						of the window. On mobile it is accessible on a full screen.
+					</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.1.1" date="2021-11-15">
 			<description>
 				<p>
