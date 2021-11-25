@@ -45,67 +45,14 @@
                     <property name="can_focus">False</property>
                     <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkViewport" id="search_empty_content">
+                      <object class="HdyStatusPage" id="search_empty_content">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="shadow_type">none</property>
+                        <property name="icon_name">system-search-symbolic</property>
+                        <property name="title" translatable="yes">Search Your Music</property>
+                        <property name="description" translatable="yes">Listen to the songs, artists, albums you own. Whenever you go they would follow.</property>
                         <child>
-                          <object class="GtkBox">
-                            <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="halign">center</property>
-                            <property name="valign">center</property>
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkImage">
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="can_focus">False</property>
-                                <property name="pixel_size">128</property>
-                                <property name="icon_name">system-search-symbolic</property>
-                                <property name="icon_size">5</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="can_focus">False</property>
-                                <property name="margin_top">20</property>
-                                <property name="margin_bottom">20</property>
-                                <property name="label" translatable="yes">Search Your Music</property>
-                                <property name="wrap">True</property>
-                                <attributes>
-                                  <attribute name="weight" value="bold"/>
-                                  <attribute name="scale" value="2"/>
-                                </attributes>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <object class="GtkLabel">
-                                <property name="visible">True</property>
-                                <property name="sensitive">False</property>
-                                <property name="can_focus">False</property>
-                                <property name="label" translatable="yes">Listen to the songs, artists, albums you own. Wherever you go they would follow.</property>
-                                <property name="justify">center</property>
-                                <property name="wrap">True</property>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </object>
+                          <placeholder/>
                         </child>
                       </object>
                     </child>
