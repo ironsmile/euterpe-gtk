@@ -89,6 +89,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Minimize full player</property>
                             <property name="valign">center</property>
                             <property name="image">down_icon</property>
                             <property name="always_show_image">True</property>
@@ -177,10 +178,10 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">Nothing Playing</property>
                                 <property name="justify">center</property>
-                                <property name="wrap">True</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single_line_mode">True</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
-                                  <attribute name="scale" value="2"/>
                                 </attributes>
                               </object>
                               <packing>
@@ -195,7 +196,8 @@
                                 <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">--</property>
                                 <property name="justify">center</property>
-                                <property name="wrap">True</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single_line_mode">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
@@ -216,6 +218,7 @@
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Share song URL</property>
                             <property name="valign">center</property>
                             <property name="image">share_icon</property>
                             <property name="always_show_image">True</property>
@@ -293,6 +296,7 @@
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Toggle shuffle</property>
                             <property name="valign">center</property>
                             <property name="image">shuffle_icon</property>
                             <property name="always_show_image">True</property>
@@ -309,6 +313,7 @@
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Previous song in queue</property>
                             <property name="valign">center</property>
                             <property name="image">prev_icon</property>
                             <property name="always_show_image">True</property>
@@ -325,6 +330,7 @@
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Play or pause song</property>
                             <property name="image">play_icon</property>
                             <property name="always_show_image">True</property>
                           </object>
@@ -340,6 +346,7 @@
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Next song in queue</property>
                             <property name="valign">center</property>
                             <property name="image">next_icon</property>
                             <property name="always_show_image">True</property>
@@ -356,6 +363,7 @@
                             <property name="sensitive">False</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="tooltip_text" translatable="yes">Toggle repeat modes</property>
                             <property name="valign">center</property>
                             <property name="image">repeat_icon</property>
                             <property name="always_show_image">True</property>

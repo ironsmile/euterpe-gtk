@@ -50,6 +50,7 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">See full player controls and play queue</property>
+                <property name="valign">center</property>
                 <property name="image">up_button_image</property>
                 <property name="always_show_image">True</property>
               </object>
@@ -109,6 +110,8 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Play or pause song</property>
+                <property name="valign">center</property>
                 <property name="image">play_button_icon</property>
                 <property name="image_position">right</property>
                 <property name="always_show_image">True</property>
