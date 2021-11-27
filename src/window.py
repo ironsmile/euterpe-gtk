@@ -100,6 +100,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._config_store = StateStorage(config_file_name(), "config")
         self._cache_store = StateStorage(state_file_name(), "app_state")
+        print("reading key-value files from disk...")
         self._config_store.load()
         self._cache_store.load()
 
@@ -220,7 +221,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             run.
         '''
         try:
-            print("reading key-value files from disk...")
             print("restoring address...")
             self._restore_address()
             print("restoring token...")
@@ -356,9 +356,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         if status != 200:
             self.login_failed_indicator.show()
-            print("Authentication unsuccessful. HTTP status code: {}".format(
-                status
-            ))
+            print(
+                "Authentication unsuccessful. "
+                "HTTP status code: {}. Body: {}".format(
+                    status, data
+                )
+            )
             return
 
         self.store_remote_address(remote_url)
