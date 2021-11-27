@@ -21,7 +21,6 @@ import gi
 gi.require_version('Gtk', '3.0')
 
 from gi.repository import Gtk, Gio
-
 from .window import EuterpeGtkWindow
 
 
@@ -30,12 +29,28 @@ class Application(Gtk.Application):
         super().__init__(application_id='com.doycho.euterpe.gtk',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self._version = version
+        self._window = None
 
     def do_activate(self):
         win = self.props.active_window
-        if not win:
-            win = EuterpeGtkWindow(self._version, application=self)
-        win.present()
+        if win:
+            win.present()
+            return
+
+        self._set_actions()
+
+        self._window = EuterpeGtkWindow(self._version, application=self)
+        self._window.present()
+
+    def _set_actions(self):
+        action = Gio.SimpleAction.new("quit", None)
+        action.connect("activate", self.on_quit)
+        self.add_action(action)
+
+        self.set_accels_for_action("app.quit", ["<Control>Q"])
+
+    def on_quit(self, *args):
+        self.quit()
 
 
 def main(version):
