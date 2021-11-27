@@ -68,13 +68,8 @@ class Request(object):
 
     def _request_cb(self, session, message, data):
         status = message.props.status_code
-        if status >= 200 and status <= 299:
-            self._call_callback(
-                status,
-                message.props.response_body_data.get_data(),
-            )
-        else:
-            self._call_callback(status, None)
+        resp_body = message.props.response_body_data.get_data()
+        self._call_callback(status, resp_body)
 
     def _call_callback(self, status, data):
         try:
