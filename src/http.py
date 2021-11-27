@@ -54,7 +54,7 @@ class Request(object):
     def post(self, content_type, body, *args):
         self._args = args
         req = Soup.Message.new("POST", self._address)
-        req.set_request(content_type, Soup.MemoryUse.STATIC, body)
+        req.set_request(content_type, Soup.MemoryUse.COPY, body)
         self._do(req)
 
     def _do(self, req):
