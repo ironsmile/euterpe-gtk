@@ -25,7 +25,7 @@ gi.require_version('Handy', '1')
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
 
-from gi.repository import GObject, GLib, Gtk, Handy, Gst
+from gi.repository import GObject, GLib, Gtk, Handy, Gst, Gdk
 from .player import Player
 from .service import Euterpe
 from .utils import emit_signal, config_file_name, state_file_name
@@ -92,9 +92,23 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._remote_address = None
         self._search_widget = None
 
+        self._current_width = None
+        self._current_height = None
+        self._is_maximized = None
+
         self.squeezer.set_visible(False)
 
+        self._config_store = StateStorage(config_file_name(), "config")
+        self._cache_store = StateStorage(state_file_name(), "app_state")
+        self._config_store.load()
+        self._cache_store.load()
+
+        print("restoring window state...")
+        self._restore_window_state()
+
         self.connect("show", self.on_activate)
+        self.connect("size-allocate", self._on_size_allocate)
+        self.connect("window-state-event", self._on_window_state_event)
         self.connect(SIGNAL_STATE_RESTORED, self.on_state_restored)
 
     def get_player(self):
@@ -177,9 +191,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._on_hide_big_player
         )
 
-        self._config_store = StateStorage(config_file_name(), "config")
-        self._cache_store = StateStorage(state_file_name(), "app_state")
-
         self.connect("delete-event", self._on_program_exit)
 
         print("staring RestoreStateThread")
@@ -210,8 +221,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         '''
         try:
             print("reading key-value files from disk...")
-            self._config_store.load()
-            self._cache_store.load()
             print("restoring address...")
             self._restore_address()
             print("restoring token...")
@@ -435,3 +444,61 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         if self._player is not None:
             self._player.store_state(self._cache_store)
+
+        self._store_state()
+
+    def _on_size_allocate(self, __win, allocation):
+        if self.is_maximized():
+            return
+
+        (w, h) = self.get_size()
+        self._current_width = w
+        self._current_height = h
+
+    def _on_window_state_event(self, __win, event):
+        self._is_maximized = (
+            event.new_window_state & Gdk.WindowState.MAXIMIZED
+        ) != 0
+
+    def _store_state(self):
+        try:
+            self._cache_store.set_many(
+                {
+                    "width": self._current_width,
+                    "height": self._current_height,
+                    "maximized": self._is_maximized,
+                },
+                namespace="window_state"
+            )
+        except Exception as err:
+            print("Error storing window state: {}".format(err))
+
+    def _restore_window_state(self):
+        store = self._cache_store
+
+        try:
+            width = store.get_integer("width", namespace="window_state")
+            height = store.get_integer("height", namespace="window_state")
+        except Exception as err:
+            print("error restoring window size: {}".format(err))
+            return
+
+        print("height, width: {}x{}".format(height, width))
+
+        if width != 0 and height != 0:
+            self._current_width = width
+            self._current_height = height
+            self.set_default_size(width, height)
+
+        try:
+            maximized = store.get_boolean(
+                "maximized",
+                namespace="window_state"
+            )
+        except Exception as err:
+            print("error restoring window maximized: {}".format(err))
+            return
+
+        self._is_maximized = maximized
+        if maximized:
+            self.maximize()

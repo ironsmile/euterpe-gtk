@@ -38,14 +38,48 @@ class StateStorage:
                 err,
             ))
 
-    def set_string(self, key, value):
-        self._kf.set_string(self._namespace, key, value)
+    def set_string(self, key, value, namespace=None):
+        self._kf.set_string(self._get_namespace(namespace), key, value)
         self._store_kf_file()
 
-    def get_string(self, key):
-        return self._kf.get_string(self._namespace, key)
+    def set_many(self, kvs, namespace=None):
+        namespace = self._get_namespace(namespace)
+        for k, v in kvs.items():
+            if isinstance(v, int):
+                self._kf.set_integer(namespace, k, v)
+            elif isinstance(v, str):
+                self._kf.set_string(namespace, k, v)
+            elif isinstance(v, bool):
+                self._kf.set_boolean(namespace, k, v)
+            elif isinstance(v, float):
+                self._kf.set_double(namespace, k, v)
+            else:
+                raise ValueError(
+                    "cannot set item of type {} it set_many for key {}".format(
+                        type(v),
+                        k
+                    )
+                )
+        self._store_kf_file()
 
-    def set_object(self, key, object):
+    def set_boolean(self, key, value, namespace=None):
+        self._kf.set_boolean(self._get_namespace(namespace), key, value)
+        self._store_kf_file()
+
+    def set_integer(self, key, value, namespace=None):
+        self._kf.set_integer(self._get_namespace(namespace), key, value)
+        self._store_kf_file()
+
+    def get_string(self, key, namespace=None):
+        return self._kf.get_string(self._get_namespace(namespace), key)
+
+    def get_integer(self, key, namespace=None):
+        return self._kf.get_integer(self._get_namespace(namespace), key)
+
+    def get_boolean(self, key, namespace=None):
+        return self._kf.get_boolean(self._get_namespace(namespace), key)
+
+    def set_object(self, key, object, namespace=None):
         try:
             object_str = json.dumps(object)
         except ValueError as err:
@@ -53,10 +87,10 @@ class StateStorage:
                 key, err
             ))
             return
-        self.set_string(key, object_str)
+        self.set_string(key, object_str, namespace=namespace)
 
-    def get_object(self, key):
-        object_str = self.get_string(key)
+    def get_object(self, key, namespace=None):
+        object_str = self.get_string(key, namespace=namespace)
         if object_str == "":
             return None
 
@@ -82,6 +116,12 @@ class StateStorage:
             ))
 
         self._kf = GLib.KeyFile.new()
+
+    def _get_namespace(self, namespace):
+        if namespace is None:
+            return self._namespace
+
+        return namespace
 
     def _store_kf_file(self):
         try:
