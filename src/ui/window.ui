@@ -113,6 +113,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">The URL address of your Euterpe installation. Such as https://music.example.com. If the protocol is omitted then HTTPS is assumed.</property>
+                                <property name="activates_default">True</property>
                                 <property name="primary_icon_stock">gtk-index</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">False</property>
@@ -144,6 +145,7 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="tooltip_text" translatable="yes">Your username for this Euterpe installation. Such as "JohnDoe". If the server configuration does not require authentication this can be left blank field blank.</property>
+                                <property name="activates_default">True</property>
                                 <property name="primary_icon_stock">gtk-orientation-portrait</property>
                                 <property name="primary_icon_activatable">False</property>
                                 <property name="primary_icon_sensitive">False</property>
@@ -231,8 +233,13 @@
                                 <property name="label" translatable="yes">Log In</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="can_default">True</property>
+                                <property name="has_default">True</property>
                                 <property name="receives_default">True</property>
                                 <signal name="clicked" handler="login_button_clicked_cb" swapped="no"/>
+                                <style>
+                                  <class name="suggested-action"/>
+                                </style>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -266,6 +273,7 @@
                                     <property name="can_focus">True</property>
                                     <property name="tooltip_text" translatable="yes">Your password for the username in this Euterpe installation. If the server configuration does not require authentication this field can be left blank.</property>
                                     <property name="visibility">False</property>
+                                    <property name="activates_default">True</property>
                                     <property name="primary_icon_stock">gtk-dialog-authentication</property>
                                     <property name="primary_icon_activatable">False</property>
                                     <property name="secondary_icon_activatable">False</property>
@@ -400,6 +408,9 @@
                                             <property name="focus_on_click">False</property>
                                             <property name="receives_default">True</property>
                                             <property name="halign">center</property>
+                                            <style>
+                                              <class name="destructive-action"/>
+                                            </style>
                                           </object>
                                         </child>
                                       </object>
