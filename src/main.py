@@ -35,7 +35,7 @@ class Application(Gtk.Application):
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         Gst.init(None)
         self._version = version
-        self._euterpe = Euterpe()
+        self._euterpe = Euterpe(version)
         self._player = Player(self._euterpe)
 
     def do_activate(self):

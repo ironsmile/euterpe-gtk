@@ -92,9 +92,10 @@ class Euterpe:
 
         return urllib.parse.urljoin(remote_url, endpoint.lstrip("/"))
 
-    def __init__(self):
+    def __init__(self, version):
         self._remote_address = None
         self._token = None
+        self._user_agent = "Euterpe-GTK Player/{}".format(version)
 
     def set_address(self, address):
         self._remote_address = address
@@ -125,6 +126,7 @@ class Euterpe:
 
     def _create_request(self, address, callback):
         req = Request(address, callback)
+        req.set_header("User-Agent", self._user_agent)
         if self._token is not None:
             req.set_header("Authorization", "Bearer {}".format(self._token))
         return req
