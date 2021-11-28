@@ -20,6 +20,8 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
+gi.require_version('Handy', '1')
+gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, Gio, Gst
 from .player import Player

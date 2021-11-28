@@ -18,7 +18,7 @@
 import gi
 import sys
 gi.require_version('Soup', '2.4')
-from gi.repository import Gio, Soup
+from gi.repository import Soup
 
 
 _soup_session = None

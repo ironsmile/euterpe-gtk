@@ -16,15 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import gi
 import threading
 import keyring
 import json
 
-gi.require_version('Handy', '1')
-gi.require_version('GLib', '2.0')
-
-from gi.repository import GObject, GLib, Gtk, Handy, Gst, Gdk
+from gi.repository import GObject, Gtk, Handy, Gst, Gdk
 from .service import Euterpe
 from .utils import emit_signal, config_file_name, state_file_name
 from .browse_screen import EuterpeBrowseScreen
