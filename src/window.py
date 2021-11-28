@@ -25,7 +25,6 @@ gi.require_version('Handy', '1')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import GObject, GLib, Gtk, Handy, Gst, Gdk
-from .player import Player
 from .service import Euterpe
 from .utils import emit_signal, config_file_name, state_file_name
 from .browse_screen import EuterpeBrowseScreen
