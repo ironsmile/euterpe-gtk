@@ -226,8 +226,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._search_widget.restore_state(self._cache_store)
             print("restoring playing state...")
             self._player.restore_state(self._cache_store)
-            print("restoring recently added...")
-            self._home_widget.restore_state(self._cache_store)
+
+            if self._remote_address is not None:
+                print("restoring recently added...")
+                self._home_widget.restore_state(self._cache_store)
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
@@ -384,6 +386,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._euterpe.set_address(self._remote_address)
         self._euterpe.set_token(self._token)
+
+        self._home_widget.restore_state(self._cache_store)
+
         self.app_stack.set_visible_child(
             self.logged_in_screen
         )
