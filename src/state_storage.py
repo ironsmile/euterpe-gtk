@@ -71,13 +71,22 @@ class StateStorage:
         self._store_kf_file()
 
     def get_string(self, key, namespace=None):
-        return self._kf.get_string(self._get_namespace(namespace), key)
+        try:
+            return self._kf.get_string(self._get_namespace(namespace), key)
+        except Exception:
+            return ""
 
     def get_integer(self, key, namespace=None):
-        return self._kf.get_integer(self._get_namespace(namespace), key)
+        try:
+            return self._kf.get_integer(self._get_namespace(namespace), key)
+        except Exception:
+            return 0
 
     def get_boolean(self, key, namespace=None):
-        return self._kf.get_boolean(self._get_namespace(namespace), key)
+        try:
+            return self._kf.get_boolean(self._get_namespace(namespace), key)
+        except Exception:
+            return False
 
     def set_object(self, key, object, namespace=None):
         try:

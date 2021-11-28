@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import time
 
 from gi.repository import GObject, Gtk
 from .utils import emit_signal
@@ -22,6 +23,11 @@ from .box_artist import EuterpeBoxArtist
 from .album import EuterpeAlbum
 from .artist import EuterpeArtist
 from .navigator import Navigator
+
+
+# Duration of seconds for which a recently added albums/artists will be
+# valid.
+REFRESH_INTERVAL = 60 * 60 * 24
 
 SIGNAL_ADDED_ALBUMS_RESTORED = "state-added-albums-restored"
 SIGNAL_ADDED_ARTISTS_RESTORED = "state-added-artists-restored"
@@ -61,6 +67,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self._on_logout_button
         )
 
+        self._recently_added_last_updated = None
         self._recently_added_artists = []
         self._recently_added_albums = []
 
@@ -126,6 +133,19 @@ class EuterpeHomeScreen(Gtk.Viewport):
         return self.back_button
 
     def restore_state(self, store):
+        state = store.get_object("recently_added")
+        if (
+            state is not None and 'last_updated' in state
+            and isinstance(state['last_updated'], float)
+            and state['last_updated'] + REFRESH_INTERVAL > time.time()
+        ):
+            self._recently_added_albums = state["albums"]
+            emit_signal(self, SIGNAL_ADDED_ALBUMS_RESTORED)
+
+            self._recently_added_artists = state["artists"]
+            emit_signal(self, SIGNAL_ADDED_ARTISTS_RESTORED)
+            return
+
         euterpe = self._win.get_euterpe()
         euterpe.get_recently_added(
             "album",
@@ -136,6 +156,17 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self._on_recently_added_artists_callback
         )
 
+    def store_state(self, store):
+        if self._recently_added_last_updated is None:
+            return
+
+        state = {
+            "last_updated": self._recently_added_last_updated,
+            "artists": self._recently_added_artists,
+            "albums": self._recently_added_albums,
+        }
+        store.set_object("recently_added", state)
+
     def _on_recently_added_albums_callback(self, status, body):
         if status != 200:
             self._show_error("Error, HTTP response code {}".format(status))
@@ -145,6 +176,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self._show_error("Unexpected response from server.")
             return
 
+        self._recently_added_last_updated = time.time()
         self.set_added_albums(body['data'])
 
     def _on_recently_added_artists_callback(self, status, body):
@@ -156,6 +188,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self._show_error("Unexpected response from server.")
             return
 
+        self._recently_added_last_updated = time.time()
         self.set_added_artists(body['data'])
 
     def _show_error(self, container, error_message):
