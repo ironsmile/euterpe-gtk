@@ -37,6 +37,7 @@ euterpe_gtk_sources = [
   'track.py',
   'browse_screen.py',
   'search_screen.py',
+  'home_screen.py',
   'small_album.py',
   'small_artist.py',
   'album.py',
@@ -45,6 +46,8 @@ euterpe_gtk_sources = [
   'navigator.py',
   'simple_list.py',
   'state_storage.py',
+  'box_album.py',
+  'box_artist.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

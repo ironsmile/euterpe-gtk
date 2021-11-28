@@ -31,6 +31,7 @@ from .service import Euterpe
 from .utils import emit_signal, config_file_name, state_file_name
 from .browse_screen import EuterpeBrowseScreen
 from .search_screen import EuterpeSearchScreen
+from .home_screen import EuterpeHomeScreen
 from .mini_player import EuterpeMiniPlayer
 from .state_storage import StateStorage
 from .player_ui import EuterpePlayerUI
@@ -59,6 +60,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     search_screen = Gtk.Template.Child()
     browse_screen = Gtk.Template.Child()
+    home_screen = Gtk.Template.Child()
 
     about_gtk_version = Gtk.Template.Child()
     about_gstreamer_version = Gtk.Template.Child()
@@ -70,7 +72,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     login_scroll_view = Gtk.Template.Child()
     app_stack = Gtk.Template.Child()
     login_button = Gtk.Template.Child()
-    logout_button = Gtk.Template.Child()
 
     login_spinner = Gtk.Template.Child()
     login_failed_indicator = Gtk.Template.Child()
@@ -132,7 +133,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self.on_main_stack_change
         )
         self.login_button.connect("clicked", self.on_login_button)
-        self.logout_button.connect("clicked", self.on_logout_button)
 
         self.service_password_show_toggle.bind_property(
             'active',
@@ -168,6 +168,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.logged_in_screen.child_set(self._player_ui, name="player_ui")
 
         pan_down_btn = self._player_ui.get_pan_down_button()
+
+        self._home_widget = EuterpeHomeScreen(self)
+        self.home_screen.add(self._home_widget)
+        self._home_widget.connect("logout", self.on_logout_button)
 
         self.logged_in_screen.bind_property(
             'folded',
@@ -235,6 +239,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._search_widget.restore_state(self._cache_store)
             print("restoring playing state...")
             self._player.restore_state(self._cache_store)
+            print("restoring recently added...")
+            self._home_widget.restore_state(self._cache_store)
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
@@ -307,6 +313,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             screen = self.logged_in_screen
 
         self.app_stack.set_visible_child(screen)
+
+        back_button = self._home_widget.get_back_button()
+        self.title_tab_bar.add(back_button)
 
     def on_main_stack_change(self, stack, event):
         self.title_tab_bar.foreach(self.title_tab_bar.remove)
@@ -448,6 +457,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if self._player is not None:
             self._player.store_state(self._cache_store)
 
+        print("storing window state")
         self._store_state()
 
     def _on_size_allocate(self, __win, allocation):
@@ -485,8 +495,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         except Exception as err:
             print("error restoring window size: {}".format(err))
             return
-
-        print("height, width: {}x{}".format(height, width))
 
         if width != 0 and height != 0:
             self._current_width = width

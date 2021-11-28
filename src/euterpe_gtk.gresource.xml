@@ -5,6 +5,7 @@
     <file>ui/track.ui</file>
     <file>ui/browse-screen.ui</file>
     <file>ui/search-screen.ui</file>
+    <file>ui/home-screen.ui</file>
     <file>ui/small-album.ui</file>
     <file>ui/small-artist.ui</file>
     <file>ui/mini-player.ui</file>
@@ -12,6 +13,8 @@
     <file>ui/artist.ui</file>
     <file>ui/simple-list.ui</file>
     <file>ui/player.ui</file>
+    <file>ui/box-album.ui</file>
+    <file>ui/box-artist.ui</file>
     <file>assets/icon-128.png</file>
   </gresource>
 </gresources>

@@ -1,4 +1,4 @@
-# small_album.py
+# box_album.py
 #
 # Copyright 2021 Doychin Atanasov
 #
@@ -19,32 +19,33 @@ from gi.repository import GObject, Gtk
 from .utils import emit_signal
 
 
-BUTTON_NEXT_CLICKED = "button-next-clicked"
+SIGNAL_CLICKED = "clicked"
 
 
-@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/small-album.ui')
-class EuterpeSmallAlbum(Gtk.Viewport):
-    __gtype_name__ = 'EuterpeSmallAlbum'
+@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/box-album.ui')
+class EuterpeBoxAlbum(Gtk.Viewport):
+    __gtype_name__ = 'EuterpeBoxAlbum'
 
     __gsignals__ = {
-        BUTTON_NEXT_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
-    album_name = Gtk.Template.Child()
-    artist_name = Gtk.Template.Child()
-    album_open_button = Gtk.Template.Child()
+    name = Gtk.Template.Child()
+    artist = Gtk.Template.Child()
+    image = Gtk.Template.Child()
+    button = Gtk.Template.Child()
 
     def __init__(self, album, **kwargs):
         super().__init__(**kwargs)
 
         self._album = album
-        self.album_name.set_label(album.get("album", "<N/A>"))
-        self.artist_name.set_label(album.get("artist", "<N/A>"))
+        self.name.set_label(album.get("album", "<N/A>"))
+        self.artist.set_label(album.get("artist", "<N/A>"))
 
-        self.album_open_button.connect("clicked", self._on_next_button)
+        self.button.connect("clicked", self._on_click)
 
-    def _on_next_button(self, pb):
-        emit_signal(self, BUTTON_NEXT_CLICKED)
+    def _on_click(self, pb):
+        emit_signal(self, SIGNAL_CLICKED)
 
     def get_album(self):
         return self._album.copy()

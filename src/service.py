@@ -103,6 +103,20 @@ class Euterpe:
         req = self._create_request(address, cb)
         req.get(query)
 
+    def get_recently_added(self, what, callback):
+        if what not in ['album', 'artist']:
+            print("unknown rencently added type: {}".format(what))
+            return
+
+        cb = JSONBodyCallback(callback)
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_BROWSE)
+        address = "{}?by={}&per-page=10&order-by=id&order=desc".format(
+            address,
+            urllib.parse.quote(what, safe='')
+        )
+        req = self._create_request(address, cb)
+        req.get()
+
     def _create_request(self, address, callback):
         req = Request(address, callback)
         if self._token is not None:

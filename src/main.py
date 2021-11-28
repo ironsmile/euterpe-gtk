@@ -29,7 +29,6 @@ class Application(Gtk.Application):
         super().__init__(application_id='com.doycho.euterpe.gtk',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         self._version = version
-        self._window = None
 
     def do_activate(self):
         win = self.props.active_window
@@ -39,8 +38,8 @@ class Application(Gtk.Application):
 
         self._set_actions()
 
-        self._window = EuterpeGtkWindow(self._version, application=self)
-        self._window.present()
+        win = EuterpeGtkWindow(self._version, application=self)
+        win.present()
 
     def _set_actions(self):
         action = Gio.SimpleAction.new("quit", None)
