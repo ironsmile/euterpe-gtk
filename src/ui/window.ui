@@ -387,9 +387,10 @@
                             <property name="vexpand">True</property>
                             <property name="transition_type">slide-left-right</property>
                             <child>
-                              <object class="GtkScrolledWindow" id="home_screen">
+                              <object class="GtkViewport" id="home_screen">
                                 <property name="visible">True</property>
-                                <property name="can_focus">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="shadow_type">none</property>
                                 <child>
                                   <placeholder/>
                                 </child>
