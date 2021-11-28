@@ -352,11 +352,12 @@ class Player(GObject.Object):
         self._load_from_current_index()
         emit_signal(self, SIGNAL_STATE_CHANGED)
 
-        if 'progress' not in state and state['progress'] is not None:
+        if 'progress' not in state or state['progress'] is None:
             return
+
         emit_signal(self, SIGNAL_PROGRESS, state['progress'])
 
-        if 'position' in state:
+        if 'position' in state and state['position'] is not None:
             self._seek_to = state['position']
 
     def store_state(self, store):
