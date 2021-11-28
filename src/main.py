@@ -19,8 +19,11 @@ import sys
 import gi
 
 gi.require_version('Gtk', '3.0')
+gi.require_version('Gst', '1.0')
 
-from gi.repository import Gtk, Gio
+from gi.repository import Gtk, Gio, Gst
+from .player import Player
+from .service import Euterpe
 from .window import EuterpeGtkWindow
 
 
@@ -28,7 +31,10 @@ class Application(Gtk.Application):
     def __init__(self, version):
         super().__init__(application_id='com.doycho.euterpe.gtk',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
+        Gst.init(None)
         self._version = version
+        self._euterpe = Euterpe()
+        self._player = Player(self._euterpe)
 
     def do_activate(self):
         win = self.props.active_window
@@ -50,6 +56,12 @@ class Application(Gtk.Application):
 
     def on_quit(self, *args):
         self.quit()
+
+    def get_player(self):
+        return self._player
+
+    def get_euterpe(self):
+        return self._euterpe
 
 
 def main(version):

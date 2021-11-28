@@ -22,7 +22,6 @@ import keyring
 import json
 
 gi.require_version('Handy', '1')
-gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import GObject, GLib, Gtk, Handy, Gst, Gdk
@@ -88,8 +87,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._appVersion = appVersion
         self._token = None
 
-        self._player = None
-        self._euterpe = None
+        app = self.get_application()
+
+        self._euterpe = app.get_euterpe()
+        self._player = app.get_player()
         self._remote_address = None
         self._search_widget = None
 
@@ -150,7 +151,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 GObject.BindingFlags.INVERT_BOOLEAN
             )
 
-        Gst.init(None)
         self.populate_about()
 
         browse_screen = EuterpeBrowseScreen()
@@ -172,6 +172,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._home_widget = EuterpeHomeScreen(self)
         self.home_screen.add(self._home_widget)
         self._home_widget.connect("logout", self.on_logout_button)
+
+        mini_player = EuterpeMiniPlayer(self._player)
+        mini_player.connect(
+            "pan-up",
+            self._on_show_big_player
+        )
+        self.miniplayer_position.add(mini_player)
+        self._player_ui.set_player(self._player)
 
         self.logged_in_screen.bind_property(
             'folded',
@@ -206,19 +214,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         t.daemon = True
         t.start()
 
-    def _on_player_created(self):
-        mini_player = self.miniplayer_position.get_child()
-        if mini_player is not None:
-            mini_player.destroy()
-
-        mini_player = EuterpeMiniPlayer(self._player)
-        mini_player.connect(
-            "pan-up",
-            self._on_show_big_player
-        )
-        self.miniplayer_position.add(mini_player)
-        self._player_ui.set_player(self._player)
-
     def restore_state(self):
         '''
             Restores the application state from the last time it was
@@ -229,12 +224,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._restore_address()
             print("restoring token...")
             self._restore_token()
-            print("creating Euterpe instance...")
-            self._euterpe = Euterpe(self._remote_address, self._token)
-            print("creating player...")
-            self._player = Player(self._euterpe)
-            print("connecting signals...")
-            self._on_player_created()
+            print("setting up Euterpe instance...")
+            self._euterpe.set_address(self._remote_address)
+            self._euterpe.set_token(self._token)
             print("restoring search state...")
             self._search_widget.restore_state(self._cache_store)
             print("restoring playing state...")
@@ -395,9 +387,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._token = token
             keyring.set_password("euterpe", "token", token)
 
-        self._euterpe = Euterpe(self._remote_address, self._token)
-        self._player = Player(self._euterpe)
-        self._on_player_created()
+        self._euterpe.set_address(self._remote_address)
+        self._euterpe.set_token(self._token)
         self.app_stack.set_visible_child(
             self.logged_in_screen
         )
@@ -408,6 +399,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         keyring.set_password("euterpe", "token", "")
         self.store_remote_address("")
+
+        self._euterpe.set_address(None)
+        self._euterpe.set_token(None)
 
         if self._player is not None:
             self._player.stop()

@@ -342,6 +342,9 @@ class EuterpeSearchScreen(Gtk.Viewport):
         '''
         self._cleanup_search_results()
         self.main_search_box.set_text("")
+        self.search_result_viewport.add(
+            self.search_empty_content,
+        )
 
     def restore_state(self, store):
         state = store.get_object("search_state")

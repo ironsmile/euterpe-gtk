@@ -92,8 +92,14 @@ class Euterpe:
 
         return urllib.parse.urljoin(remote_url, endpoint.lstrip("/"))
 
-    def __init__(self, address, token=None):
+    def __init__(self):
+        self._remote_address = None
+        self._token = None
+
+    def set_address(self, address):
         self._remote_address = address
+
+    def set_token(self, token):
         self._token = token
 
     def search(self, query, callback):
