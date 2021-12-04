@@ -85,6 +85,7 @@
             <property name="focus_on_click">False</property>
             <property name="receives_default">True</property>
             <property name="tooltip_text" translatable="yes">View this album</property>
+            <property name="valign">center</property>
             <property name="image">next-icon</property>
             <property name="always_show_image">True</property>
           </object>
