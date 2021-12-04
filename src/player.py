@@ -55,8 +55,8 @@ class Player(GObject.Object):
             self._current_playlist_index = 0
         else:
             self._current_playlist_index = None
-        emit_signal(self, SIGNAL_STATE_CHANGED)
         emit_signal(self, SIGNAL_PLAYLIST_CHANGED)
+        emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def append_to_playlist(self, tracks):
         if len(tracks) == 0:
@@ -65,8 +65,8 @@ class Player(GObject.Object):
         self._playlist.extend(tracks)
         if self._current_playlist_index is None:
             self._current_playlist_index = 0
-        emit_signal(self, SIGNAL_STATE_CHANGED)
         emit_signal(self, SIGNAL_PLAYLIST_CHANGED)
+        emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def _load_from_current_index(self):
         '''
@@ -372,8 +372,8 @@ class Player(GObject.Object):
             return
 
         self._load_from_current_index()
-        emit_signal(self, SIGNAL_STATE_CHANGED)
         emit_signal(self, SIGNAL_PLAYLIST_CHANGED)
+        emit_signal(self, SIGNAL_STATE_CHANGED)
 
         if 'progress' not in state or state['progress'] is None:
             return

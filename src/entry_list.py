@@ -32,9 +32,6 @@ class EuterpeEntryList(Gtk.Box):
         SIGNAL_TRACK_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
 
-    header = Gtk.Template.Child()
-    header_separator = Gtk.Template.Child()
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._songs = []
@@ -57,8 +54,6 @@ class EuterpeEntryList(Gtk.Box):
         self._songs = []
         self._current_song = None
         for child in self.get_children():
-            if child is self.header or child is self.header_separator:
-                continue
             child.destroy()
 
     def set_currently_playing(self, index):

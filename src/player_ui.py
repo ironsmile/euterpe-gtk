@@ -154,6 +154,9 @@ class EuterpePlayerUI(Gtk.Viewport):
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
+        track_index = player.get_track_index()
+        self._entry_list.set_currently_playing(track_index)
+
     def show_nothing_playing(self):
         self.track_name.set_label("Not Playing")
         self.artist_name.set_label("--")
