@@ -16,13 +16,21 @@
   <object class="GtkImage" id="pause_icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixel_size">70</property>
+    <property name="margin_left">10</property>
+    <property name="margin_right">10</property>
+    <property name="margin_top">10</property>
+    <property name="margin_bottom">10</property>
+    <property name="pixel_size">50</property>
     <property name="icon_name">media-playback-pause-symbolic</property>
   </object>
   <object class="GtkImage" id="play_icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
-    <property name="pixel_size">70</property>
+    <property name="margin_left">10</property>
+    <property name="margin_right">10</property>
+    <property name="margin_top">10</property>
+    <property name="margin_bottom">10</property>
+    <property name="pixel_size">50</property>
     <property name="icon_name">media-playback-start-symbolic</property>
   </object>
   <object class="GtkImage" id="plus_icon">
@@ -150,6 +158,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="valign">center</property>
                         <property name="image">plus_icon</property>
@@ -212,6 +221,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Share song URL</property>
                         <property name="valign">center</property>
@@ -291,6 +301,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Toggle shuffle</property>
                         <property name="valign">center</property>
@@ -308,12 +319,16 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Previous song in queue</property>
                         <property name="valign">center</property>
                         <property name="action_name">app.previous_song</property>
                         <property name="image">prev_icon</property>
                         <property name="always_show_image">True</property>
+                        <style>
+                          <class name="circular"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -326,11 +341,15 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Play or pause song</property>
                         <property name="action_name">app.playpause</property>
                         <property name="image">play_icon</property>
                         <property name="always_show_image">True</property>
+                        <style>
+                          <class name="circular"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">True</property>
@@ -343,12 +362,16 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Next song in queue</property>
                         <property name="valign">center</property>
                         <property name="action_name">app.next_song</property>
                         <property name="image">next_icon</property>
                         <property name="always_show_image">True</property>
+                        <style>
+                          <class name="circular"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -361,6 +384,7 @@
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">Toggle repeat modes</property>
                         <property name="valign">center</property>

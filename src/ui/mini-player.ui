@@ -48,6 +48,7 @@
               <object class="GtkButton" id="show_big_player_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">See full player controls and play queue</property>
                 <property name="valign">center</property>
@@ -109,6 +110,7 @@
               <object class="GtkButton" id="play_pause_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="focus_on_click">False</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Play or pause song</property>
                 <property name="valign">center</property>
@@ -116,6 +118,9 @@
                 <property name="image">play_button_icon</property>
                 <property name="image_position">right</property>
                 <property name="always_show_image">True</property>
+                <style>
+                  <class name="circular"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
