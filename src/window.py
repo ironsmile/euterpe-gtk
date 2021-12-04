@@ -446,10 +446,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.logged_in_screen.set_visible_child(self.browsing_ui)
 
     def _on_program_exit(self, *args):
+        self.store_state()
+        return False
+
+    def store_state(self):
         self._search_widget.store_state(self._cache_store)
         self._player.store_state(self._cache_store)
         self._home_widget.store_state(self._cache_store)
-        self._store_state()
+        self._store_window_state()
         self._cache_store.save()
 
     def _on_size_allocate(self, __win, allocation):
@@ -465,7 +469,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             event.new_window_state & Gdk.WindowState.MAXIMIZED
         ) != 0
 
-    def _store_state(self):
+    def _store_window_state(self):
         try:
             self._cache_store.set_many(
                 {

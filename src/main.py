@@ -65,6 +65,9 @@ class Application(Gtk.Application):
         self.set_accels_for_action("app.quit", ["<Control>Q"])
 
     def on_quit(self, *args):
+        win = self.props.active_window
+        if win and hasattr(win, "store_state"):
+            win.store_state()
         self.quit()
 
     def on_next_song(self, *args):
