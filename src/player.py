@@ -22,6 +22,7 @@ from functools import partial
 SIGNAL_PROGRESS = "progress"
 SIGNAL_STATE_CHANGED = "state-changed"
 SIGNAL_TRACK_CHANGED = "track-changed"
+SIGNAL_PLAYLIST_CHANGED = "playlist-changed"
 
 
 class Player(GObject.Object):
@@ -34,6 +35,7 @@ class Player(GObject.Object):
     __gsignals__ = {
         SIGNAL_STATE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_TRACK_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_PLAYLIST_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_PROGRESS: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
     }
 
@@ -54,6 +56,7 @@ class Player(GObject.Object):
         else:
             self._current_playlist_index = None
         emit_signal(self, SIGNAL_STATE_CHANGED)
+        emit_signal(self, SIGNAL_PLAYLIST_CHANGED)
 
     def append_to_playlist(self, tracks):
         if len(tracks) == 0:
@@ -63,6 +66,7 @@ class Player(GObject.Object):
         if self._current_playlist_index is None:
             self._current_playlist_index = 0
         emit_signal(self, SIGNAL_STATE_CHANGED)
+        emit_signal(self, SIGNAL_PLAYLIST_CHANGED)
 
     def _load_from_current_index(self):
         '''
@@ -321,7 +325,22 @@ class Player(GObject.Object):
         if self._current_playlist_index >= len(self._playlist):
             return None
 
-        return self._playlist[self._current_playlist_index]
+        return self._playlist[self._current_playlist_index].copy()
+
+    def get_track_index(self):
+        '''
+        Returns the index of the current track in the playlist.
+        '''
+        return self._current_playlist_index
+
+    def play_index(self, index):
+        if index < 0 or index >= len(self._playlist):
+            print("trying to play track outside of the playlist")
+            return
+
+        self._current_playlist_index = index
+        self._load_from_current_index()
+        self.play()
 
     def is_active(self):
         '''
@@ -332,6 +351,9 @@ class Player(GObject.Object):
         pl_len = len(self._playlist)
 
         return pl_len > 0 and ind is not None
+
+    def get_playlist(self):
+        return self._playlist[:]
 
     def restore_state(self, store):
         state = store.get_object("player_state")
@@ -351,6 +373,7 @@ class Player(GObject.Object):
 
         self._load_from_current_index()
         emit_signal(self, SIGNAL_STATE_CHANGED)
+        emit_signal(self, SIGNAL_PLAYLIST_CHANGED)
 
         if 'progress' not in state or state['progress'] is None:
             return

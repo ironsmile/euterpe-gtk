@@ -48,6 +48,8 @@ euterpe_gtk_sources = [
   'state_storage.py',
   'box_album.py',
   'box_artist.py',
+  'entry.py',
+  'entry_list.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

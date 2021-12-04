@@ -97,6 +97,8 @@
             <property name="focus_on_click">False</property>
             <property name="receives_default">True</property>
             <property name="tooltip_text" translatable="yes">Play this track</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
             <property name="image">play-icon</property>
             <property name="always_show_image">True</property>
           </object>

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, Gtk
-from .track import EuterpeTrack
+from .entry_list import EuterpeEntryList
 from .utils import emit_signal, format_duration
 
 
@@ -40,6 +40,7 @@ class EuterpePlayerUI(Gtk.Viewport):
     add_button = Gtk.Template.Child()
     track_progess = Gtk.Template.Child()
     pan_down_button = Gtk.Template.Child()
+    playlist = Gtk.Template.Child()
 
     time_elapsed = Gtk.Template.Child()
     time_left = Gtk.Template.Child()
@@ -55,6 +56,8 @@ class EuterpePlayerUI(Gtk.Viewport):
 
         self._player = None
         self._track_len = None
+        self._entry_list = EuterpeEntryList()
+        self.playlist.add(self._entry_list)
 
         self.track_progess.set_range(0, 1)
 
@@ -66,6 +69,11 @@ class EuterpePlayerUI(Gtk.Viewport):
         self.track_progess.connect(
             "change-value",
             self._on_seek
+        )
+
+        self._entry_list.connect(
+            "track-clicked",
+            self._on_track_clicked
         )
 
     def _on_pan_down(self, *args):
@@ -88,6 +96,10 @@ class EuterpePlayerUI(Gtk.Viewport):
         self._player.connect(
             "track-changed",
             self.on_track_changed
+        )
+        self._player.connect(
+            "playlist-changed",
+            self.on_player_playlist_changed
         )
 
     def on_track_progress_changed(self, player, prog):
@@ -128,7 +140,25 @@ class EuterpePlayerUI(Gtk.Viewport):
             self.play_pause_button.set_image(self.play_icon)
 
         if player.has_ended():
+            self.show_nothing_playing()
             self.change_progress(0)
+
+    def on_player_playlist_changed(self, player):
+        if player is not self._player:
+            return
+
+        self._entry_list.truncate()
+        songs = player.get_playlist()
+        for song in songs:
+            self._entry_list.add(song)
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
+
+    def show_nothing_playing(self):
+        self.track_name.set_label("Not Playing")
+        self.artist_name.set_label("--")
+        self.track_progess.set_sensitive(False)
+        self._track_len = None
 
     def on_track_changed(self, player):
         track = player.get_track_info()
@@ -139,6 +169,9 @@ class EuterpePlayerUI(Gtk.Viewport):
         self.artist_name.set_label(track.get("artist", "n/a"))
         self._track_len = track.get("duration", None)
 
+        track_index = player.get_track_index()
+        self._entry_list.set_currently_playing(track_index)
+
     def _on_seek(self, slider, scroll, value):
         if scroll != Gtk.ScrollType.JUMP:
             return False
@@ -148,3 +181,10 @@ class EuterpePlayerUI(Gtk.Viewport):
 
         self._player.seek(value)
         return False
+
+    def _on_track_clicked(self, entry_list, index):
+        if not isinstance(index, int):
+            print("track index was not an integer: {}".format(index))
+            return
+
+        self._player.play_index(index)
