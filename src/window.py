@@ -237,6 +237,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     def store_remote_address(self, address):
         self._config_store.set_string("address", address)
+        self._config_store.save()
 
     def _restore_address(self):
         address = self._config_store.get_string("address")
@@ -448,9 +449,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._search_widget.store_state(self._cache_store)
         self._player.store_state(self._cache_store)
         self._home_widget.store_state(self._cache_store)
-
-        print("storing window state")
         self._store_state()
+        self._cache_store.save()
 
     def _on_size_allocate(self, __win, allocation):
         if self.is_maximized():

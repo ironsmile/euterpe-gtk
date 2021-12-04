@@ -38,9 +38,14 @@ class StateStorage:
                 err,
             ))
 
+    def save(self):
+        '''
+        save stores the current data in the storage to its file on disk.
+        '''
+        self._store_kf_file()
+
     def set_string(self, key, value, namespace=None):
         self._kf.set_string(self._get_namespace(namespace), key, value)
-        self._store_kf_file()
 
     def set_many(self, kvs, namespace=None):
         namespace = self._get_namespace(namespace)
@@ -60,15 +65,12 @@ class StateStorage:
                         k
                     )
                 )
-        self._store_kf_file()
 
     def set_boolean(self, key, value, namespace=None):
         self._kf.set_boolean(self._get_namespace(namespace), key, value)
-        self._store_kf_file()
 
     def set_integer(self, key, value, namespace=None):
         self._kf.set_integer(self._get_namespace(namespace), key, value)
-        self._store_kf_file()
 
     def get_string(self, key, namespace=None):
         try:
