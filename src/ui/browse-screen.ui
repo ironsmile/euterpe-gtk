@@ -75,13 +75,15 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">15</property>
                     <property name="margin_bottom">15</property>
                     <property name="label" translatable="yes">Not sure what exactly to you feel like listening to? I have an advice for you. Just browse around your music and in no time you will find something. Promise!</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
+                    <style>
+                      <class name="dim-label"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -320,13 +322,15 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">15</property>
                     <property name="margin_bottom">15</property>
                     <property name="label" translatable="yes">Don't feel like going through all of your music? No problem with that! Try searching:</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
+                    <style>
+                      <class name="dim-label"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>

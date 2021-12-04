@@ -56,12 +56,14 @@
             <child>
               <object class="GtkLabel" id="artist_name">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
                 <property name="valign">start</property>
                 <property name="label" translatable="yes">Artist Name</property>
                 <property name="ellipsize">end</property>
+                <style>
+                  <class name="dim-label"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>

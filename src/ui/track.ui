@@ -57,12 +57,14 @@
             <child>
               <object class="GtkLabel" id="track_info">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
                 <property name="valign">start</property>
                 <property name="label" translatable="yes">Artist, Album</property>
                 <property name="ellipsize">end</property>
+                <style>
+                  <class name="dim-label"/>
+                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
