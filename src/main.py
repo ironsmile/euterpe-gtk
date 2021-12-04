@@ -50,14 +50,34 @@ class Application(Gtk.Application):
         win.present()
 
     def _set_actions(self):
-        action = Gio.SimpleAction.new("quit", None)
-        action.connect("activate", self.on_quit)
-        self.add_action(action)
+        actions = {
+            "quit": self.on_quit,
+            "next_song": self.on_next_song,
+            "previous_song": self.on_previous_song,
+            "playpause": self.on_playpause,
+        }
+
+        for action_name, handler in actions.items():
+            action = Gio.SimpleAction.new(action_name, None)
+            action.connect("activate", handler)
+            self.add_action(action)
 
         self.set_accels_for_action("app.quit", ["<Control>Q"])
 
     def on_quit(self, *args):
         self.quit()
+
+    def on_next_song(self, *args):
+        self._player.next()
+
+    def on_previous_song(self, *args):
+        self._player.previous()
+
+    def on_playpause(self, *args):
+        if self._player.is_playing():
+            self._player.pause()
+        else:
+            self._player.play()
 
     def get_player(self):
         return self._player

@@ -63,21 +63,6 @@ class EuterpePlayerUI(Gtk.Viewport):
             self._on_pan_down
         )
 
-        self.play_pause_button.connect(
-            "clicked",
-            self._on_play_button_clicked
-        )
-
-        self.next_button.connect(
-            "clicked",
-            self._on_next_button_clicked
-        )
-
-        self.prev_button.connect(
-            "clicked",
-            self._on_prev_button_clicked
-        )
-
         self.track_progess.connect(
             "change-value",
             self._on_seek
@@ -104,15 +89,6 @@ class EuterpePlayerUI(Gtk.Viewport):
             "track-changed",
             self.on_track_changed
         )
-
-    def _on_play_button_clicked(self, btn):
-        if self._player is None:
-            return
-
-        if self._player.is_playing():
-            self._player.pause()
-        else:
-            self._player.play()
 
     def on_track_progress_changed(self, player, prog):
         self.change_progress(prog)
@@ -162,16 +138,6 @@ class EuterpePlayerUI(Gtk.Viewport):
         self.track_name.set_label(track.get("title", "n/a"))
         self.artist_name.set_label(track.get("artist", "n/a"))
         self._track_len = track.get("duration", None)
-
-    def _on_next_button_clicked(self, button):
-        if self._player is None:
-            return
-        self._player.next()
-
-    def _on_prev_button_clicked(self, button):
-        if self._player is None:
-            return
-        self._player.previous()
 
     def _on_seek(self, slider, scroll, value):
         if scroll != Gtk.ScrollType.JUMP:

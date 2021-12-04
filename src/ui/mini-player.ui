@@ -112,6 +112,7 @@
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Play or pause song</property>
                 <property name="valign">center</property>
+                <property name="action_name">app.playpause</property>
                 <property name="image">play_button_icon</property>
                 <property name="image_position">right</property>
                 <property name="always_show_image">True</property>

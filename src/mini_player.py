@@ -42,10 +42,6 @@ class EuterpeMiniPlayer(Gtk.Viewport):
 
         self._player = player
 
-        self.play_pause_button.connect(
-            "clicked",
-            self.on_play_button_clicked
-        )
         self.show_big_player_button.connect(
             "clicked",
             self.on_show_big_player_clicked
@@ -95,15 +91,6 @@ class EuterpeMiniPlayer(Gtk.Viewport):
         if prog > 1:
             prog = 1
         self.track_progess.set_fraction(prog)
-
-    def on_play_button_clicked(self, btn):
-        if self._player is None:
-            return
-
-        if self._player.is_playing():
-            self._player.pause()
-        else:
-            self._player.play()
 
     def on_show_big_player_clicked(self, btn):
         emit_signal(self, SIGNAL_PAN_UP)
