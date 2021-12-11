@@ -9,20 +9,24 @@
 	<description>
 		<p>
 			Mobile and desktop player for the self-hosted Euterpe streaming
-			server. You need an access to the server running somewhere in order
-			to use this program effectively.
+			server. You need an access to the Euterpe server running somewhere in
+			order to use this program effectively.
 		</p>
 		<p>
 			Keep in mind that this is still an early stage for this application.
-			It may be good enough for listening a song or an album. But at the
-			same time big chunks of what is to come are still missing.
+			It is absolutely good enough to be your day-to-day Euterpe player but
+			it still has many improvements incoming.
 		</p>
 		<p>
 			With that said, this is what the client supports now:
 		</p>
 		<ul>
 			<li>
-				Accessing Euterpe server with or without password.
+				Extremely light resource usage and fast. Excellent for constrained
+				mobile devices such as phones and laptops.
+			</li>
+			<li>
+				Accessing Euterpe server with or without authentication.
 			</li>
 			<li>
 				Playing albums or a single tracks.
@@ -31,7 +35,7 @@
 				Searching the database for music.
 			</li>
 			<li>
-				Mobile first but convergent. It works on both mobile Linux and desktop.
+				Mobile first but convergent. It works on both mobile and desktop Linux.
 			</li>
 		</ul>
 	</description>
@@ -39,8 +43,10 @@
 	<screenshots>
 		<screenshot type="default">
 			<image type="source" width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/alpha-screenshots.png</image>
-			<image width="1690" height="819">https://i.imgur.com/yHaxgN7.png</image>
-			<image width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/convergent-screenshots.png</image>
+			<image width="1690" height="819">https://i.imgur.com/7X2nbaT.png</image>
+			<image width="1690" height="819">https://i.imgur.com/NbSWFwW.png</image>
+			<image width="1690" height="819">https://i.imgur.com/jFsYGie.png</image>
+			<image width="1690" height="819">https://i.imgur.com/RHEAZOM.png</image>
 		</screenshot>
 	</screenshots>
 	<content_rating type="oars-1.0" />
@@ -50,6 +56,37 @@
 	<url type="donation">https://github.com/sponsors/ironsmile</url>
 
 	<releases>
+		<release version="0.3.0" date="2021-12-11">
+			<description>
+				<p>
+					This version is very near to being feature complete with
+					the iOS and iPhone apps for Euterpe. And a lot less buggy.
+					Which makes it absolutely usable day-to-day.
+				</p>
+				<p>
+					Notable changes since v0.2.0.
+				</p>
+				<ul>
+					<p>
+						The play queue is visible and interactive now!
+					</p>
+					<p>
+						The window size and state is restored on startup.
+					</p>
+					<p>
+						The recently added songs and albums are displayed on
+						the home screen.
+					</p>
+					<p>
+						Added the Ctrl+Q shortcut which quits the application.
+					</p>
+					<p>
+						Many UI improvements. Some buttons are even colourful! I know,
+						who though GTK could be so wild!
+					</p>
+				</ul>
+			</description>
+		</release>
 		<release version="0.2.0" date="2021-11-25">
 			<description>
 				<p>
