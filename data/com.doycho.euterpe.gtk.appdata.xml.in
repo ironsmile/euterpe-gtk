@@ -67,23 +67,23 @@
 					Notable changes since v0.2.0.
 				</p>
 				<ul>
-					<p>
+					<li>
 						The play queue is visible and interactive now!
-					</p>
-					<p>
+					</li>
+					<li>
 						The window size and state is restored on startup.
-					</p>
-					<p>
+					</li>
+					<li>
 						The recently added songs and albums are displayed on
 						the home screen.
-					</p>
-					<p>
+					</li>
+					<li>
 						Added the Ctrl+Q shortcut which quits the application.
-					</p>
-					<p>
+					</li>
+					<li>
 						Many UI improvements. Some buttons are even colourful! I know,
 						who though GTK could be so wild!
-					</p>
+					</li>
 				</ul>
 			</description>
 		</release>
