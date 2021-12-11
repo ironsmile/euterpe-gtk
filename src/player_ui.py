@@ -51,6 +51,11 @@ class EuterpePlayerUI(Gtk.Viewport):
     track_name = Gtk.Template.Child()
     artist_name = Gtk.Template.Child()
 
+    main_leaflet = Gtk.Template.Child()
+    view_playlist_button = Gtk.Template.Child()
+    big_player = Gtk.Template.Child()
+    play_queue = Gtk.Template.Child()
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
@@ -74,6 +79,17 @@ class EuterpePlayerUI(Gtk.Viewport):
         self._entry_list.connect(
             "track-clicked",
             self._on_track_clicked
+        )
+
+        self.main_leaflet.bind_property(
+            'folded',
+            self.view_playlist_button, 'visible',
+            GObject.BindingFlags.SYNC_CREATE
+        )
+
+        self.view_playlist_button.connect(
+            "clicked",
+            self._on_show_playlist_clicked
         )
 
     def _on_pan_down(self, *args):
@@ -191,3 +207,12 @@ class EuterpePlayerUI(Gtk.Viewport):
             return
 
         self._player.play_index(index)
+
+    def _on_show_playlist_clicked(self, btn):
+        is_active = btn.get_active()
+
+        to_show = self.big_player
+        if is_active:
+            to_show = self.play_queue
+
+        self.main_leaflet.set_visible_child(to_show)
