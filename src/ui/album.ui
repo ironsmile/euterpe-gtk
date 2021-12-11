@@ -82,6 +82,7 @@
                         <property name="label" translatable="yes">PLAY</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="halign">center</property>
                         <style>

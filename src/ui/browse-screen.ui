@@ -30,6 +30,7 @@
   </object>
   <object class="GtkButton" id="back_button">
     <property name="can_focus">True</property>
+    <property name="focus_on_click">False</property>
     <property name="receives_default">True</property>
     <property name="image">header_back_button</property>
     <property name="always_show_image">True</property>
@@ -130,6 +131,7 @@
                       <object class="GtkButton" id="show_artists_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">View a list with all artists</property>
                         <property name="image">browse-artists-button-image</property>
@@ -187,6 +189,7 @@
                       <object class="GtkButton" id="show_albums_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">View a list with all albums</property>
                         <property name="image">browse-albums-button-image</property>
@@ -244,6 +247,7 @@
                       <object class="GtkButton" id="show_songs_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">View a list with all tracks</property>
                         <property name="image">browse-songs-button-image</property>
@@ -301,6 +305,7 @@
                       <object class="GtkButton" id="show_offline_library_button">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">View the songs available offline</property>
                         <property name="image">browse-offline-library-image</property>
@@ -343,6 +348,7 @@
                     <property name="label" translatable="yes">Search</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="focus_on_click">False</property>
                     <property name="receives_default">True</property>
                     <property name="tooltip_text" translatable="yes">Go to the search screen</property>
                     <property name="halign">center</property>

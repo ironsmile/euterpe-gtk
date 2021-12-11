@@ -138,6 +138,7 @@
                         <property name="label" translatable="yes">Log Out</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="halign">center</property>
                         <style>
@@ -170,6 +171,7 @@
   </object>
   <object class="GtkButton" id="back_button">
     <property name="can_focus">False</property>
+    <property name="focus_on_click">False</property>
     <property name="receives_default">True</property>
     <property name="image">back_button_image</property>
     <property name="always_show_image">True</property>
