@@ -5,5 +5,5 @@ Exec=euterpe-gtk
 Icon=com.doycho.euterpe.gtk
 Terminal=false
 Type=Application
-Categories=GTK;
+Categories=GNOME;GTK;Audio;Player;
 StartupNotify=true
