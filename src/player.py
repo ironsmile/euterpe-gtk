@@ -259,6 +259,23 @@ class Player(GObject.Object):
         emit_signal(self, SIGNAL_PROGRESS, progress)
         return True
 
+    def get_position(self):
+        '''
+        Returns the track position in milliseconds.
+        '''
+        playbin = self._playbin
+
+        if playbin is None:
+            print("trying to get progress self._playbin which is None")
+            return None
+
+        (ok, ns) = playbin.query_position(Gst.Format.TIME)
+        if not ok:
+            print("get_position: still could not query")
+            return None
+
+        return ns / 1000000
+
     def pause(self):
         if self._playbin is None:
             print("trying to pause when there is no _playbin created")

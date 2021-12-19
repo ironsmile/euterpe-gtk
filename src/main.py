@@ -17,6 +17,7 @@
 
 import sys
 import gi
+import platform
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
@@ -37,6 +38,10 @@ class Application(Gtk.Application):
         self._version = version
         self._euterpe = Euterpe(version)
         self._player = Player(self._euterpe)
+        self._mpris = None
+
+        if platform.system() == "Linux":
+            self._set_up_mpris()
 
     def do_activate(self):
         win = self.props.active_window
@@ -48,6 +53,17 @@ class Application(Gtk.Application):
 
         win = EuterpeGtkWindow(self._version, application=self)
         win.present()
+
+    def _set_up_mpris(self):
+        from .mpris import MPRIS
+
+        try:
+            self._mpris = MPRIS(self)
+        except Exception:
+            sys.excepthook(*sys.exc_info())
+            print("Setting up MPRIS interface failed but error is ignored")
+        else:
+            print("MPRIS up and running")
 
     def _set_actions(self):
         actions = {

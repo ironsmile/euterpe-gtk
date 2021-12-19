@@ -18,5 +18,6 @@
     <file>ui/entry.ui</file>
     <file>ui/entry-list.ui</file>
     <file>assets/icon-128.png</file>
+    <file preprocess="xml-stripblanks">assets/d-bus.xml</file>
   </gresource>
 </gresources>

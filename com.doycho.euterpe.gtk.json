@@ -10,6 +10,7 @@
         "--socket=fallback-x11",
         "--socket=wayland",
         "--socket=pulseaudio",
+        "--own-name=org.mpris.MediaPlayer2.Euterpe-Gtk",
         "--device=dri"
     ],
     "cleanup" : [

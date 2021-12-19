@@ -50,6 +50,7 @@ euterpe_gtk_sources = [
   'box_artist.py',
   'entry.py',
   'entry_list.py',
+  'mpris.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)
