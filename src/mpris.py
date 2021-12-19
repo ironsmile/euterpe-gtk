@@ -70,7 +70,6 @@ class MPRIS:
         if property_name in [
             "CanQuit",
             "CanRaise",
-            "CanSeek",
             "CanControl",
         ]:
             return GLib.Variant("b", True)
@@ -113,7 +112,11 @@ class MPRIS:
             return GLib.Variant("b", self._player.has_next())
         elif property_name == "CanGoPrevious":
             return GLib.Variant("b", self._player.has_previous())
-        elif property_name in ["CanPlay", "CanPause"]:
+        elif property_name in [
+            "CanSeek",
+            "CanPlay",
+            "CanPause",
+        ]:
             return GLib.Variant("b", self._player.is_active())
 
     def GetAll(self, interface):
@@ -285,12 +288,17 @@ class MPRIS:
         }
 
     def _on_state_changed(self, player):
+        if player.has_ended():
+            self._track_info = self._get_empty_track()
+
+        is_active = player.is_active()
+
         properties = {
             "Metadata": GLib.Variant("a{sv}", self._track_info),
-            "CanPlay": GLib.Variant("b", True),
-            "CanPause": GLib.Variant("b", True),
-            "CanGoNext": GLib.Variant("b", self._player.has_next()),
-            "CanGoPrevious": GLib.Variant("b", self._player.has_previous()),
+            "CanPlay": GLib.Variant("b", is_active),
+            "CanPause": GLib.Variant("b", is_active),
+            "CanGoNext": GLib.Variant("b", player.has_next()),
+            "CanGoPrevious": GLib.Variant("b", player.has_previous()),
             "PlayBackStatus": GLib.Variant("s", self._get_player_status()),
         }
 
