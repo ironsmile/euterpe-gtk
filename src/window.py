@@ -81,6 +81,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._appVersion = appVersion
         self._token = None
+        self._state_restored = False
 
         app = self.get_application()
 
@@ -233,6 +234,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         except Exception as err:
             print("Restoring state failed: {}".format(err))
         finally:
+            self._state_restored = True
             emit_signal(self, SIGNAL_STATE_RESTORED)
 
     def store_remote_address(self, address):
@@ -450,6 +452,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         return False
 
     def store_state(self):
+        if not self._state_restored:
+            # The program is exiting before it had the time to
+            # fully restore its state. So in order to prevent
+            # storing partial state we are not storing anything here.
+            return
+
         self._search_widget.store_state(self._cache_store)
         self._player.store_state(self._cache_store)
         self._home_widget.store_state(self._cache_store)
