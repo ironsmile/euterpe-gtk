@@ -18,6 +18,7 @@
 import sys
 import gi
 import platform
+import random
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
@@ -35,6 +36,7 @@ class Application(Gtk.Application):
         super().__init__(application_id='com.doycho.euterpe.gtk',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         Gst.init(None)
+        random.seed()
         self._version = version
         self._euterpe = Euterpe(version)
         self._player = Player(self._euterpe)
@@ -71,6 +73,8 @@ class Application(Gtk.Application):
             "next_song": self.on_next_song,
             "previous_song": self.on_previous_song,
             "playpause": self.on_playpause,
+            "toggle_repeat": self.on_toggle_repeat,
+            "toggle_shuffle": self.on_toggle_shuffle,
         }
 
         for action_name, handler in actions.items():
@@ -83,7 +87,10 @@ class Application(Gtk.Application):
     def on_quit(self, *args):
         win = self.props.active_window
         if win and hasattr(win, "store_state"):
-            win.store_state()
+            try:
+                win.store_state()
+            except Exception as err:
+                print("Error storing window state: {}".format(err))
         self.quit()
 
     def on_next_song(self, *args):
@@ -97,6 +104,12 @@ class Application(Gtk.Application):
             self._player.pause()
         else:
             self._player.play()
+
+    def on_toggle_repeat(self, *args):
+        self._player.toggle_repeat()
+
+    def on_toggle_shuffle(self, *args):
+        self._player.toggle_shuffle()
 
     def get_player(self):
         return self._player

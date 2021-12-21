@@ -18,6 +18,15 @@
 import json
 import os
 from gi.repository import GLib
+from .player import Repeat, Shuffle
+
+
+class EuterpeEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, Repeat) or isinstance(obj, Shuffle):
+            return obj.name
+        return super().default(obj)
+
 
 class StateStorage:
 
@@ -92,7 +101,7 @@ class StateStorage:
 
     def set_object(self, key, object, namespace=None):
         try:
-            object_str = json.dumps(object)
+            object_str = json.dumps(object, cls=EuterpeEncoder)
         except ValueError as err:
             print("Storing object with key {} to storage failed: {}".format(
                 key, err

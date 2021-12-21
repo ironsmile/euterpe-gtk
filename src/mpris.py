@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gio, GLib, Gtk
+from .player import Repeat, Shuffle
 
 
 class MPRIS:
@@ -52,6 +53,8 @@ class MPRIS:
 
         self._player.connect("track-changed", self._on_track_changed)
         self._player.connect("state-changed", self._on_state_changed)
+        self._player.connect("repeat-changed", self._on_repeat_changed)
+        self._player.connect("shuffle-changed", self._on_shuffle_changed)
 
         # !TODO: add the following player signals and then implement the
         # following methods.
@@ -64,9 +67,20 @@ class MPRIS:
     def Set(self, interface, property_name, new_value):
         print("Setting {} to {}".format(property_name, new_value))
 
-    def Get(self, interface, property_name):
-        print("responding to {}.{}".format(interface, property_name))
+        if property_name == "Shuffle":
+            val = Shuffle.NONE
+            if new_value:
+                val = Shuffle.QUEUE
+            self._player.set_shuffle(val)
+        elif property_name == "LoopStatus":
+            val = Repeat.NONE
+            if new_value == "Playlist":
+                val = Repeat.QUEUE
+            elif new_value == "Track":
+                val = Repeat.SONG
+            self._player.set_repeat(val)
 
+    def Get(self, interface, property_name):
         if property_name in [
             "CanQuit",
             "CanRaise",
@@ -81,7 +95,7 @@ class MPRIS:
         ]:
             return GLib.Variant("b", False)
         elif property_name == "Shuffle":
-            return GLib.Variant("b", False)
+            return GLib.Variant("b", self._get_player_shuffle_status())
         elif property_name in ["Rate", "MinimumRate", "MaximumRate"]:
             return GLib.Variant("d", 1.0)
         elif property_name == "Identity":
@@ -95,7 +109,7 @@ class MPRIS:
         elif property_name == "PlaybackStatus":
             return GLib.Variant("s", self._get_player_status())
         elif property_name == "LoopStatus":
-            return GLib.Variant("s", "None")
+            return GLib.Variant("s", self._get_player_loop_status())
         elif property_name == "Metadata":
             return GLib.Variant("a{sv}", self._track_info)
         elif property_name == "Volume":
@@ -183,12 +197,6 @@ class MPRIS:
         changed_properties,
         invalidated_properties
     ):
-        print("properties changed on {}:\nchanged:{}\ninvalidated:{}".format(
-            interface_name,
-            changed_properties,
-            invalidated_properties,
-        ))
-
         self._bus.emit_signal(
             None,
             self.MPRIS_PATH,
@@ -304,6 +312,22 @@ class MPRIS:
 
         self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
 
+    def _on_repeat_changed(self, player):
+        properties = {
+            "CanGoNext": GLib.Variant("b", player.has_next()),
+            "CanGoPrevious": GLib.Variant("b", player.has_previous()),
+            "LoopStatus": GLib.Variant("s", self._get_player_loop_status()),
+        }
+        self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
+
+    def _on_shuffle_changed(self, player):
+        properties = {
+            "CanGoNext": GLib.Variant("b", player.has_next()),
+            "CanGoPrevious": GLib.Variant("b", player.has_previous()),
+            "Shuffle": GLib.Variant("b", self._get_player_shuffle_status()),
+        }
+        self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
+
     def _get_player_status(self):
         status = "Stopped"
         if self._player.is_active():
@@ -313,3 +337,17 @@ class MPRIS:
                 status = "Paused"
 
         return status
+
+    def _get_player_loop_status(self):
+        repeat = self._player.get_repeat()
+        if repeat == Repeat.SONG:
+            return "Track"
+        elif repeat == Repeat.QUEUE:
+            return "Playlist"
+        else:
+            return "None"
+
+    def _get_player_shuffle_status(self):
+        if self._player.get_shuffle() == Shuffle.QUEUE:
+            return True
+        return False

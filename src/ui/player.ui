@@ -53,6 +53,11 @@
     <property name="can_focus">False</property>
     <property name="icon_name">media-playlist-repeat-symbolic</property>
   </object>
+  <object class="GtkImage" id="repeat_song_icon">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="icon_name">media-playlist-repeat-song-symbolic</property>
+  </object>
   <object class="GtkImage" id="share_icon">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -342,12 +347,12 @@
                                 <child>
                                   <object class="GtkToggleButton" id="shuffle_button">
                                     <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="focus_on_click">False</property>
                                     <property name="receives_default">True</property>
                                     <property name="tooltip_text" translatable="yes">Toggle shuffle</property>
                                     <property name="valign">center</property>
+                                    <property name="action_name">app.toggle_shuffle</property>
                                     <property name="image">shuffle_icon</property>
                                     <property name="always_show_image">True</property>
                                   </object>
@@ -425,12 +430,12 @@
                                 <child>
                                   <object class="GtkToggleButton" id="repeat_button">
                                     <property name="visible">True</property>
-                                    <property name="sensitive">False</property>
                                     <property name="can_focus">True</property>
                                     <property name="focus_on_click">False</property>
                                     <property name="receives_default">True</property>
                                     <property name="tooltip_text" translatable="yes">Toggle repeat modes</property>
                                     <property name="valign">center</property>
+                                    <property name="action_name">app.toggle_repeat</property>
                                     <property name="image">repeat_icon</property>
                                     <property name="always_show_image">True</property>
                                   </object>

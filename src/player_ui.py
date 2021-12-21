@@ -18,6 +18,7 @@
 from gi.repository import GObject, Gtk
 from .entry_list import EuterpeEntryList
 from .utils import emit_signal, format_duration
+from .player import Repeat, Shuffle
 
 
 SIGNAL_PAN_DOWN = "pan-down"
@@ -47,6 +48,9 @@ class EuterpePlayerUI(Gtk.Viewport):
 
     play_icon = Gtk.Template.Child()
     pause_icon = Gtk.Template.Child()
+
+    repeat_icon = Gtk.Template.Child()
+    repeat_song_icon = Gtk.Template.Child()
 
     track_name = Gtk.Template.Child()
     artist_name = Gtk.Template.Child()
@@ -116,6 +120,14 @@ class EuterpePlayerUI(Gtk.Viewport):
         self._player.connect(
             "playlist-changed",
             self.on_player_playlist_changed
+        )
+        self._player.connect(
+            "repeat-changed",
+            self.on_repeat_changed
+        )
+        self._player.connect(
+            "shuffle-changed",
+            self.on_shuffle_changed
         )
 
     def on_track_progress_changed(self, player, prog):
@@ -190,6 +202,34 @@ class EuterpePlayerUI(Gtk.Viewport):
 
         track_index = player.get_track_index()
         self._entry_list.set_currently_playing(track_index)
+
+    def on_repeat_changed(self, player):
+        repeat = player.get_repeat()
+        active = repeat != Repeat.NONE
+
+        act_name = self.repeat_button.get_action_name()
+        self.repeat_button.set_action_name(None)
+        self.repeat_button.props.active = active
+        self.repeat_button.set_action_name(act_name)
+
+        if repeat == Repeat.SONG:
+            self.repeat_button.set_image(self.repeat_song_icon)
+        else:
+            self.repeat_button.set_image(self.repeat_icon)
+
+        self.next_button.set_sensitive(player.has_next())
+        self.prev_button.set_sensitive(player.has_previous())
+
+    def on_shuffle_changed(self, player):
+        active = player.get_shuffle() != Shuffle.NONE
+
+        act_name = self.shuffle_button.get_action_name()
+        self.shuffle_button.set_action_name(None)
+        self.shuffle_button.props.active = active
+        self.shuffle_button.set_action_name(act_name)
+
+        self.next_button.set_sensitive(player.has_next())
+        self.prev_button.set_sensitive(player.has_previous())
 
     def _on_seek(self, slider, scroll, value):
         if scroll != Gtk.ScrollType.JUMP:

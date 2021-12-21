@@ -18,11 +18,26 @@
 from gi.repository import GObject, GLib, Gst
 from .utils import emit_signal
 from functools import partial
+from enum import Enum
+import random
 
 SIGNAL_PROGRESS = "progress"
 SIGNAL_STATE_CHANGED = "state-changed"
 SIGNAL_TRACK_CHANGED = "track-changed"
 SIGNAL_PLAYLIST_CHANGED = "playlist-changed"
+SIGNAL_REPEAT_CHANGED = "repeat-changed"
+SIGNAL_SHUFFLE_CHANGED = "shuffle-changed"
+
+
+class Repeat(Enum):
+    NONE = 1
+    QUEUE = 2
+    SONG = 3
+
+
+class Shuffle(Enum):
+    NONE = 1
+    QUEUE = 2
 
 
 class Player(GObject.Object):
@@ -36,6 +51,8 @@ class Player(GObject.Object):
         SIGNAL_STATE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_TRACK_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_PLAYLIST_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_REPEAT_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_SHUFFLE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_PROGRESS: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
     }
 
@@ -47,6 +64,8 @@ class Player(GObject.Object):
         self._progress_id = 0
         self._service = euterpeService
         self._seek_to = None
+        self._shuffle = Shuffle.NONE
+        self._repeat = Repeat.NONE
 
     def set_playlist(self, playlist):
         self.stop()
@@ -285,9 +304,26 @@ class Player(GObject.Object):
         emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def next(self):
+        pl_len = len(self._playlist)
+
+        if pl_len < 1:
+            print("trying next on empty playlist")
+            return
+
         ind = self._current_playlist_index
-        ind += 1
-        if ind >= len(self._playlist):
+        if self._repeat == Repeat.SONG:
+            # Do nothing, leave the song index the same!
+            pass
+        elif self._shuffle == Shuffle.QUEUE:
+            while pl_len > 1 and self._current_playlist_index == ind:
+                ind = random.randint(0, pl_len - 1)
+        else:
+            ind += 1
+
+        if ind >= pl_len and self._repeat == Repeat.QUEUE:
+            ind = 0
+
+        if ind >= pl_len:
             print("trying to play track beyond the playlist length")
             return
 
@@ -298,12 +334,18 @@ class Player(GObject.Object):
     def has_next(self):
         if self._current_playlist_index is None:
             return False
+        if self._shuffle != Shuffle.NONE:
+            return True
+        if self._repeat != Repeat.NONE:
+            return True
         if self._current_playlist_index + 1 >= len(self._playlist):
             return False
         return True
 
     def has_previous(self):
         if self._current_playlist_index is None:
+            return False
+        if self._shuffle != Shuffle.NONE:
             return False
         if self._current_playlist_index - 1 < 0:
             return False
@@ -372,6 +414,34 @@ class Player(GObject.Object):
     def get_playlist(self):
         return self._playlist[:]
 
+    def get_shuffle(self):
+        return self._shuffle
+
+    def get_repeat(self):
+        return self._repeat
+
+    def toggle_repeat(self):
+        if self._repeat == Repeat.NONE:
+            self._repeat = Repeat.QUEUE
+        elif self._repeat == Repeat.QUEUE:
+            self._repeat = Repeat.SONG
+        else:
+            self._repeat = Repeat.NONE
+        emit_signal(self, SIGNAL_REPEAT_CHANGED)
+
+    def toggle_shuffle(self):
+        self._shuffle = Shuffle.NONE if self._shuffle == Shuffle.QUEUE else\
+            Shuffle.QUEUE
+        emit_signal(self, SIGNAL_SHUFFLE_CHANGED)
+
+    def set_shuffle(self, shuffle):
+        self._shuffle = shuffle
+        emit_signal(self, SIGNAL_SHUFFLE_CHANGED)
+
+    def set_repeat(self, repeat):
+        self._repeat = repeat
+        emit_signal(self, SIGNAL_REPEAT_CHANGED)
+
     def restore_state(self, store):
         state = store.get_object("player_state")
         if state is None:
@@ -384,6 +454,14 @@ class Player(GObject.Object):
 
         if 'index' in state:
             self._current_playlist_index = state['index']
+
+        if 'shuffle' in state:
+            self._shuffle = Shuffle[state['shuffle']]
+            emit_signal(self, SIGNAL_SHUFFLE_CHANGED)
+
+        if 'repeat' in state:
+            self._repeat = Repeat[state['repeat']]
+            emit_signal(self, SIGNAL_REPEAT_CHANGED)
 
         if self._current_playlist_index is None:
             return
@@ -415,6 +493,8 @@ class Player(GObject.Object):
             "playlist": self._playlist,
             "progress": progress,
             "position": position,
+            "shuffle": self._shuffle,
+            "repeat": self._repeat,
         }
 
         store.set_object("player_state", state)
