@@ -116,10 +116,9 @@ class MPRIS:
             return GLib.Variant("d", 1)
         elif property_name == "Position":
             pos = 0
-            if self._player.is_playing():
-                ppos = self._player.get_position()
-                if ppos is not None:
-                    pos = ppos * 1000
+            ppos = self._player.get_position()
+            if ppos is not None:
+                pos = ppos * 1000
 
             return GLib.Variant("x", pos)
         elif property_name == "CanGoNext":
