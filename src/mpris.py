@@ -65,7 +65,7 @@ class MPRIS:
         return self._xml
 
     def Set(self, interface, property_name, new_value):
-        print("Setting {} to {}".format(property_name, new_value))
+        print("MPRIS: Setting {} to {}".format(property_name, new_value))
 
         if property_name == "Shuffle":
             val = Shuffle.NONE
@@ -273,7 +273,10 @@ class MPRIS:
             else:
                 invocation.return_value(None)
         except Exception as err:
-            print("error invoking D-BUS {}: {}".format(method_name, err))
+            print("MPRIS: Error invoking D-BUS {}: {}".format(
+                method_name,
+                err
+            ))
 
     def _on_track_changed(self, player):
         self._track_info = self._get_empty_track()
@@ -290,10 +293,31 @@ class MPRIS:
                 )
             ),
             "mpris:length": GLib.Variant("x", track.get("duration", 0) * 1000),
-            "xesam:title": GLib.Variant("s", track["title"]),
-            "xesam:album": GLib.Variant("s", track["album"]),
-            "xesam:albumArtist": GLib.Variant("s", track["artist"]),
+            "xesam:title": GLib.Variant(
+                "s",
+                track.get("title", "Unknown Title")
+            ),
+            "xesam:album": GLib.Variant(
+                "s",
+                track.get("album", "Unknown Album")
+            ),
+            "xesam:albumArtist": GLib.Variant(
+                "as",
+                [track.get("artist", "Unknown Artist")]
+            ),
+            "xesam:artist": GLib.Variant(
+                "as",
+                [track.get("artist", "Unknown Artist")]
+            ),
+            "xesam:trackNumber": GLib.Variant("x", track.get("track", 0)),
         }
+
+        fmt = track.get("format", None)
+        if fmt is not None:
+            self._track_info["xesam:comment"] = GLib.Variant(
+                "as",
+                ["Format: {}".format(fmt)]
+            )
 
     def _on_state_changed(self, player):
         if player.has_ended():
