@@ -330,7 +330,7 @@ class MPRIS:
             "CanPause": GLib.Variant("b", is_active),
             "CanGoNext": GLib.Variant("b", player.has_next()),
             "CanGoPrevious": GLib.Variant("b", player.has_previous()),
-            "PlayBackStatus": GLib.Variant("s", self._get_player_status()),
+            "PlaybackStatus": GLib.Variant("s", self._get_player_status()),
         }
 
         self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
