@@ -104,6 +104,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         print("restoring window state...")
         self._restore_window_state()
+        self._restore_navigation_state()
 
         self.connect("show", self.on_activate)
         self.connect("size-allocate", self._on_size_allocate)
@@ -462,6 +463,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._player.store_state(self._cache_store)
         self._home_widget.store_state(self._cache_store)
         self._store_window_state()
+        self._store_navigation_state()
         self._cache_store.save()
 
     def _on_size_allocate(self, __win, allocation):
@@ -477,6 +479,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             event.new_window_state & Gdk.WindowState.MAXIMIZED
         ) != 0
 
+    def _store_navigation_state(self):
+        nav_visible = self.main_stack.get_visible_child_name()
+        self._cache_store.set_string(
+            "main_stack_visible",
+            nav_visible,
+            namespace="navigation_state"
+        )
+
     def _store_window_state(self):
         try:
             self._cache_store.set_many(
@@ -489,6 +499,21 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             )
         except Exception as err:
             print("Error storing window state: {}".format(err))
+
+    def _restore_navigation_state(self):
+        store = self._cache_store
+        try:
+            nav_visible = store.get_string(
+                "main_stack_visible",
+                namespace="navigation_state"
+            )
+        except Exception as err:
+            print("error restoring navigation state: {}".format(err))
+
+        if nav_visible is None:
+            return
+
+        self.main_stack.set_visible_child_name(nav_visible)
 
     def _restore_window_state(self):
         store = self._cache_store
