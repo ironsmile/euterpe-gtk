@@ -55,18 +55,16 @@ class MPRIS:
         self._player.connect("state-changed", self._on_state_changed)
         self._player.connect("repeat-changed", self._on_repeat_changed)
         self._player.connect("shuffle-changed", self._on_shuffle_changed)
+        self._player.connect("volume-changed", self._on_volume_changed)
 
         # !TODO: add the following player signals and then implement the
         # following methods.
         # self._player.connect("seeked", self._on_seeked)
-        # self._player.connect("volume-changed", self._on_volume_changed)
 
     def Introspect(self):
         return self._xml
 
     def Set(self, interface, property_name, new_value):
-        print("MPRIS: Setting {} to {}".format(property_name, new_value))
-
         if property_name == "Shuffle":
             val = Shuffle.NONE
             if new_value:
@@ -79,6 +77,13 @@ class MPRIS:
             elif new_value == "Track":
                 val = Repeat.SONG
             self._player.set_repeat(val)
+        elif property_name == "Volume":
+            self._player.set_volume(new_value)
+        else:
+            print("MPRIS: Setting {} to {}".format(
+                property_name,
+                new_value,
+            ))
 
     def Get(self, interface, property_name):
         if property_name in [
@@ -113,7 +118,7 @@ class MPRIS:
         elif property_name == "Metadata":
             return GLib.Variant("a{sv}", self._track_info)
         elif property_name == "Volume":
-            return GLib.Variant("d", 1)
+            return GLib.Variant("d", self._player.get_volume())
         elif property_name == "Position":
             pos = 0
             ppos = self._player.get_position()
@@ -348,6 +353,12 @@ class MPRIS:
             "CanGoNext": GLib.Variant("b", player.has_next()),
             "CanGoPrevious": GLib.Variant("b", player.has_previous()),
             "Shuffle": GLib.Variant("b", self._get_player_shuffle_status()),
+        }
+        self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
+
+    def _on_volume_changed(self, player, vol):
+        properties = {
+            "Volume": GLib.Variant("d", player.get_volume()),
         }
         self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
 

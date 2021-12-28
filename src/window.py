@@ -51,6 +51,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     bottom_switcher = Gtk.Template.Child()
     main_stack = Gtk.Template.Child()
     title_tab_bar = Gtk.Template.Child()
+    back_button_position = Gtk.Template.Child()
 
     search_screen = Gtk.Template.Child()
     browse_screen = Gtk.Template.Child()
@@ -66,6 +67,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     login_scroll_view = Gtk.Template.Child()
     app_stack = Gtk.Template.Child()
     login_button = Gtk.Template.Child()
+
+    volume_adjustment = Gtk.Template.Child()
+    main_volume_slider = Gtk.Template.Child()
 
     login_spinner = Gtk.Template.Child()
     login_failed_indicator = Gtk.Template.Child()
@@ -132,6 +136,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         )
         self.login_button.connect("clicked", self.on_login_button)
 
+        self.main_volume_slider.connect(
+            "change-value",
+            self._on_volume_changed
+        )
+
         self.service_password_show_toggle.bind_property(
             'active',
             self.service_password, 'visibility',
@@ -168,7 +177,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._home_widget = EuterpeHomeScreen(self)
         self.home_screen.add(self._home_widget)
-        self._home_widget.connect("logout", self.on_logout_button)
 
         mini_player = EuterpeMiniPlayer(self._player)
         mini_player.connect(
@@ -202,6 +210,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         )
 
         self.connect("delete-event", self._on_program_exit)
+
+        self._player.connect("volume-changed", self._on_player_volume_changed)
 
         print("staring RestoreStateThread")
         t = threading.Thread(
@@ -306,12 +316,13 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             screen = self.logged_in_screen
 
         self.app_stack.set_visible_child(screen)
-
-        back_button = self._home_widget.get_back_button()
-        self.title_tab_bar.add(back_button)
+        self.set_back_button_to_visible_child(self.main_stack)
 
     def on_main_stack_change(self, stack, event):
-        self.title_tab_bar.foreach(self.title_tab_bar.remove)
+        self.set_back_button_to_visible_child(stack)
+
+    def set_back_button_to_visible_child(self, stack):
+        self.back_button_position.foreach(self.back_button_position.remove)
         visible_child = stack.get_visible_child()
         if issubclass(type(visible_child), Gtk.Container):
             grand_children = visible_child.get_children()
@@ -319,7 +330,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 screen = grand_children[0]
                 if hasattr(screen, 'get_back_button'):
                     back_button = screen.get_back_button()
-                    self.title_tab_bar.add(back_button)
+                    self.back_button_position.add(back_button)
 
     def on_login_status_change(self, stack, event):
         show_squeezer = (self.logged_in_screen == stack.get_visible_child())
@@ -397,7 +408,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self.logged_in_screen
         )
 
-    def on_logout_button(self, button):
+    def logout(self):
         self._token = None
         self._remote_address = None
 
@@ -542,3 +553,16 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._is_maximized = maximized
         if maximized:
             self.maximize()
+
+    def _on_volume_changed(self, slider, scroll, value):
+        if scroll != Gtk.ScrollType.JUMP:
+            return False
+
+        if self._player is None:
+            return
+
+        self._player.set_volume(value)
+        return False
+
+    def _on_player_volume_changed(self, player, vol):
+        self.volume_adjustment.set_value(vol)

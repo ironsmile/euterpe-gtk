@@ -133,24 +133,6 @@
                         <property name="position">5</property>
                       </packing>
                     </child>
-                    <child>
-                      <object class="GtkButton" id="logout_button">
-                        <property name="label" translatable="yes">Log Out</property>
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="focus_on_click">False</property>
-                        <property name="receives_default">True</property>
-                        <property name="halign">center</property>
-                        <style>
-                          <class name="destructive-action"/>
-                        </style>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">6</property>
-                      </packing>
-                    </child>
                   </object>
                 </child>
               </object>

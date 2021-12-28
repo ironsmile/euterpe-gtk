@@ -27,6 +27,7 @@ SIGNAL_TRACK_CHANGED = "track-changed"
 SIGNAL_PLAYLIST_CHANGED = "playlist-changed"
 SIGNAL_REPEAT_CHANGED = "repeat-changed"
 SIGNAL_SHUFFLE_CHANGED = "shuffle-changed"
+SIGNAL_VOLUME_CHANGED = "volume-changed"
 
 
 class Repeat(Enum):
@@ -54,6 +55,7 @@ class Player(GObject.Object):
         SIGNAL_REPEAT_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_SHUFFLE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_PROGRESS: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
+        SIGNAL_VOLUME_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
     }
 
     def __init__(self, euterpeService):
@@ -61,11 +63,13 @@ class Player(GObject.Object):
         self._playlist = []
         self._current_playlist_index = None
         self._playbin = None
+        self._volumebin = None
         self._progress_id = 0
         self._service = euterpeService
         self._seek_to = None
         self._shuffle = Shuffle.NONE
         self._repeat = Repeat.NONE
+        self._volume_level = 1.0
 
     def set_playlist(self, playlist):
         self.stop()
@@ -129,12 +133,20 @@ class Player(GObject.Object):
 
         audio = Gst.Bin.new('audiobin')
         conv = Gst.ElementFactory.make("audioconvert", "aconv")
-        audiopad = conv.get_static_pad("sink")
-        sink = Gst.ElementFactory.make("autoaudiosink", "output")
+        output = Gst.ElementFactory.make("autoaudiosink", "output")
+        volume = Gst.ElementFactory.make("volume", "volume-effect")
+
         audio.add(conv)
-        audio.add(sink)
-        conv.link(sink)
-        audio.add_pad(Gst.GhostPad.new('sink', audiopad))
+        audio.add(output)
+        audio.add(volume)
+
+        volume.link(output)
+        volume_sink = volume.get_static_pad("sink")
+        conv_src = conv.get_static_pad("src")
+        conv_src.link(volume_sink)
+
+        convsinkpad = conv.get_static_pad("sink")
+        audio.add_pad(Gst.GhostPad.new('sink', convsinkpad))
         pipeline.add(audio)
 
         dec.connect("pad-added", self._on_newpad, audio)
@@ -145,14 +157,17 @@ class Player(GObject.Object):
         bus.connect("message::eos", self._on_bus_eos)
         bus.connect("message::stream-start", self._on_stream_start)
 
+        volume.props.volume = self._volume_level
+
         self._playbin = pipeline
+        self._volumebin = volume
         self._seek_to = None
         emit_signal(self, SIGNAL_TRACK_CHANGED)
 
-    def _on_newpad(self, dec, pad, audiosink):
+    def _on_newpad(self, dec, pad, sinkbin):
         # TODO: check caps!
-        audiopad = audiosink.get_static_pad("sink")
-        pad.link(audiopad)
+        sink_pad = sinkbin.get_static_pad("sink")
+        pad.link(sink_pad)
 
     def _on_bus_error(self, bus, message):
         (error, parsed) = message.parse_error()
@@ -238,6 +253,7 @@ class Player(GObject.Object):
 
         self._playbin.set_state(Gst.State.NULL)
         self._playbin = None
+        self._volumebin = None
         emit_signal(self, SIGNAL_STATE_CHANGED)
 
     def play(self):
@@ -442,6 +458,21 @@ class Player(GObject.Object):
         self._repeat = repeat
         emit_signal(self, SIGNAL_REPEAT_CHANGED)
 
+    def set_volume(self, val):
+        if val < 0:
+            val = 0
+        elif val > 1:
+            val = 1
+
+        self._volume_level = val
+        if self._volumebin is not None:
+            self._volumebin.props.volume = val
+
+        emit_signal(self, SIGNAL_VOLUME_CHANGED, val)
+
+    def get_volume(self):
+        return self._volume_level
+
     def restore_state(self, store):
         state = store.get_object("player_state")
         if state is None:
@@ -462,6 +493,10 @@ class Player(GObject.Object):
         if 'repeat' in state:
             self._repeat = Repeat[state['repeat']]
             emit_signal(self, SIGNAL_REPEAT_CHANGED)
+
+        if 'volume' in state:
+            self._volume_level = state['volume']
+            emit_signal(self, SIGNAL_VOLUME_CHANGED, self._volume_level)
 
         if self._current_playlist_index is None:
             return
@@ -495,6 +530,7 @@ class Player(GObject.Object):
             "position": position,
             "shuffle": self._shuffle,
             "repeat": self._repeat,
+            "volume": self._volume_level,
         }
 
         store.set_object("player_state", state)

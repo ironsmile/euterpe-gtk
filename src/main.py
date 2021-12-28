@@ -70,6 +70,7 @@ class Application(Gtk.Application):
     def _set_actions(self):
         actions = {
             "quit": self.on_quit,
+            "logout": self.on_logout,
             "next_song": self.on_next_song,
             "previous_song": self.on_previous_song,
             "playpause": self.on_playpause,
@@ -83,6 +84,11 @@ class Application(Gtk.Application):
             self.add_action(action)
 
         self.set_accels_for_action("app.quit", ["<Control>Q"])
+
+    def on_logout(self, *args):
+        win = self.props.active_window
+        if win and hasattr(win, "logout"):
+            win.logout()
 
     def on_quit(self, *args):
         win = self.props.active_window

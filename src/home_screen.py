@@ -31,7 +31,6 @@ REFRESH_INTERVAL = 60 * 60 * 24
 
 SIGNAL_ADDED_ALBUMS_RESTORED = "state-added-albums-restored"
 SIGNAL_ADDED_ARTISTS_RESTORED = "state-added-artists-restored"
-SIGNAL_LOGOUT = "logout"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/home-screen.ui')
@@ -41,7 +40,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
     __gsignals__ = {
         SIGNAL_ADDED_ALBUMS_RESTORED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_ADDED_ARTISTS_RESTORED: (GObject.SignalFlags.RUN_FIRST, None, ()),
-        SIGNAL_LOGOUT: (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
     screen_stack = Gtk.Template.Child()
@@ -51,8 +49,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
     recently_added_artists = Gtk.Template.Child()
     recently_added_albums = Gtk.Template.Child()
 
-    logout_button = Gtk.Template.Child()
-
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
         self._win = win
@@ -60,11 +56,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
         self.back_button.connect(
             "clicked",
             self._on_back_button
-        )
-
-        self.logout_button.connect(
-            "clicked",
-            self._on_logout_button
         )
 
         self._recently_added_last_updated = None
@@ -125,9 +116,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self.recently_added_albums.add(album_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
-
-    def _on_logout_button(self, *args):
-        emit_signal(self, SIGNAL_LOGOUT)
 
     def get_back_button(self):
         return self.back_button
