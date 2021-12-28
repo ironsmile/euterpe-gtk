@@ -555,9 +555,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self.maximize()
 
     def _on_volume_changed(self, slider, scroll, value):
-        if scroll != Gtk.ScrollType.JUMP:
-            return False
-
         if self._player is None:
             return
 
