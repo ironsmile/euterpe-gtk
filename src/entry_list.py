@@ -25,12 +25,14 @@ SIGNAL_TRACK_CLICKED = "track-clicked"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/entry-list.ui')
-class EuterpeEntryList(Gtk.Box):
+class EuterpeEntryList(Gtk.ScrolledWindow):
     __gtype_name__ = 'EuterpeEntryList'
 
     __gsignals__ = {
         SIGNAL_TRACK_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, (int,)),
     }
+
+    entry_container = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -48,12 +50,12 @@ class EuterpeEntryList(Gtk.Box):
             partial(self._on_track_clicked, song_index)
         )
 
-        super().add(song_widget)
+        self.entry_container.add(song_widget)
 
     def truncate(self):
         self._songs = []
         self._current_song = None
-        for child in self.get_children():
+        for child in self.entry_container.get_children():
             child.destroy()
 
     def set_currently_playing(self, index):
@@ -70,6 +72,12 @@ class EuterpeEntryList(Gtk.Box):
         song_widget = self._songs[index]
         self._current_song = song_widget
         song_widget.set_relief(Gtk.ReliefStyle.NORMAL)
+        self.scroll_to(song_widget)
 
     def _on_track_clicked(self, index, *args):
         emit_signal(self, SIGNAL_TRACK_CLICKED, index)
+
+    def scroll_to(self, widget):
+        vadj = self.get_vadjustment()
+        x, y = widget.translate_coordinates(self, 0, 0)
+        vadj.set_value(min(y, vadj.get_upper()))
