@@ -56,10 +56,7 @@ class MPRIS:
         self._player.connect("repeat-changed", self._on_repeat_changed)
         self._player.connect("shuffle-changed", self._on_shuffle_changed)
         self._player.connect("volume-changed", self._on_volume_changed)
-
-        # !TODO: add the following player signals and then implement the
-        # following methods.
-        # self._player.connect("seeked", self._on_seeked)
+        self._player.connect("seeked", self._on_seeked)
 
     def Introspect(self):
         return self._xml
@@ -194,6 +191,20 @@ class MPRIS:
 
     def Play(self):
         self._player.play()
+
+    def Seek(self, offset):
+        """
+        Seeks forward in the current track by the specified number of
+        microseconds.
+
+        A negative value seeks back. If this would mean seeking back
+        further than the start of the track, the position is set to 0.
+
+        If the value passed in would mean seeking beyond the end of
+        the track, acts like a call to Next.
+        """
+        offset_ms = offset / 1000
+        self._player.seek_with(offset_ms)
 
     def PropertiesChanged(
         self,
@@ -361,6 +372,22 @@ class MPRIS:
             "Volume": GLib.Variant("d", player.get_volume()),
         }
         self.PropertiesChanged(self.MPRIS_INTERFACE_PLAYER, properties, [])
+
+    def _on_seeked(self, player):
+        pos = player.get_position()
+        if pos is None:
+            return
+
+        pos_micro = int(pos * 1e3)
+        self._bus.emit_signal(
+            None,
+            self.MPRIS_PATH,
+            self.MPRIS_INTERFACE_PLAYER,
+            "Seeked",
+            GLib.Variant.new_tuple(
+                GLib.Variant("x", pos_micro)
+            )
+        )
 
     def _get_player_status(self):
         status = "Stopped"

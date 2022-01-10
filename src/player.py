@@ -28,6 +28,7 @@ SIGNAL_PLAYLIST_CHANGED = "playlist-changed"
 SIGNAL_REPEAT_CHANGED = "repeat-changed"
 SIGNAL_SHUFFLE_CHANGED = "shuffle-changed"
 SIGNAL_VOLUME_CHANGED = "volume-changed"
+SIGNAL_SEEKED = "seeked"
 
 
 class Repeat(Enum):
@@ -54,6 +55,7 @@ class Player(GObject.Object):
         SIGNAL_PLAYLIST_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_REPEAT_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_SHUFFLE_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_SEEKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
         SIGNAL_PROGRESS: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
         SIGNAL_VOLUME_CHANGED: (GObject.SignalFlags.RUN_FIRST, None, (float, )),
     }
@@ -245,7 +247,44 @@ class Player(GObject.Object):
             seek_pos
         )
         if not seeked:
-            print("seeking was not succesful")
+            print("seeking was not successful")
+        else:
+            emit_signal(self, SIGNAL_SEEKED)
+
+    def seek_with(self, offset):
+        '''
+        Seeks forward (positive offset) or backward (negative offset).
+        Values before the start of the track or after its end will
+        be clamped.
+
+        offset is a number in milliseconds.
+        '''
+        track = self.get_track_info()
+        if track is None:
+            print("Seeking not possible, no track is loaded")
+            pass
+
+        pos = self.get_position()
+        if pos is None:
+            print("Seeking not possible, unknown current position")
+            return
+
+        new_pos = pos + offset
+        if new_pos < 0:
+            new_pos = 0
+        elif track['duration'] is not None and new_pos > track['duration']:
+            new_pos = track['duration']
+
+        new_pos_ns = int(new_pos * 1e6)
+        seeked = self._playbin.seek_simple(
+            Gst.Format.TIME,
+            Gst.SeekFlags.FLUSH | Gst.SeekFlags.KEY_UNIT,
+            new_pos_ns
+        )
+        if not seeked:
+            print("seeking was not successful")
+        else:
+            emit_signal(self, SIGNAL_SEEKED)
 
     def stop(self):
         if self._playbin is None:
@@ -309,7 +348,7 @@ class Player(GObject.Object):
             print("get_position: still could not query")
             return None
 
-        return ns / 1000000
+        return ns / 1e6
 
     def pause(self):
         if self._playbin is None:
@@ -397,6 +436,24 @@ class Player(GObject.Object):
         return self._playbin is None
 
     def get_track_info(self):
+        '''
+        Returns a dict with information about the currently loaded
+        track or None when no track is loaded. Example dict:
+
+            {
+               "album" : "Battlefield Vietnam",
+               "artist" : "Jefferson Airplane",
+               "track" : 14,
+               "format": "flac",
+               "title" : "White Rabbit",
+               "album_id" : 2,
+               "id" : 22,
+               "artist_id": 33,
+               "duration": 308000
+            }
+
+        Note that the duration is in milliseconds.
+        '''
         if self._current_playlist_index >= len(self._playlist):
             return None
 
