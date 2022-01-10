@@ -56,6 +56,38 @@
 	<url type="donation">https://github.com/sponsors/ironsmile</url>
 
 	<releases>
+		<release version="0.4.0" date="2022-01-10">
+			<description>
+				<p>
+					A lot more features were added aimed at making the
+					player more and more convenient.
+				</p>
+				<ul>
+					<li>
+						MPRIS (Media Player Remote Interfacing Specification) support
+						was added. So you could control the player remotely.
+					</li>
+					<li>
+						In-program volume slider! Check out the "hamburger" menu.
+					</li>
+					<li>
+						Implemented shuffle and repeat options.
+					</li>
+					<li>
+						The navigation position is stored as well on exit.
+					</li>
+					<li>
+						The queue list automatically scrolls to the currently
+						playing track when it is changed.
+					</li>
+					<li>
+						Fixed a bug where the program state was lost when there
+						is temporary problem with acquiring the auth token from
+						the OS keyring.
+					</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.3.0" date="2021-12-11">
 			<description>
 				<p>
