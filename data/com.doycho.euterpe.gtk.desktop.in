@@ -6,4 +6,5 @@ Icon=com.doycho.euterpe.gtk
 Terminal=false
 Type=Application
 Categories=GNOME;GTK;Audio;Player;
+X-Purism-FormFactor=Workstation;Mobile;
 StartupNotify=true
