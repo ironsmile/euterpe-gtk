@@ -18,6 +18,17 @@ one could consider it "complete".
 
 ## Building From Source
 
+You will need [libhandy 1.1+ dev files](https://gnome.pages.gitlab.gnome.org/libhandy/) and
+the Python's [keyring](https://pypi.org/project/keyring/) lib before building.
+
+On Alpine they could be installed via `apk`:
+
+```
+sudo apk add libhandy1-dev py3-keyring
+```
+
+After that install as normal GTK3 app:
+
 ```
 meson . _build --prefix=/usr
 ninja -C _build
