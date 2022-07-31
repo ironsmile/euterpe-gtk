@@ -17,6 +17,8 @@
 
 from gi.repository import Gtk, GLib
 
+import urllib.parse
+
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/paginated-box-list.ui')
 class PaginatedBoxList(Gtk.ScrolledWindow):
@@ -30,6 +32,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
     flow_container = Gtk.Template.Child()
     title = Gtk.Template.Child()
+    page_label = Gtk.Template.Child()
 
     button_next_page = Gtk.Template.Child()
     button_previous_page = Gtk.Template.Child()
@@ -45,6 +48,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self._next_page = None
         self._previous_page = None
+        self._current_page = '1'
 
         self.connect("realize", self._create_widgets)
         self.connect("unrealize", self._on_unrealize)
@@ -95,6 +99,18 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             self._next_page = None
             self.button_next_page.set_sensitive(False)
 
+        all_pages = '<unknown>'
+
+        if 'pages_count' in body:
+            all_pages = body['pages_count']
+
+        page_text = 'Page {} of {}'.format(
+            self._current_page,
+            all_pages
+        )
+
+        self.page_label.set_text(page_text)
+
         self._remove_items()
         self._populate_items(body['data'])
 
@@ -113,13 +129,24 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         if self._next_page is None:
             return
 
+        self._set_page_by_url(self._next_page)
         self._euterpe.make_request(self._next_page, self._on_browse_result_callback)
 
     def _on_previous_button(self, btn):
         if self._previous_page is None:
             return
 
+        self._set_page_by_url(self._previous_page)
         self._euterpe.make_request(self._previous_page, self._on_browse_result_callback)
+
+    def _set_page_by_url(self, url):
+        parsed = urllib.parse.urlparse(url)
+        qparams =  urllib.parse.parse_qs(parsed.query)
+        if 'page' not in qparams or len(qparams['page']) < 1:
+            slef._current_page = '<unknown>'
+            return
+
+        self._current_page = qparams['page'].pop()
 
     def _on_unrealize(self, *args):
         self._removed = True

@@ -89,7 +89,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
     def _on_browse_artists_button(self, btn):
         euterpe = self._win.get_euterpe()
         bl = PaginatedBoxList(euterpe, 'artist', self._create_artists_widget)
-        bl.set_title("Browse Artists")
+        bl.set_title("Artists Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
         # TODO: make sure bl gets destroyed when no longer shown
@@ -107,7 +107,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
     def _on_browse_albums_button(self, btn):
         euterpe = self._win.get_euterpe()
         bl = PaginatedBoxList(euterpe, 'album', self._create_album_widget)
-        bl.set_title("Browse Albums")
+        bl.set_title("Albums Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
         # TODO: make sure bl gets destroyed when no longer shown

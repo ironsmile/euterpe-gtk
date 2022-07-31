@@ -49,6 +49,8 @@
               <object class="GtkFlowBox" id="flow_container">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="margin_top">10</property>
+                <property name="margin_bottom">10</property>
                 <property name="homogeneous">True</property>
                 <property name="column_spacing">10</property>
                 <property name="row_spacing">10</property>
@@ -64,36 +66,66 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="valign">end</property>
                 <child>
-                  <object class="GtkButton" id="button_previous_page">
-                    <property name="label" translatable="yes">Previous</property>
+                  <object class="GtkLabel" id="page_label">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can_focus">True</property>
-                    <property name="focus_on_click">False</property>
-                    <property name="receives_default">True</property>
-                    <property name="image">previous_button_image</property>
-                    <property name="always_show_image">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">start</property>
+                    <property name="margin_left">10</property>
+                    <property name="margin_right">10</property>
+                    <property name="label" translatable="yes">Page 1</property>
+                    <property name="ellipsize">end</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkButton" id="button_next_page">
-                    <property name="label" translatable="yes">Next</property>
+                  <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can_focus">True</property>
-                    <property name="focus_on_click">False</property>
-                    <property name="receives_default">True</property>
-                    <property name="image">next_button_icon</property>
-                    <property name="image_position">right</property>
-                    <property name="always_show_image">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="halign">end</property>
+                    <property name="valign">end</property>
+                    <child>
+                      <object class="GtkButton" id="button_previous_page">
+                        <property name="label" translatable="yes">Previous</property>
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
+                        <property name="receives_default">True</property>
+                        <property name="image">previous_button_image</property>
+                        <property name="always_show_image">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="button_next_page">
+                        <property name="label" translatable="yes">Next</property>
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">True</property>
+                        <property name="focus_on_click">False</property>
+                        <property name="receives_default">True</property>
+                        <property name="image">next_button_icon</property>
+                        <property name="image_position">right</property>
+                        <property name="always_show_image">True</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <style>
+                      <class name="linked"/>
+                    </style>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -101,9 +133,6 @@
                     <property name="position">1</property>
                   </packing>
                 </child>
-                <style>
-                  <class name="linked"/>
-                </style>
               </object>
               <packing>
                 <property name="expand">False</property>
