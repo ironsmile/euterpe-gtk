@@ -124,6 +124,24 @@ class Euterpe:
         req = self._create_request(address, cb)
         req.get()
 
+    def make_request(self, uri, callback):
+        full_url = Euterpe.build_url(self._remote_address, uri)
+        cb = JSONBodyCallback(callback)
+        req = self._create_request(full_url, cb)
+        req.get()
+
+    def get_browse_uri(self, what):
+        if what not in ['album', 'artist']:
+            print("unknown browse type: {}".format(what))
+            return None
+
+        address = "{}?by={}&per-page=30&order-by=name&order=asc".format(
+            ENDPOINT_BROWSE,
+            urllib.parse.quote(what, safe='')
+        )
+
+        return address
+
     def _create_request(self, address, callback):
         req = Request(address, callback)
         req.set_header("User-Agent", self._user_agent)
@@ -139,6 +157,7 @@ class Euterpe:
 
     def get_token(self):
         return self._token
+
 
 class JSONBodyCallback(object):
 

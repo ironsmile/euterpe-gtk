@@ -51,6 +51,7 @@ euterpe_gtk_sources = [
   'entry.py',
   'entry_list.py',
   'mpris.py',
+  'paginated_box_list.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

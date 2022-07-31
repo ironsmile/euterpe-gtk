@@ -340,7 +340,7 @@ class Player(GObject.Object):
         playbin = self._playbin
 
         if playbin is None:
-            print("trying to get progress self._playbin which is None")
+            print("trying to get position self._playbin which is None")
             return None
 
         (ok, ns) = playbin.query_position(Gst.Format.TIME)

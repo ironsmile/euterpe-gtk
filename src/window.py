@@ -159,7 +159,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self.populate_about()
 
-        browse_screen = EuterpeBrowseScreen()
+        browse_screen = EuterpeBrowseScreen(self)
         self.browse_screen.add(browse_screen)
         browse_screen.connect(
             'search-button-clicked',

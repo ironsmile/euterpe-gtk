@@ -96,7 +96,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
         for artist in self._recently_added_artists:
             artist_widget = EuterpeBoxArtist(artist)
-            artist_widget.connect("clicked", self._on_artist_cick)
+            artist_widget.connect("clicked", self._on_artist_click)
             self.recently_added_artists.add(artist_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
@@ -210,7 +210,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
         album_screen = EuterpeAlbum(album_dict, self._win)
         self._nav.show_screen(album_screen)
 
-    def _on_artist_cick(self, artist_widget):
+    def _on_artist_click(self, artist_widget):
         artist_dict = artist_widget.get_artist()
         artist_screen = EuterpeArtist(artist_dict, self._win, self._nav)
         self._nav.show_screen(artist_screen)
