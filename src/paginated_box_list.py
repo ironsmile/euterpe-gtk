@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk, GLib
+from gi.repository import GObject, Gtk, GLib
 
 import urllib.parse
 
@@ -33,6 +33,8 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     flow_container = Gtk.Template.Child()
     title = Gtk.Template.Child()
     page_label = Gtk.Template.Child()
+    loading_indicator = Gtk.Template.Child()
+    buttons_container = Gtk.Template.Child()
 
     button_next_page = Gtk.Template.Child()
     button_previous_page = Gtk.Template.Child()
@@ -63,11 +65,26 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             self._on_previous_button
         )
 
+        self.loading_indicator.bind_property(
+            'active',
+            self.flow_container, 'visible',
+            GObject.BindingFlags.INVERT_BOOLEAN
+        )
+
+        self.loading_indicator.bind_property(
+            'active',
+            self.buttons_container, 'visible',
+            GObject.BindingFlags.INVERT_BOOLEAN
+        )
+
     def _create_widgets(self, *args):
         if self._widgets_created:
             return
 
         self._widgets_created = True
+
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
 
         uri = self._euterpe.get_browse_uri(self._list_type)
         if uri is None:
@@ -112,6 +129,10 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.page_label.set_text(page_text)
 
         self._remove_items()
+
+        self.loading_indicator.stop()
+        self.loading_indicator.set_visible(False)
+
         self._populate_items(body['data'])
 
     def _populate_items(self, items):
@@ -129,12 +150,18 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         if self._next_page is None:
             return
 
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
+
         self._set_page_by_url(self._next_page)
         self._euterpe.make_request(self._next_page, self._on_browse_result_callback)
 
     def _on_previous_button(self, btn):
         if self._previous_page is None:
             return
+
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
 
         self._set_page_by_url(self._previous_page)
         self._euterpe.make_request(self._previous_page, self._on_browse_result_callback)
@@ -157,6 +184,9 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             child.destroy()
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
+
+    def _show_error(self, text):
+        print(text)
 
     def add(self, widget):
         self.flow_container.add(widget)
