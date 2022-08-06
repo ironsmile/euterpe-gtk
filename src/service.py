@@ -19,6 +19,7 @@ import sys
 import json
 import urllib
 from .http import Request, AsyncRequest
+from enum import Enum
 
 class Euterpe:
 
@@ -129,7 +130,7 @@ class Euterpe:
         req = self._create_request(full_url, cb)
         req.get()
 
-    def get_album_artwork(self, album_id, cancellable, callback, *args):
+    def get_album_artwork(self, album_id, size, cancellable, callback, *args):
         '''
         Makes a request for an album artwork.
 
@@ -138,6 +139,25 @@ class Euterpe:
         '''
         artwork_path = ENDPOINT_ALBUM_ART.format(album_id)
         address = Euterpe.build_url(self._remote_address, artwork_path)
+
+        if size == ArtworkSize.SMALL:
+            address = "{}?size={}".format(address, 'small')
+
+        req = self._create_async_request(address, cancellable, callback)
+        req.get(*args)
+
+    def get_artist_artwork(self, artist_id, size, cancellable, callback, *args):
+        '''
+        Makes a request for an artist image.
+
+            * artist_id (int) - the ID of the artist for which to get an image.
+            * callback - a function described in the http.AsyncRequest.
+        '''
+        artwork_path = ENDPOINT_ARTIST_ART.format(artist_id)
+        address = Euterpe.build_url(self._remote_address, artwork_path)
+
+        if size == ArtworkSize.SMALL:
+            address = "{}?size={}".format(address, 'small')
 
         req = self._create_async_request(address, cancellable, callback)
         req.get(*args)
@@ -208,9 +228,15 @@ class JSONBodyCallback(object):
             self._callback(status, responseJSON, *args)
 
 
+class ArtworkSize(Enum):
+    FULL = 'full'
+    SMALL = 'small'
+
+
 ENDPOINT_LOGIN = '/v1/login/token/'
 ENDPOINT_REGISTER_TOKEN = '/v1/register/token/'
 ENDPOINT_SEARCH = '/v1/search/'
 ENDPOINT_FILE = '/v1/file/{}'
 ENDPOINT_ALBUM_ART = '/v1/album/{}/artwork'
+ENDPOINT_ARTIST_ART = '/v1/artist/{}/image'
 ENDPOINT_BROWSE = "/v1/browse/"

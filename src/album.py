@@ -1,5 +1,6 @@
 from gi.repository import GObject, Gtk
 from .track import EuterpeTrack
+from .async_artwork import AsyncArtwork
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/album.ui')
@@ -15,6 +16,7 @@ class EuterpeAlbum(Gtk.Viewport):
     track_list = Gtk.Template.Child()
     loading_spinner = Gtk.Template.Child()
     append_to_queue = Gtk.Template.Child()
+    image = Gtk.Template.Child()
 
     def __init__(self, album, win, **kwargs):
         super().__init__(**kwargs)
@@ -48,6 +50,16 @@ class EuterpeAlbum(Gtk.Viewport):
             )
 
         self.connect("unrealize", self._on_unrealize)
+        self._init_artwork(album)
+
+    def _init_artwork(self, album):
+        album_id = album.get("album_id", None)
+        if album_id is None:
+            print("EuterpeAlbum: no album ID found for {}".format(album))
+            return
+
+        self._artwork_loader = AsyncArtwork(self.image, 350)
+        self._artwork_loader.load_album_image(album_id)
 
     def _on_play_button(self, pb):
         player = self._win.get_player()

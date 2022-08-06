@@ -17,6 +17,7 @@
 
 from gi.repository import GObject, Gtk
 from .utils import emit_signal
+from .async_artwork import AsyncArtwork
 
 
 SIGNAL_CLICKED = "clicked"
@@ -43,6 +44,16 @@ class EuterpeBoxAlbum(Gtk.Viewport):
         self.artist.set_label(album.get("artist", "<N/A>"))
 
         self.button.connect("clicked", self._on_click)
+        self._init_artwork(album)
+
+    def _init_artwork(self, album):
+        album_id = album.get("album_id", None)
+        if album_id is None:
+            print("EuterpeBoxAlbum: no album ID found for {}".format(album))
+            return
+
+        self._artwork_loader = AsyncArtwork(self.image, 150)
+        self._artwork_loader.load_album_image(album_id)
 
     def _on_click(self, pb):
         emit_signal(self, SIGNAL_CLICKED)

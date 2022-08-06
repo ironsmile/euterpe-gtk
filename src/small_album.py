@@ -17,6 +17,8 @@
 
 from gi.repository import GObject, Gtk
 from .utils import emit_signal
+from .async_artwork import AsyncArtwork
+from .service import ArtworkSize
 
 
 BUTTON_NEXT_CLICKED = "button-next-clicked"
@@ -33,6 +35,7 @@ class EuterpeSmallAlbum(Gtk.Viewport):
     album_name = Gtk.Template.Child()
     artist_name = Gtk.Template.Child()
     album_open_button = Gtk.Template.Child()
+    image = Gtk.Template.Child()
 
     def __init__(self, album, **kwargs):
         super().__init__(**kwargs)
@@ -42,6 +45,16 @@ class EuterpeSmallAlbum(Gtk.Viewport):
         self.artist_name.set_label(album.get("artist", "<N/A>"))
 
         self.album_open_button.connect("clicked", self._on_next_button)
+        self._init_artwork(album)
+
+    def _init_artwork(self, album):
+        album_id = album.get("album_id", None)
+        if album_id is None:
+            print("EuterpeSmallAlbum: no album ID found for {}".format(album))
+            return
+
+        self._artwork_loader = AsyncArtwork(self.image, 50)
+        self._artwork_loader.load_album_image(album_id, ArtworkSize.SMALL)
 
     def _on_next_button(self, pb):
         emit_signal(self, BUTTON_NEXT_CLICKED)

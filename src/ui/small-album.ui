@@ -15,9 +15,10 @@
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <child>
-          <object class="GtkImage">
+          <object class="GtkImage" id="image">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="pixel_size">50</property>
             <property name="icon_name">media-optical-cd-audio-symbolic</property>
             <property name="icon_size">3</property>
           </object>

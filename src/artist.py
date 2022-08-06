@@ -2,6 +2,7 @@ from gi.repository import GObject, Gtk
 from .track import EuterpeTrack
 from .small_album import EuterpeSmallAlbum
 from .album import EuterpeAlbum
+from .async_artwork import AsyncArtwork
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/artist.ui')
@@ -13,6 +14,7 @@ class EuterpeArtist(Gtk.Viewport):
     artist_name = Gtk.Template.Child()
     album_list = Gtk.Template.Child()
     loading_spinner = Gtk.Template.Child()
+    image = Gtk.Template.Child()
 
     def __init__(self, artist, win, nav, **kwargs):
         '''
@@ -36,6 +38,16 @@ class EuterpeArtist(Gtk.Viewport):
 
         win.get_euterpe().search(artist_name, self._on_search_result)
         self.connect("unrealize", self._on_unrealize)
+        self._init_artwork(artist)
+
+    def _init_artwork(self, artist):
+        artist_id = artist.get("artist_id", None)
+        if artist_id is None:
+            print("EuterpeArtist: no artist ID found for {}".format(artist))
+            return
+
+        self._artwork_loader = AsyncArtwork(self.image, 350)
+        self._artwork_loader.load_artist_image(artist_id)
 
     def _on_search_result(self, status, body, query):
         self.album_list.foreach(self.album_list.remove)
