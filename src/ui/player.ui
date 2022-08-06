@@ -184,7 +184,7 @@
                                   <object class="GtkImage" id="artwork">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="pixel_size">150</property>
+                                    <property name="pixel_size">200</property>
                                     <property name="icon_name">media-optical-cd-audio-symbolic</property>
                                     <property name="icon_size">5</property>
                                   </object>

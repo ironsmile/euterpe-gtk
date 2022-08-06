@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio
+from gi.repository.GdkPixbuf import Pixbuf
 from .entry_list import EuterpeEntryList
 from .utils import emit_signal, format_duration
 from .player import Repeat, Shuffle
@@ -60,9 +61,12 @@ class EuterpePlayerUI(Gtk.Viewport):
     big_player = Gtk.Template.Child()
     play_queue = Gtk.Template.Child()
 
-    def __init__(self, **kwargs):
+    artwork = Gtk.Template.Child()
+
+    def __init__(self, euterpe, **kwargs):
         super().__init__(**kwargs)
 
+        self._euterpe = euterpe
         self._player = None
         self._track_len = None
         self._entry_list = EuterpeEntryList()
@@ -95,6 +99,11 @@ class EuterpePlayerUI(Gtk.Viewport):
             "clicked",
             self._on_show_playlist_clicked
         )
+
+        self._artwork_size = 200
+        self._default_artwork_icon = self.artwork.get_icon_name()
+        self._cancel_artwork_request = None
+        self._displayed_artwork_id = None
 
     def _on_pan_down(self, *args):
         emit_signal(self, SIGNAL_PAN_DOWN)
@@ -202,6 +211,55 @@ class EuterpePlayerUI(Gtk.Viewport):
 
         track_index = player.get_track_index()
         self._entry_list.set_currently_playing(track_index)
+
+        self._request_artwork_image(track)
+
+    def _request_artwork_image(self, track):
+        album_id = track.get("album_id", None)
+        if album_id is None:
+            print("_request_artwork_image: track has no album_id")
+            return
+
+        if self._displayed_artwork_id == album_id:
+            return
+
+        if self._cancel_artwork_request is not None:
+            self._cancel_artwork_request.cancel()
+
+        self._set_default_artwork()
+
+        cancellable = Gio.Cancellable.new()
+        self._cancel_artwork_request = cancellable
+        self._euterpe.get_album_artwork(
+            album_id,
+            cancellable,
+            self._change_artwork,
+            album_id,
+        )
+
+    def _change_artwork(self, status, body_stream, cancel, album_id):
+        if status is None or status != 200:
+            print("_change_artwork: artwork response code: {}".format(status))
+            self._set_default_artwork()
+            return
+
+        if body_stream is None:
+            print("_change_artwork: body_stream was None")
+            self._set_default_artwork()
+            return
+
+        size = self._artwork_size
+        pb = Pixbuf.new_from_stream_at_scale(body_stream, -1, size, True, cancel)
+        if pb is None:
+            print("_change_artwork: pix buffer was None")
+            self._set_default_artwork()
+            return
+
+        self._displayed_artwork_id = album_id
+        self.artwork.set_from_pixbuf(pb)
+
+    def _set_default_artwork(self):
+        self.artwork.set_from_icon_name(*self._default_artwork_icon)
 
     def on_repeat_changed(self, player):
         repeat = player.get_repeat()

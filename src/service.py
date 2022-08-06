@@ -18,8 +18,7 @@
 import sys
 import json
 import urllib
-from .http import Request
-
+from .http import Request, AsyncRequest
 
 class Euterpe:
 
@@ -130,6 +129,19 @@ class Euterpe:
         req = self._create_request(full_url, cb)
         req.get()
 
+    def get_album_artwork(self, album_id, cancellable, callback, *args):
+        '''
+        Makes a request for an album artwork.
+
+            * album_id (int) - the ID of the album for which to get an image.
+            * callback - a function described in the http.AsyncRequest.
+        '''
+        artwork_path = ENDPOINT_ALBUM_ART.format(album_id)
+        address = Euterpe.build_url(self._remote_address, artwork_path)
+
+        req = self._create_async_request(address, cancellable, callback)
+        req.get(*args)
+
     def get_browse_uri(self, what):
         if what not in ['album', 'artist']:
             print("unknown browse type: {}".format(what))
@@ -143,7 +155,23 @@ class Euterpe:
         return address
 
     def _create_request(self, address, callback):
+        '''
+        Creates a request which body will be read fully before the callback
+        is called.
+        '''
         req = Request(address, callback)
+        req.set_header("User-Agent", self._user_agent)
+        if self._token is not None:
+            req.set_header("Authorization", "Bearer {}".format(self._token))
+        return req
+
+    def _create_async_request(self, address, cancellable, callback):
+        '''
+        Creates a request which will cause the callback to be called once the
+        response headers have been read. But before the response body has been
+        read too.
+        '''
+        req = AsyncRequest(address, cancellable, callback)
         req.set_header("User-Agent", self._user_agent)
         if self._token is not None:
             req.set_header("Authorization", "Bearer {}".format(self._token))
@@ -160,6 +188,10 @@ class Euterpe:
 
 
 class JSONBodyCallback(object):
+    '''
+    A converter from http.Request callback to a callback which receives
+    the body as an python object instead of an input stream.
+    '''
 
     def __init__(self, callback):
         self._callback = callback

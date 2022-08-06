@@ -18,7 +18,7 @@ one could consider it "complete".
 
 ## Building From Source
 
-You will need [libhandy 1.1+ dev files](https://gnome.pages.gitlab.gnome.org/libhandy/) and
+You will need [libhandy 1.2+ dev files](https://gnome.pages.gitlab.gnome.org/libhandy/) and
 the Python's [keyring](https://pypi.org/project/keyring/) lib before building.
 
 On Alpine they could be installed via `apk`:

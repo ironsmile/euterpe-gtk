@@ -169,7 +169,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._search_widget = EuterpeSearchScreen(self)
         self.search_screen.add(self._search_widget)
 
-        self._player_ui = EuterpePlayerUI()
+        self._player_ui = EuterpePlayerUI(self._euterpe)
         self.logged_in_screen.add(self._player_ui)
         self.logged_in_screen.child_set(self._player_ui, name="player_ui")
 
