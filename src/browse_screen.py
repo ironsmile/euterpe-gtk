@@ -119,7 +119,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
 
     def _on_album_click(self, album_widget):
         album_dict = album_widget.get_album()
-        album_screen = EuterpeAlbum(album_dict, self._win, self._nav)
+        album_screen = EuterpeAlbum(album_dict, self._win)
         self._nav.show_screen(album_screen)
 
     def _on_search_button(self, btn):
