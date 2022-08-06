@@ -58,7 +58,7 @@ class EuterpeAlbum(Gtk.Viewport):
             print("EuterpeAlbum: no album ID found for {}".format(album))
             return
 
-        self._artwork_loader = AsyncArtwork(self.image, 350)
+        self._artwork_loader = AsyncArtwork(self.image, 330)
         self._artwork_loader.load_album_image(album_id)
 
     def _on_play_button(self, pb):

@@ -43,8 +43,8 @@
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="ellipsize">end</property>
-                <property name="width_chars">30</property>
-                <property name="max_width_chars">30</property>
+                <property name="width_chars">20</property>
+                <property name="max_width_chars">20</property>
               </object>
               <packing>
                 <property name="expand">False</property>

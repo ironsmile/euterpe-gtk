@@ -46,7 +46,7 @@ class EuterpeArtist(Gtk.Viewport):
             print("EuterpeArtist: no artist ID found for {}".format(artist))
             return
 
-        self._artwork_loader = AsyncArtwork(self.image, 350)
+        self._artwork_loader = AsyncArtwork(self.image, 330)
         self._artwork_loader.load_artist_image(artist_id)
 
     def _on_search_result(self, status, body, query):

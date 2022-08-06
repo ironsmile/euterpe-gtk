@@ -29,7 +29,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="margin_top">10</property>
-                    <property name="pixel_size">350</property>
+                    <property name="pixel_size">330</property>
                     <property name="icon_name">media-optical-cd-audio-symbolic</property>
                     <property name="icon_size">6</property>
                   </object>

@@ -51,8 +51,8 @@
                 <property name="margin_top">10</property>
                 <property name="margin_bottom">10</property>
                 <property name="homogeneous">True</property>
-                <property name="column_spacing">10</property>
-                <property name="row_spacing">10</property>
+                <property name="column_spacing">5</property>
+                <property name="row_spacing">5</property>
                 <property name="min_children_per_line">1</property>
               </object>
               <packing>
