@@ -16,6 +16,8 @@
         <property name="can_focus">False</property>
         <child>
           <object class="GtkImage" id="image">
+            <property name="width_request">50</property>
+            <property name="height_request">50</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="pixel_size">50</property>
