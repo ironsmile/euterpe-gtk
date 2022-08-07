@@ -1,4 +1,4 @@
-# browse_scree.py
+# browse_screen.py
 #
 # Copyright 2021 Doychin Atanasov
 #
@@ -92,7 +92,6 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         bl.set_title("Artists Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
-        # TODO: make sure bl gets destroyed when no longer shown
 
     def _create_artists_widget(self, artist_info):
         artist_widget = EuterpeBoxArtist(artist_info)
@@ -110,7 +109,6 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         bl.set_title("Albums Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
-        # TODO: make sure bl gets destroyed when no longer shown
 
     def _create_album_widget(self, album_info):
         album_widget = EuterpeBoxAlbum(album_info)
@@ -134,6 +132,10 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         previous_child = children[-2]
         self.browse_stack.set_visible_child(previous_child)
         self.browse_stack.remove(visible_child)
+
+        if visible_child is not self.browse_main and\
+                visible_child is not self.not_implemented:
+            visible_child.destroy()
 
     def _show_not_implemented_screen(self, btn):
         self.browse_stack.add(self.not_implemented)
