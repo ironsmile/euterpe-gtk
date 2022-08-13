@@ -324,13 +324,19 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     def set_back_button_to_visible_child(self, stack):
         self.back_button_position.foreach(self.back_button_position.remove)
         visible_child = stack.get_visible_child()
-        if issubclass(type(visible_child), Gtk.Container):
-            grand_children = visible_child.get_children()
-            if len(grand_children) == 1:
-                screen = grand_children[0]
-                if hasattr(screen, 'get_back_button'):
-                    back_button = screen.get_back_button()
-                    self.back_button_position.add(back_button)
+        if not issubclass(type(visible_child), Gtk.Container):
+            return
+
+        grand_children = visible_child.get_children()
+        if len(grand_children) != 1:
+            return
+
+        screen = grand_children[0]
+        if not hasattr(screen, 'get_back_button'):
+            return
+
+        back_button = screen.get_back_button()
+        self.back_button_position.add(back_button)
 
     def on_login_status_change(self, stack, event):
         show_squeezer = (self.logged_in_screen == stack.get_visible_child())
