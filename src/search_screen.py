@@ -144,6 +144,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
         self.search_loading_indicator.start()
         self.search_loading_indicator.set_visible(True)
 
+        self._cleanup_search_results()
+
         euterpe = self._win.get_euterpe()
         euterpe.search(search_term, self._on_search_result)
 

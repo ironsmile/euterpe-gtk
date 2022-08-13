@@ -39,6 +39,7 @@ class EuterpeArtist(Gtk.Viewport):
         win.get_euterpe().search(artist_name, self._on_search_result)
         self.connect("unrealize", self._on_unrealize)
         self._init_artwork(artist)
+        self.connect("destroy", self._on_destroy)
 
     def _init_artwork(self, artist):
         artist_id = artist.get("artist_id", None)
@@ -48,6 +49,9 @@ class EuterpeArtist(Gtk.Viewport):
 
         self._artwork_loader = AsyncArtwork(self.image, 330)
         self._artwork_loader.load_artist_image(artist_id)
+
+    def _on_destroy(self, *args):
+        self._artwork_loader.cancel()
 
     def _on_search_result(self, status, body, query):
         self.album_list.foreach(self.album_list.remove)

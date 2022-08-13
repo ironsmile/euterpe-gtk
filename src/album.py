@@ -51,6 +51,7 @@ class EuterpeAlbum(Gtk.Viewport):
 
         self.connect("unrealize", self._on_unrealize)
         self._init_artwork(album)
+        self.connect("destroy", self._on_destroy)
 
     def _init_artwork(self, album):
         album_id = album.get("album_id", None)
@@ -60,6 +61,9 @@ class EuterpeAlbum(Gtk.Viewport):
 
         self._artwork_loader = AsyncArtwork(self.image, 330)
         self._artwork_loader.load_album_image(album_id)
+
+    def _on_destroy(self, *args):
+        self._artwork_loader.cancel()
 
     def _on_play_button(self, pb):
         player = self._win.get_player()

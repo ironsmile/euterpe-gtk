@@ -53,7 +53,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self._current_page = '1'
 
         self.connect("realize", self._create_widgets)
-        self.connect("unrealize", self._on_unrealize)
+        self.connect("destroy", self._on_destroy)
 
         self.button_next_page.connect(
             "clicked",
@@ -85,6 +85,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.loading_indicator.start()
         self.loading_indicator.set_visible(True)
+        self._remove_items()
 
         uri = self._euterpe.get_browse_uri(self._list_type)
         if uri is None:
@@ -128,8 +129,6 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.page_label.set_text(page_text)
 
-        self._remove_items()
-
         self.loading_indicator.stop()
         self.loading_indicator.set_visible(False)
 
@@ -152,6 +151,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.loading_indicator.start()
         self.loading_indicator.set_visible(True)
+        self._remove_items()
 
         self._set_page_by_url(self._next_page)
         self._euterpe.make_request(self._next_page, self._on_browse_result_callback)
@@ -162,6 +162,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.loading_indicator.start()
         self.loading_indicator.set_visible(True)
+        self._remove_items()
 
         self._set_page_by_url(self._previous_page)
         self._euterpe.make_request(self._previous_page, self._on_browse_result_callback)
@@ -175,7 +176,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self._current_page = qparams['page'].pop()
 
-    def _on_unrealize(self, *args):
+    def _on_destroy(self, *args):
         self._removed = True
         self._remove_items()
 

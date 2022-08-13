@@ -26,6 +26,7 @@ class EuterpeSmallArtist(Gtk.Viewport):
 
         self.open_button.connect("clicked", self._on_next_button)
         self._init_artwork(artist)
+        self.connect("destroy", self._on_destroy)
 
     def _init_artwork(self, artist):
         artist_id = artist.get("artist_id", None)
@@ -35,6 +36,9 @@ class EuterpeSmallArtist(Gtk.Viewport):
 
         self._artwork_loader = AsyncArtwork(self.image, 50)
         self._artwork_loader.load_artist_image(artist_id, ArtworkSize.SMALL)
+
+    def _on_destroy(self, *args):
+        self._artwork_loader.cancel()
 
     def _on_next_button(self, pb):
         emit_signal(self, BUTTON_NEXT_CLICKED)

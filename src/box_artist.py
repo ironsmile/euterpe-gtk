@@ -43,6 +43,7 @@ class EuterpeBoxArtist(Gtk.Viewport):
 
         self.button.connect("clicked", self._on_click)
         self._init_artwork(artist)
+        self.connect("destroy", self._on_destroy)
 
     def _init_artwork(self, artist):
         artist_id = artist.get("artist_id", None)
@@ -55,6 +56,9 @@ class EuterpeBoxArtist(Gtk.Viewport):
 
     def _on_click(self, pb):
         emit_signal(self, SIGNAL_CLICKED)
+
+    def _on_destroy(self, *args):
+        self._artwork_loader.cancel()
 
     def get_artist(self):
         return self._artist.copy()

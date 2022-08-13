@@ -73,6 +73,10 @@ class AsyncArtwork(object):
         )
 
     def _change_artwork(self, status, body_stream, cancel, artwork_id):
+        if status is None and body_stream is None:
+            self._set_default_artwork()
+            return
+
         if status is None or status != 200:
             print("_change_artwork: artwork response code: {}, id: {}".format(
                 status, artwork_id))

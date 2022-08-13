@@ -137,11 +137,16 @@ class AsyncRequest(object):
             self._session.send_async(req, self._cancellable, self._request_cb, req)
         except Exception:
             sys.excepthook(*sys.exc_info())
-            self._callback(None, None, None)
+            self._callback(None, None, None, *(self._args))
 
     def _request_cb(self, session, res, message):
+        try:
+            body_stream = session.send_finish(res)
+        except Exception:
+            self._callback(None, None, None, *(self._args))
+            return
+
         status = message.status_code
-        body_stream = session.send_finish(res)
         self._call_callback(status, body_stream)
 
     def _call_callback(self, status, data_stream):
