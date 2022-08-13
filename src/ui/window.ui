@@ -411,7 +411,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="hhomogeneous_unfolded">True</property>
-                <property name="transition_type">slide</property>
                 <child>
                   <object class="GtkBox" id="browsing_ui">
                     <property name="visible">True</property>
