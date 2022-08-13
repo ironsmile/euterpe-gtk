@@ -18,7 +18,7 @@
 import sys
 import json
 import urllib
-from .http import Request, AsyncRequest
+from .http import Request, AsyncRequest, Priority
 from enum import Enum
 
 class Euterpe:
@@ -143,7 +143,7 @@ class Euterpe:
         if size == ArtworkSize.SMALL:
             address = "{}?size={}".format(address, 'small')
 
-        req = self._create_async_request(address, cancellable, callback)
+        req = self._create_async_request(address, cancellable, callback, Priority.LOW)
         req.get(*args)
 
     def get_artist_artwork(self, artist_id, size, cancellable, callback, *args):
@@ -159,7 +159,7 @@ class Euterpe:
         if size == ArtworkSize.SMALL:
             address = "{}?size={}".format(address, 'small')
 
-        req = self._create_async_request(address, cancellable, callback)
+        req = self._create_async_request(address, cancellable, callback, Priority.LOW)
         req.get(*args)
 
     def get_browse_uri(self, what):
@@ -185,13 +185,13 @@ class Euterpe:
             req.set_header("Authorization", "Bearer {}".format(self._token))
         return req
 
-    def _create_async_request(self, address, cancellable, callback):
+    def _create_async_request(self, address, cancellable, callback, priority):
         '''
         Creates a request which will cause the callback to be called once the
         response headers have been read. But before the response body has been
         read too.
         '''
-        req = AsyncRequest(address, cancellable, callback)
+        req = AsyncRequest(address, cancellable, callback, priority=priority)
         req.set_header("User-Agent", self._user_agent)
         if self._token is not None:
             req.set_header("Authorization", "Bearer {}".format(self._token))

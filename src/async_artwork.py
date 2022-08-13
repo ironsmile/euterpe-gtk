@@ -78,8 +78,11 @@ class AsyncArtwork(object):
             return
 
         if status is None or status != 200:
-            print("_change_artwork: artwork response code: {}, id: {}".format(
-                status, artwork_id))
+            # It is quite normal for artworks to be missing. So make sure not to log
+            # any messages for status 404.
+            if status != 404:
+                print("_change_artwork: artwork response code: {}, id: {}".format(
+                        status, artwork_id))
             self._set_default_artwork()
             return
 

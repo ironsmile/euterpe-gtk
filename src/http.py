@@ -17,21 +17,34 @@
 
 import gi
 import sys
+import enum
 gi.require_version('Soup', '2.4')
 from gi.repository import Soup
 
+class Priority(enum.Enum):
+    '''
+    Defines the type of HTTP requests which could be made. The different priority
+    requests will get their own queues.
+    '''
+    LOW = -1
+    NORMAL = 0
+    HIGH = 1
 
-_soup_session = None
+_sessions = {}
 
-def init_session():
-    global _soup_session
-    if _soup_session is not None:
-        return _soup_session
+def init_session(priority):
+    global _sessions
 
-    _soup_session = Soup.Session()
-    _soup_session.props.user_agent = "Euterpe-GTK HTTP Client"
-    _soup_session.props.max_conns = 6
-    return _soup_session
+    sess = _sessions.get(priority, None)
+    if sess is not None:
+        return sess
+
+    sess = Soup.Session()
+    sess.props.user_agent = "Euterpe-GTK HTTP Client"
+    sess.props.max_conns = 6
+
+    _sessions[priority] = sess
+    return sess
 
 
 class Request(object):
@@ -44,7 +57,7 @@ class Request(object):
         response body has been received.
     '''
 
-    def __init__(self, address, callback):
+    def __init__(self, address, callback, priority=Priority.NORMAL):
         '''
         callback must be a function with the following arguments
 
@@ -53,7 +66,7 @@ class Request(object):
             * *args - the arguments passed to `get` or `post`
         '''
 
-        self._session = init_session()
+        self._session = init_session(priority)
         self._address = address
         self._callback = callback
         self._headers = {}
@@ -104,7 +117,7 @@ class AsyncRequest(object):
         read yet.
     '''
 
-    def __init__(self, address, cancellable, callback):
+    def __init__(self, address, cancellable, callback, priority=Priority.NORMAL):
         '''
         * address (string) - the HTTP address to which a request will be made
         * cancellable (Gio.Cancellable) - a way to cancel the request in flight
@@ -115,7 +128,7 @@ class AsyncRequest(object):
             - *args - the arguments passed to `get`
         '''
 
-        self._session = init_session()
+        self._session = init_session(priority)
         self._address = address
         self._callback = callback
         self._headers = {}
