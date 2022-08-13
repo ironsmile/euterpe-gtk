@@ -79,5 +79,8 @@ class EuterpeEntryList(Gtk.ScrolledWindow):
 
     def scroll_to(self, widget):
         vadj = self.get_vadjustment()
-        x, y = widget.translate_coordinates(self, 0, 0)
+        coords = widget.translate_coordinates(self, 0, 0)
+        if coords is None:
+            return
+        x, y = coords
         vadj.set_value(min(y, vadj.get_upper()))
