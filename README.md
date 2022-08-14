@@ -34,3 +34,8 @@ meson . _build --prefix=/usr
 ninja -C _build
 sudo ninja -C _build install
 ```
+
+## Development
+
+One would want to set the environment variable `G_MESSAGES_DEBUG=euterpe-gtk` to get
+the debug messages from the program. They do help during development a lot!
