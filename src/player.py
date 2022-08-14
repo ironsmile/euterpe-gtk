@@ -17,6 +17,7 @@
 
 from gi.repository import GObject, GLib, Gst
 from .utils import emit_signal
+import euterpe_gtk.log as log
 from functools import partial
 from enum import Enum
 import random
@@ -173,13 +174,13 @@ class Player(GObject.Object):
 
     def _on_bus_error(self, bus, message):
         (error, parsed) = message.parse_error()
-        print("playbin error:", parsed)
+        log.warning("playbin error: {}", parsed)
         self.stop()
 
     def _on_bus_eos(self, bus, message):
         if message.type != Gst.MessageType.EOS:
-            print("unexpected eos message type: {}".format(message.type))
-        print("end-of-stream bus message received")
+            log.warning("unexpected eos message type: {}", message.type)
+        log.debug("end-of-stream bus message received")
 
         if self.has_next():
             self.next()
@@ -199,7 +200,7 @@ class Player(GObject.Object):
             seek_to
         )
         if not seeked:
-            print("seeking after state restore failed")
+            log.warning("seeking after state restore failed")
 
     def _get_progress(self, playbin):
         '''
@@ -207,17 +208,17 @@ class Player(GObject.Object):
             May be None when progress could not be obtained.
         '''
         if playbin is None:
-            print("trying to get progress self._playbin which is None")
+            log.warning("trying to get progress self._playbin which is None")
             return None
 
         (ok, dur) = playbin.query_duration(Gst.Format.TIME)
         if not ok:
-            print("could not query playbin duration in ns")
+            log.warning("could not query playbin duration in ns")
             return None
 
         (ok, ns) = playbin.query_position(Gst.Format.TIME)
         if not ok:
-            print("could not query playbin position in ns")
+            log.warning("could not query playbin position in ns")
             return None
 
         return ns / dur
@@ -236,7 +237,7 @@ class Player(GObject.Object):
 
         (ok, dur) = self._playbin.query_duration(Gst.Format.TIME)
         if not ok:
-            print("could not query playbin duration in ns")
+            log.warning("could not query playbin duration in ns")
             return
 
         seek_pos = int(dur * val)
@@ -247,7 +248,7 @@ class Player(GObject.Object):
             seek_pos
         )
         if not seeked:
-            print("seeking was not successful")
+            log.warning("seeking was not successful")
         else:
             emit_signal(self, SIGNAL_SEEKED)
 
@@ -261,12 +262,12 @@ class Player(GObject.Object):
         '''
         track = self.get_track_info()
         if track is None:
-            print("Seeking not possible, no track is loaded")
+            log.warning("Seeking not possible, no track is loaded")
             pass
 
         pos = self.get_position()
         if pos is None:
-            print("Seeking not possible, unknown current position")
+            log.warning("Seeking not possible, unknown current position")
             return
 
         new_pos = pos + offset
@@ -282,7 +283,7 @@ class Player(GObject.Object):
             new_pos_ns
         )
         if not seeked:
-            print("seeking was not successful")
+            log.warning("seeking was not successful")
         else:
             emit_signal(self, SIGNAL_SEEKED)
 
@@ -300,7 +301,7 @@ class Player(GObject.Object):
             self._load_from_current_index()
 
         if self._playbin is None:
-            print("trying to play when there are not racks in the playlist")
+            log.warning("trying to play when there are not racks in the playlist")
             return
 
         self._playbin.set_state(Gst.State.PLAYING)
@@ -318,16 +319,16 @@ class Player(GObject.Object):
         playbin = self._playbin
 
         if playbin is None or not self.is_playing():
-            print("no track playing, stopping progress timeout callback")
+            log.debug("no track playing, stopping progress timeout callback")
             return False
 
         if self._progress_id != progress_id:
-            print("progress ID changed, stopping progress timeout callback")
+            log.debug("progress ID changed, stopping progress timeout callback")
             return False
 
         progress = self._get_progress(playbin)
         if progress is None:
-            print("could not yet obtain progress")
+            log.debug("could not yet obtain progress")
             return True
 
         emit_signal(self, SIGNAL_PROGRESS, progress)
@@ -340,19 +341,19 @@ class Player(GObject.Object):
         playbin = self._playbin
 
         if playbin is None:
-            print("trying to get position self._playbin which is None")
+            log.warning("trying to get position self._playbin which is None")
             return None
 
         (ok, ns) = playbin.query_position(Gst.Format.TIME)
         if not ok:
-            print("get_position: still could not query")
+            log.debug("get_position: still could not query")
             return None
 
         return ns / 1e6
 
     def pause(self):
         if self._playbin is None:
-            print("trying to pause when there is no _playbin created")
+            log.warning("trying to pause when there is no _playbin created")
             return
 
         self._playbin.set_state(Gst.State.PAUSED)
@@ -362,7 +363,7 @@ class Player(GObject.Object):
         pl_len = len(self._playlist)
 
         if pl_len < 1:
-            print("trying next on empty playlist")
+            log.warning("trying next on empty playlist")
             return
 
         ind = self._current_playlist_index
@@ -379,7 +380,7 @@ class Player(GObject.Object):
             ind = 0
 
         if ind >= pl_len:
-            print("trying to play track beyond the playlist length")
+            log.warning("trying to play track beyond the playlist length")
             return
 
         self._current_playlist_index = ind
@@ -413,7 +414,7 @@ class Player(GObject.Object):
         ind = self._current_playlist_index
         ind -= 1
         if ind < 0:
-            print("trying to play track before the start of playlist")
+            log.warning("trying to play track before the start of playlist")
             return
 
         self._current_playlist_index = ind
@@ -467,7 +468,7 @@ class Player(GObject.Object):
 
     def play_index(self, index):
         if index < 0 or index >= len(self._playlist):
-            print("trying to play track outside of the playlist")
+            log.warning("trying to play track outside of the playlist")
             return
 
         self._current_playlist_index = index

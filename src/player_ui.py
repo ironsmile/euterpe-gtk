@@ -21,6 +21,7 @@ from .entry_list import EuterpeEntryList
 from .utils import emit_signal, format_duration
 from .player import Repeat, Shuffle
 from .async_artwork import AsyncArtwork
+import euterpe_gtk.log as log
 
 
 SIGNAL_PAN_DOWN = "pan-down"
@@ -214,7 +215,7 @@ class EuterpePlayerUI(Gtk.Viewport):
     def _change_artwork_image(self, track):
         album_id = track.get("album_id", None)
         if album_id is None:
-            print("_change_artwork_image: track has no album_id")
+            log.warning("_change_artwork_image: track has no album_id")
             return
 
         self._async_artwork.load_album_image(album_id)
@@ -259,7 +260,7 @@ class EuterpePlayerUI(Gtk.Viewport):
 
     def _on_track_clicked(self, entry_list, index):
         if not isinstance(index, int):
-            print("track index was not an integer: {}".format(index))
+            log.warning("track index was not an integer: {}", index)
             return
 
         self._player.play_index(index)

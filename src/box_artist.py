@@ -18,6 +18,7 @@
 from gi.repository import GObject, Gtk
 from .utils import emit_signal
 from .async_artwork import AsyncArtwork
+import euterpe_gtk.log as log
 
 
 SIGNAL_CLICKED = "clicked"
@@ -48,7 +49,7 @@ class EuterpeBoxArtist(Gtk.Viewport):
     def _init_artwork(self, artist):
         artist_id = artist.get("artist_id", None)
         if artist_id is None:
-            print("EuterpeBoxArtist: no artist ID found for {}".format(artist))
+            log.warning("EuterpeBoxArtist: no artist ID found for {}", artist)
             return
 
         self._artwork_loader = AsyncArtwork(self.image, 150)

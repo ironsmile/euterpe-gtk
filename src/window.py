@@ -29,6 +29,7 @@ from .home_screen import EuterpeHomeScreen
 from .mini_player import EuterpeMiniPlayer
 from .state_storage import StateStorage
 from .player_ui import EuterpePlayerUI
+import euterpe_gtk.log as log
 
 
 SIGNAL_STATE_RESTORED = "state-restored"
@@ -102,11 +103,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._config_store = StateStorage(config_file_name(), "config")
         self._cache_store = StateStorage(state_file_name(), "app_state")
-        print("reading key-value files from disk...")
+        log.debug("reading key-value files from disk...")
         self._config_store.load()
         self._cache_store.load()
 
-        print("restoring window state...")
+        log.debug("restoring window state...")
         self._restore_window_state()
         self._restore_navigation_state()
 
@@ -213,7 +214,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._player.connect("volume-changed", self._on_player_volume_changed)
 
-        print("staring RestoreStateThread")
+        log.debug("staring RestoreStateThread")
         t = threading.Thread(
             target=self.restore_state,
             name="RestoreStateThread"
@@ -227,23 +228,23 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             run.
         '''
         try:
-            print("restoring address...")
+            log.debug("restoring address...")
             self._restore_address()
-            print("restoring token...")
+            log.debug("restoring token...")
             self._restore_token()
-            print("setting up Euterpe instance...")
+            log.debug("setting up Euterpe instance...")
             self._euterpe.set_address(self._remote_address)
             self._euterpe.set_token(self._token)
-            print("restoring search state...")
+            log.debug("restoring search state...")
             self._search_widget.restore_state(self._cache_store)
-            print("restoring playing state...")
+            log.debug("restoring playing state...")
             self._player.restore_state(self._cache_store)
 
             if self._remote_address is not None:
-                print("restoring recently added...")
+                log.debug("restoring recently added...")
                 self._home_widget.restore_state(self._cache_store)
         except Exception as err:
-            print("Restoring state failed: {}".format(err))
+            log.message("Restoring state failed: {}", err)
         finally:
             self._state_restored = True
             emit_signal(self, SIGNAL_STATE_RESTORED)
@@ -264,7 +265,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         token = keyring.get_password("euterpe", "token")
 
         if token == "":
-            print("no token found in the keyring")
+            log.debug("no token found in the keyring")
             return
 
         self._token = token
@@ -309,7 +310,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             * Remote Euterpe address from GSettings
             * Euterpe token from the OS keyring
         '''
-        print("state restored")
+        log.message("state restored")
 
         screen = self.login_scroll_view
         if self._remote_address is not None:
@@ -346,7 +347,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         remote_url = self.server_url.get_text().strip()
 
         if remote_url == "":
-            print('Empty URL is not accepted')
+            log.debug('Empty URL is not accepted')
             return
 
         if not remote_url.startswith("http://") and \
@@ -375,11 +376,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         if status != 200:
             self.login_failed_indicator.show()
-            print(
+            log.message(
                 "Authentication unsuccessful. "
-                "HTTP status code: {}. Body: {}".format(
-                    status, data
-                )
+                "HTTP status code: {}. Body: {}",
+                status, data
             )
             return
 
@@ -394,7 +394,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         try:
             response = json.loads(data)
         except Exception as err:
-            print("Wrong JSON in response for authentication: {}".format(
+            log.message("Wrong JSON in response for authentication: {}".format(
                 err
             ))
             self.login_failed_indicator.show()
@@ -515,7 +515,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 namespace="window_state"
             )
         except Exception as err:
-            print("Error storing window state: {}".format(err))
+            log.warning("Error storing window state: {}", err)
 
     def _restore_navigation_state(self):
         store = self._cache_store
@@ -525,7 +525,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 namespace="navigation_state"
             )
         except Exception as err:
-            print("error restoring navigation state: {}".format(err))
+            log.warning("error restoring navigation state: {}", err)
 
         if nav_visible is None:
             return
@@ -539,7 +539,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             width = store.get_integer("width", namespace="window_state")
             height = store.get_integer("height", namespace="window_state")
         except Exception as err:
-            print("error restoring window size: {}".format(err))
+            log.warning("error restoring window size: {}", err)
             return
 
         if width != 0 and height != 0:
@@ -553,7 +553,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 namespace="window_state"
             )
         except Exception as err:
-            print("error restoring window maximized: {}".format(err))
+            log.warning("error restoring window maximized: {}", err)
             return
 
         self._is_maximized = maximized

@@ -25,6 +25,7 @@ from .artist import EuterpeArtist
 from .track import EuterpeTrack
 from .navigator import Navigator
 from .simple_list import EuterpeSimpleList
+import euterpe_gtk.log as log
 
 
 STATE_RESTORED = "state-restored"
@@ -138,7 +139,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
 
     def search_for(self, search_term):
         if search_term is None:
-            print("received None instead of a search term, aborting")
+            log.warning("received None instead of a search term, aborting")
             return
 
         self.search_loading_indicator.start()
@@ -261,7 +262,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
         player = self._win.get_player()
 
         if player is None:
-            print("trying to set track when there is no player active")
+            log.warning("trying to set track when there is no player active")
             return
 
         track = track_widget.get_track()

@@ -19,6 +19,7 @@ import sys
 import json
 import urllib
 from .http import Request, AsyncRequest, Priority
+import euterpe_gtk.log as log
 from enum import Enum
 
 class Euterpe:
@@ -112,7 +113,7 @@ class Euterpe:
 
     def get_recently_added(self, what, callback):
         if what not in ['album', 'artist']:
-            print("unknown rencently added type: {}".format(what))
+            log.warning("unknown rencently added type: {}", what)
             return
 
         cb = JSONBodyCallback(callback)
@@ -164,7 +165,7 @@ class Euterpe:
 
     def get_browse_uri(self, what):
         if what not in ['album', 'artist']:
-            print("unknown browse type: {}".format(what))
+            log.warning("unknown browse type: {}", what)
             return None
 
         address = "{}?by={}&per-page=30&order-by=name&order=asc".format(
@@ -220,9 +221,9 @@ class JSONBodyCallback(object):
         try:
             responseJSON = json.loads(body)
         except Exception as err:
-            print("Failed to parse JSON response: {}".format(
+            log.warning("Failed to parse JSON response: {}",
                 err
-            ))
+            )
             self._callback(status, None, *args)
         else:
             self._callback(status, responseJSON, *args)

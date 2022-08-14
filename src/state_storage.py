@@ -19,6 +19,7 @@ import json
 import os
 from gi.repository import GLib
 from .player import Repeat, Shuffle
+import euterpe_gtk.log as log
 
 
 class EuterpeEncoder(json.JSONEncoder):
@@ -42,10 +43,10 @@ class StateStorage:
         try:
             self._kf.load_from_file(self._config_file, GLib.KeyFileFlags.NONE)
         except GLib.Error as err:
-            print('Loading configuration file ({}) failed: {}'.format(
+            log.warning('Loading configuration file ({}) failed: {}',
                 self._config_file,
                 err,
-            ))
+            )
 
     def save(self):
         '''
@@ -103,9 +104,9 @@ class StateStorage:
         try:
             object_str = json.dumps(object, cls=EuterpeEncoder)
         except ValueError as err:
-            print("Storing object with key {} to storage failed: {}".format(
+            log.warning("Storing object with key {} to storage failed: {}",
                 key, err
-            ))
+            )
             return
         self.set_string(key, object_str, namespace=namespace)
 
@@ -117,9 +118,9 @@ class StateStorage:
         try:
             return json.loads(object_str)
         except ValueError as err:
-            print("Parsing object with key {} as JSON: {}".format(
+            log.warning("Parsing object with key {} as JSON: {}",
                 key, err
-            ))
+            )
 
         return None
 
@@ -130,10 +131,10 @@ class StateStorage:
         try:
             os.remove(self._config_file)
         except Exception as err:
-            print("Truncating {} failed: {}".format(
+            log.warning("Truncating {} failed: {}",
                 self._config_file,
                 err
-            ))
+            )
 
         self._kf = GLib.KeyFile.new()
 
@@ -147,4 +148,4 @@ class StateStorage:
         try:
             self._kf.save_to_file(self._config_file)
         except GLib.Error as err:
-            print('Saving configuration file failed: {}'.format(err))
+            log.warning('Saving configuration file failed: {}', err)

@@ -17,6 +17,7 @@
 
 from gi.repository import Gio, GLib, Gtk
 from .player import Repeat, Shuffle
+import euterpe_gtk.log as log
 
 
 class MPRIS:
@@ -77,10 +78,7 @@ class MPRIS:
         elif property_name == "Volume":
             self._player.set_volume(new_value)
         else:
-            print("MPRIS: Setting {} to {}".format(
-                property_name,
-                new_value,
-            ))
+            log.debug("MPRIS: Setting {} to {}", property_name, new_value)
 
     def Get(self, interface, property_name):
         if property_name in [
@@ -288,10 +286,10 @@ class MPRIS:
             else:
                 invocation.return_value(None)
         except Exception as err:
-            print("MPRIS: Error invoking D-BUS {}: {}".format(
+            log.warning("MPRIS: Error invoking D-BUS {}: {}",
                 method_name,
                 err
-            ))
+            )
 
     def _on_track_changed(self, player):
         self._track_info = self._get_empty_track()

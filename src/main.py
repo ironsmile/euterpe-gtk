@@ -30,6 +30,7 @@ from .player import Player
 from .service import Euterpe
 from .window import EuterpeGtkWindow
 
+import euterpe_gtk.log as log
 
 class Application(Gtk.Application):
     def __init__(self, version):
@@ -63,9 +64,9 @@ class Application(Gtk.Application):
             self._mpris = MPRIS(self)
         except Exception:
             sys.excepthook(*sys.exc_info())
-            print("Setting up MPRIS interface failed but error is ignored")
+            log.warning("Setting up MPRIS interface failed but error is ignored")
         else:
-            print("MPRIS up and running")
+            log.debug("MPRIS up and running")
 
     def _set_actions(self):
         actions = {
@@ -96,7 +97,7 @@ class Application(Gtk.Application):
             try:
                 win.store_state()
             except Exception as err:
-                print("Error storing window state: {}".format(err))
+                log.error("Error storing window state: {}", err)
         self.quit()
 
     def on_next_song(self, *args):

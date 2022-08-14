@@ -53,6 +53,8 @@ euterpe_gtk_sources = [
   'mpris.py',
   'paginated_box_list.py',
   'async_artwork.py',
+  'log/log.py',
+  'log/__init__.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)

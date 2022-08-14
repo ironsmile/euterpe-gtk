@@ -1,8 +1,26 @@
+# artist.py
+#
+# Copyright 2021 Doychin Atanasov
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 from gi.repository import GObject, Gtk
 from .track import EuterpeTrack
 from .small_album import EuterpeSmallAlbum
 from .album import EuterpeAlbum
 from .async_artwork import AsyncArtwork
+import euterpe_gtk.log as log
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/artist.ui')
@@ -44,7 +62,7 @@ class EuterpeArtist(Gtk.Viewport):
     def _init_artwork(self, artist):
         artist_id = artist.get("artist_id", None)
         if artist_id is None:
-            print("EuterpeArtist: no artist ID found for {}".format(artist))
+            log.warning("EuterpeArtist: no artist ID found for {}", artist)
             return
 
         self._artwork_loader = AsyncArtwork(self.image, 330)

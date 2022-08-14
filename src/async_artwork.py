@@ -18,6 +18,7 @@
 from gi.repository import Gio
 from gi.repository.GdkPixbuf import Pixbuf
 from .service import ArtworkSize
+import euterpe_gtk.log as log
 
 
 class AsyncArtwork(object):
@@ -81,13 +82,13 @@ class AsyncArtwork(object):
             # It is quite normal for artworks to be missing. So make sure not to log
             # any messages for status 404.
             if status != 404:
-                print("_change_artwork: artwork response code: {}, id: {}".format(
-                        status, artwork_id))
+                log.debug("_change_artwork: artwork response code: {}, id: {}",
+                        status, artwork_id)
             self._set_default_artwork()
             return
 
         if body_stream is None:
-            print("_change_artwork: body_stream was None, id {}".format(artwork_id))
+            log.debug("_change_artwork: body_stream was None, id {}", artwork_id)
             self._set_default_artwork()
             return
 
@@ -98,8 +99,7 @@ class AsyncArtwork(object):
         pb = Pixbuf.new_from_stream_finish(res)
         
         if pb is None:
-            print("_on_artwork_pixbuf_ready: pix buffer was None, id {}".format(
-                artwork_id))
+            log.debug("_on_artwork_pixbuf_ready: pix buffer was None, id {}", artwork_id)
             self._set_default_artwork()
             return
 

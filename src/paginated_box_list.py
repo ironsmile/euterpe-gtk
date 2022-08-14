@@ -18,6 +18,7 @@
 from gi.repository import GObject, Gtk, GLib
 
 import urllib.parse
+import euterpe_gtk.log as log
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/paginated-box-list.ui')
@@ -89,7 +90,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         uri = self._euterpe.get_browse_uri(self._list_type)
         if uri is None:
-            print("the returned browse_url address was None, skipping creating widgets")
+            log.debug("the returned browse_url address was None, skipping creating widgets")
             return
 
         self._euterpe.make_request(uri, self._on_browse_result_callback)
@@ -187,7 +188,8 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
                 Gtk.main_iteration()
 
     def _show_error(self, text):
-        print(text)
+        #!TODO: show a dialog message
+        log.warning(text)
 
     def add(self, widget):
         self.flow_container.add(widget)
