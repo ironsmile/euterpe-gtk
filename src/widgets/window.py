@@ -16,11 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import threading
 import keyring
 import json
+import time
 
-from gi.repository import GObject, Gtk, Handy, Gst, Gdk
+from gi.repository import GObject, Gtk, Handy, Gst, Gdk, GLib
 from euterpe_gtk.service import Euterpe
 from euterpe_gtk.utils import emit_signal, config_file_name, state_file_name
 from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen
@@ -214,15 +214,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._player.connect("volume-changed", self._on_player_volume_changed)
 
-        log.debug("staring RestoreStateThread")
-        t = threading.Thread(
-            target=self.restore_state,
-            name="RestoreStateThread"
-        )
-        t.daemon = True
-        t.start()
+        log.debug("staring restore callback")
+        GLib.idle_add(self.restore_state, None)
 
-    def restore_state(self):
+    def restore_state(self, *args):
         '''
             Restores the application state from the last time it was
             run.
@@ -245,9 +240,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 self._home_widget.restore_state(self._cache_store)
         except Exception as err:
             log.message("Restoring state failed: {}", err)
+            time.sleep(1)
+            return True
         finally:
             self._state_restored = True
             emit_signal(self, SIGNAL_STATE_RESTORED)
+        return False
 
     def store_remote_address(self, address):
         self._config_store.set_string("address", address)
