@@ -26,9 +26,9 @@ gi.require_version('Handy', '1')
 gi.require_version('GLib', '2.0')
 
 from gi.repository import Gtk, Gio, Gst
-from .player import Player
-from .service import Euterpe
-from .window import EuterpeGtkWindow
+from euterpe_gtk.player import Player
+from euterpe_gtk.service import Euterpe
+from euterpe_gtk.widgets.window import EuterpeGtkWindow
 
 import euterpe_gtk.log as log
 
@@ -58,7 +58,7 @@ class Application(Gtk.Application):
         win.present()
 
     def _set_up_mpris(self):
-        from .mpris import MPRIS
+        from euterpe_gtk.mpris import MPRIS
 
         try:
             self._mpris = MPRIS(self)

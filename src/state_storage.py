@@ -18,7 +18,7 @@
 import json
 import os
 from gi.repository import GLib
-from .player import Repeat, Shuffle
+from euterpe_gtk.player import Repeat, Shuffle
 import euterpe_gtk.log as log
 
 

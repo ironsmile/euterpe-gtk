@@ -17,12 +17,12 @@
 import time
 
 from gi.repository import GObject, Gtk
-from .utils import emit_signal
-from .box_album import EuterpeBoxAlbum
-from .box_artist import EuterpeBoxArtist
-from .album import EuterpeAlbum
-from .artist import EuterpeArtist
-from .navigator import Navigator
+from euterpe_gtk.utils import emit_signal
+from euterpe_gtk.widgets.box_album import EuterpeBoxAlbum
+from euterpe_gtk.widgets.box_artist import EuterpeBoxArtist
+from euterpe_gtk.widgets.album import EuterpeAlbum
+from euterpe_gtk.widgets.artist import EuterpeArtist
+from euterpe_gtk.navigator import Navigator
 
 
 # Duration of seconds for which a recently added albums/artists will be

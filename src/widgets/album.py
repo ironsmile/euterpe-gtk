@@ -16,8 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, Gtk
-from .track import EuterpeTrack
-from .async_artwork import AsyncArtwork
+from euterpe_gtk.widgets.track import EuterpeTrack
+from euterpe_gtk.async_artwork import AsyncArtwork
 import euterpe_gtk.log as log
 
 

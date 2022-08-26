@@ -1,7 +1,7 @@
 from gi.repository import GObject, Gtk
-from .utils import emit_signal
-from .async_artwork import AsyncArtwork
-from .service import ArtworkSize
+from euterpe_gtk.utils import emit_signal
+from euterpe_gtk.async_artwork import AsyncArtwork
+from euterpe_gtk.service import ArtworkSize
 import euterpe_gtk.log as log
 
 BUTTON_NEXT_CLICKED = "button-next-clicked"

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import Gio, GLib, Gtk
-from .player import Repeat, Shuffle
+from euterpe_gtk.player import Repeat, Shuffle
 import euterpe_gtk.log as log
 
 

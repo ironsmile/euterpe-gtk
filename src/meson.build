@@ -1,5 +1,7 @@
 pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.project_name())
 moduledir = join_paths(pkgdatadir, 'euterpe_gtk')
+widgetsdir = join_paths(pkgdatadir, 'euterpe_gtk', 'widgets')
+logdir = join_paths(pkgdatadir, 'euterpe_gtk', 'log')
 gnome = import('gnome')
 
 gnome.compile_resources('euterpe-gtk',
@@ -28,33 +30,44 @@ configure_file(
 euterpe_gtk_sources = [
   '__init__.py',
   'main.py',
-  'window.py',
   'player.py',
-  'player_ui.py',
   'service.py',
   'utils.py',
   'http.py',
-  'track.py',
-  'browse_screen.py',
-  'search_screen.py',
-  'home_screen.py',
-  'small_album.py',
-  'small_artist.py',
-  'album.py',
-  'artist.py',
-  'mini_player.py',
   'navigator.py',
-  'simple_list.py',
   'state_storage.py',
-  'box_album.py',
-  'box_artist.py',
-  'entry.py',
-  'entry_list.py',
   'mpris.py',
-  'paginated_box_list.py',
   'async_artwork.py',
-  'log/log.py',
-  'log/__init__.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)
+
+euterpe_gtk_widgets_package = [
+  'widgets/__init__.py',
+  'widgets/album.py',
+  'widgets/artist.py',
+  'widgets/track.py',
+  'widgets/window.py',
+  'widgets/box_album.py',
+  'widgets/box_artist.py',
+  'widgets/browse_screen.py',
+  'widgets/search_screen.py',
+  'widgets/home_screen.py',
+  'widgets/small_album.py',
+  'widgets/small_artist.py',
+  'widgets/mini_player.py',
+  'widgets/player_ui.py',
+  'widgets/paginated_box_list.py',
+  'widgets/entry.py',
+  'widgets/entry_list.py',
+  'widgets/simple_list.py',
+]
+
+install_data(euterpe_gtk_widgets_package, install_dir: widgetsdir)
+
+euterpe_gtk_log_package = [
+  'log/__init__.py',
+  'log/log.py',
+]
+
+install_data(euterpe_gtk_log_package, install_dir: logdir)

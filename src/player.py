@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, GLib, Gst
-from .utils import emit_signal
+from euterpe_gtk.utils import emit_signal
 import euterpe_gtk.log as log
 from functools import partial
 from enum import Enum

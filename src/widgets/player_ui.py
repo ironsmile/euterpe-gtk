@@ -17,10 +17,10 @@
 
 from gi.repository import GObject, Gtk
 from gi.repository.GdkPixbuf import Pixbuf
-from .entry_list import EuterpeEntryList
-from .utils import emit_signal, format_duration
-from .player import Repeat, Shuffle
-from .async_artwork import AsyncArtwork
+from euterpe_gtk.player import Repeat, Shuffle
+from euterpe_gtk.utils import emit_signal, format_duration
+from euterpe_gtk.async_artwork import AsyncArtwork
+from euterpe_gtk.widgets.entry_list import EuterpeEntryList
 import euterpe_gtk.log as log
 
 

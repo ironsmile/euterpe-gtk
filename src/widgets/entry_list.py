@@ -16,8 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, Gtk
-from .utils import emit_signal
-from .entry import EuterpeEntry
+from euterpe_gtk.utils import emit_signal
+from euterpe_gtk.widgets.entry import EuterpeEntry
 from functools import partial
 
 

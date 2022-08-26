@@ -17,7 +17,7 @@
 
 from gi.repository import Gio
 from gi.repository.GdkPixbuf import Pixbuf
-from .service import ArtworkSize
+from euterpe_gtk.service import ArtworkSize
 import euterpe_gtk.log as log
 
 

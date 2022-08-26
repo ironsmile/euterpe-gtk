@@ -21,14 +21,14 @@ import keyring
 import json
 
 from gi.repository import GObject, Gtk, Handy, Gst, Gdk
-from .service import Euterpe
-from .utils import emit_signal, config_file_name, state_file_name
-from .browse_screen import EuterpeBrowseScreen
-from .search_screen import EuterpeSearchScreen
-from .home_screen import EuterpeHomeScreen
-from .mini_player import EuterpeMiniPlayer
-from .state_storage import StateStorage
-from .player_ui import EuterpePlayerUI
+from euterpe_gtk.service import Euterpe
+from euterpe_gtk.utils import emit_signal, config_file_name, state_file_name
+from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen
+from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
+from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
+from euterpe_gtk.widgets.mini_player import EuterpeMiniPlayer
+from euterpe_gtk.state_storage import StateStorage
+from euterpe_gtk.widgets.player_ui import EuterpePlayerUI
 import euterpe_gtk.log as log
 
 
@@ -460,10 +460,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
 
     def _on_show_big_player(self, *args):
+        # self.back_button_position.set_visible(False)
         self.logged_in_screen.set_visible_child(self._player_ui)
+        # self._player_ui.queue_resize()
 
     def _on_hide_big_player(self, *args):
+        # self.back_button_position.set_visible(True)
         self.logged_in_screen.set_visible_child(self.browsing_ui)
+        # self.browsing_ui.queue_resize()
 
     def _on_program_exit(self, *args):
         self.store_state()

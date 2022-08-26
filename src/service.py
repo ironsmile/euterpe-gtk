@@ -18,7 +18,7 @@
 import sys
 import json
 import urllib
-from .http import Request, AsyncRequest, Priority
+from euterpe_gtk.http import Request, AsyncRequest, Priority
 import euterpe_gtk.log as log
 from enum import Enum
 

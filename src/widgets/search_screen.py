@@ -17,14 +17,14 @@
 
 from gi.repository import GObject, Gtk
 
-from .utils import emit_signal
-from .small_album import EuterpeSmallAlbum
-from .small_artist import EuterpeSmallArtist
-from .album import EuterpeAlbum
-from .artist import EuterpeArtist
-from .track import EuterpeTrack
-from .navigator import Navigator
-from .simple_list import EuterpeSimpleList
+from euterpe_gtk.utils import emit_signal
+from euterpe_gtk.navigator import Navigator
+from euterpe_gtk.widgets.small_album import EuterpeSmallAlbum
+from euterpe_gtk.widgets.small_artist import EuterpeSmallArtist
+from euterpe_gtk.widgets.album import EuterpeAlbum
+from euterpe_gtk.widgets.artist import EuterpeArtist
+from euterpe_gtk.widgets.track import EuterpeTrack
+from euterpe_gtk.widgets.simple_list import EuterpeSimpleList
 import euterpe_gtk.log as log
 
 

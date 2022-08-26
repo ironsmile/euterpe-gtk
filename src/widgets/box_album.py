@@ -1,4 +1,4 @@
-# small_album.py
+# box_album.py
 #
 # Copyright 2021 Doychin Atanasov
 #
@@ -16,53 +16,52 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, Gtk
-from .utils import emit_signal
-from .async_artwork import AsyncArtwork
-from .service import ArtworkSize
+from euterpe_gtk.utils import emit_signal
+from euterpe_gtk.async_artwork import AsyncArtwork
 import euterpe_gtk.log as log
 
 
-BUTTON_NEXT_CLICKED = "button-next-clicked"
+SIGNAL_CLICKED = "clicked"
 
 
-@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/small-album.ui')
-class EuterpeSmallAlbum(Gtk.Viewport):
-    __gtype_name__ = 'EuterpeSmallAlbum'
+@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/box-album.ui')
+class EuterpeBoxAlbum(Gtk.Viewport):
+    __gtype_name__ = 'EuterpeBoxAlbum'
 
     __gsignals__ = {
-        BUTTON_NEXT_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
-    album_name = Gtk.Template.Child()
-    artist_name = Gtk.Template.Child()
-    album_open_button = Gtk.Template.Child()
+    name = Gtk.Template.Child()
+    artist = Gtk.Template.Child()
     image = Gtk.Template.Child()
+    button = Gtk.Template.Child()
 
     def __init__(self, album, **kwargs):
         super().__init__(**kwargs)
 
         self._album = album
-        self.album_name.set_label(album.get("album", "<N/A>"))
-        self.artist_name.set_label(album.get("artist", "<N/A>"))
+        self.name.set_label(album.get("album", "<N/A>"))
+        self.artist.set_label(album.get("artist", "<N/A>"))
 
-        self.album_open_button.connect("clicked", self._on_next_button)
+        self.button.connect("clicked", self._on_click)
         self._init_artwork(album)
         self.connect("destroy", self._on_destroy)
 
     def _init_artwork(self, album):
         album_id = album.get("album_id", None)
         if album_id is None:
-            log.warning("EuterpeSmallAlbum: no album ID found for {}", album)
+            log.warning("EuterpeBoxAlbum: no album ID found for {}", album)
             return
 
-        self._artwork_loader = AsyncArtwork(self.image, 50)
-        self._artwork_loader.load_album_image(album_id, ArtworkSize.SMALL)
+        self._artwork_loader = AsyncArtwork(self.image, 150)
+        self._artwork_loader.load_album_image(album_id)
+
+    def _on_click(self, pb):
+        emit_signal(self, SIGNAL_CLICKED)
 
     def _on_destroy(self, *args):
         self._artwork_loader.cancel()
-
-    def _on_next_button(self, pb):
-        emit_signal(self, BUTTON_NEXT_CLICKED)
 
     def get_album(self):
         return self._album.copy()
