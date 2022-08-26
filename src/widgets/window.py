@@ -58,6 +58,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     browse_screen = Gtk.Template.Child()
     home_screen = Gtk.Template.Child()
 
+    restore_failed_dialog = Gtk.Template.Child()
+
     about_gtk_version = Gtk.Template.Child()
     about_gstreamer_version = Gtk.Template.Child()
     about_python_version = Gtk.Template.Child()
@@ -87,6 +89,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._appVersion = appVersion
         self._token = None
         self._state_restored = False
+        self._state_restore_failure = None
 
         app = self.get_application()
 
@@ -146,6 +149,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             'active',
             self.service_password, 'visibility',
             GObject.BindingFlags.SYNC_CREATE
+        )
+
+        self.restore_failed_dialog.connect(
+            "response",
+            self._on_restore_failed_response
         )
 
         for obj in [
@@ -222,6 +230,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             Restores the application state from the last time it was
             run.
         '''
+        self._state_restore_failure = None
+
         try:
             log.debug("restoring address...")
             self._restore_address()
@@ -240,8 +250,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
                 self._home_widget.restore_state(self._cache_store)
         except Exception as err:
             log.message("Restoring state failed: {}", err)
-            time.sleep(1)
-            return True
+            self._state_restore_failure = "Restoring state failed: {}".format(err)
         finally:
             self._state_restored = True
             emit_signal(self, SIGNAL_STATE_RESTORED)
@@ -307,8 +316,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
             * Remote Euterpe address from GSettings
             * Euterpe token from the OS keyring
+            * Search state
+            * Player queue and currently playing state
         '''
         log.message("state restored")
+
+        if self._state_restore_failure is not None:
+            self.restore_failed_dialog.show_all()
+            return
 
         screen = self.login_scroll_view
         if self._remote_address is not None:
@@ -316,6 +331,20 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self.app_stack.set_visible_child(screen)
         self.set_back_button_to_visible_child(self.main_stack)
+
+    def _on_restore_failed_response(self, dialog, response_id):
+        if response_id == Gtk.ResponseType.DELETE_EVENT:
+            self.close()
+            return
+
+        self.restore_failed_dialog.hide()
+
+        if response_id == Gtk.ResponseType.ACCEPT:
+            GLib.idle_add(self.restore_state, None)
+            return
+
+        if response_id == Gtk.ResponseType.REJECT:
+            self.logout()
 
     def on_main_stack_change(self, stack, event):
         self.set_back_button_to_visible_child(stack)
