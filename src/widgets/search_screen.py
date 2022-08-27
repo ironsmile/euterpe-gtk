@@ -349,6 +349,12 @@ class EuterpeSearchScreen(Gtk.Viewport):
             self.search_empty_content,
         )
 
+        children = self.screen_stack.get_children()
+        self.screen_stack.set_visible_child(self.search_main)
+
+        for child in children[1:]:
+            self.screen_stack.remove(child)
+
     def restore_state(self, store):
         state = store.get_object("search_state")
         if state is None:

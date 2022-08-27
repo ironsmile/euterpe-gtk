@@ -21,8 +21,8 @@ import json
 import time
 
 from gi.repository import GObject, Gtk, Handy, Gst, Gdk, GLib
-from euterpe_gtk.service import Euterpe
 from euterpe_gtk.utils import emit_signal, config_file_name, state_file_name
+from euterpe_gtk.widgets.login_form import EuterpeLoginForm, SIGNAL_LOGIN_SUCCESS
 from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen
 from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
 from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
@@ -69,17 +69,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     logged_in_screen = Gtk.Template.Child()
     login_scroll_view = Gtk.Template.Child()
     app_stack = Gtk.Template.Child()
-    login_button = Gtk.Template.Child()
 
     volume_adjustment = Gtk.Template.Child()
     main_volume_slider = Gtk.Template.Child()
-
-    login_spinner = Gtk.Template.Child()
-    login_failed_indicator = Gtk.Template.Child()
-    server_url = Gtk.Template.Child()
-    service_username = Gtk.Template.Child()
-    service_password = Gtk.Template.Child()
-    service_password_show_toggle = Gtk.Template.Child()
 
     miniplayer_position = Gtk.Template.Child()
 
@@ -138,33 +130,16 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             "notify::visible-child",
             self.on_main_stack_change
         )
-        self.login_button.connect("clicked", self.on_login_button)
 
         self.main_volume_slider.connect(
             "change-value",
             self._on_volume_changed
         )
 
-        self.service_password_show_toggle.bind_property(
-            'active',
-            self.service_password, 'visibility',
-            GObject.BindingFlags.SYNC_CREATE
-        )
-
         self.restore_failed_dialog.connect(
             "response",
             self._on_restore_failed_response
         )
-
-        for obj in [
-            self.server_url, self.login_button, self.service_username,
-            self.service_password, self.service_password_show_toggle,
-        ]:
-            self.login_spinner.bind_property(
-                'active',
-                obj, 'sensitive',
-                GObject.BindingFlags.INVERT_BOOLEAN
-            )
 
         self.populate_about()
 
@@ -328,6 +303,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         screen = self.login_scroll_view
         if self._remote_address is not None:
             screen = self.logged_in_screen
+        else:
+            self._attach_login_form()
 
         self.app_stack.set_visible_child(screen)
         self.set_back_button_to_visible_child(self.main_stack)
@@ -370,76 +347,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         show_squeezer = (self.logged_in_screen == stack.get_visible_child())
         self.squeezer.set_visible(show_squeezer)
 
-    def on_login_button(self, buttn):
-        remote_url = self.server_url.get_text().strip()
-
-        if remote_url == "":
-            log.debug('Empty URL is not accepted')
-            return
-
-        if not remote_url.startswith("http://") and \
-                not remote_url.startswith("https://"):
-            remote_url = 'https://{}'.format(remote_url)
-
-        self.show_login_loading()
-
-        username = self.service_username.get_text().strip()
-        password = self.service_password.get_text()
-
-        if len(username) == 0:
-            username = None
-            password = None
-
-        Euterpe.check_login_credentials(
-            remote_url,
-            self._on_login_request_response,
-            username,
-            password,
-            remote_url,
-        )
-
-    def _on_login_request_response(self, status, data, remote_url):
-        self.hide_login_loading()
-
-        if status != 200:
-            self.login_failed_indicator.show()
-            log.message(
-                "Authentication unsuccessful. "
-                "HTTP status code: {}. Body: {}",
-                status, data
-            )
-            return
-
-        self.store_remote_address(remote_url)
-        keyring.set_password("euterpe", "token", "")
-        self._remote_address = remote_url
-
-        # Clean-up the username and password!
-        self.service_password.set_text("")
-        self.service_username.set_text("")
-
-        try:
-            response = json.loads(data)
-        except Exception as err:
-            log.message("Wrong JSON in response for authentication: {}".format(
-                err
-            ))
-            self.login_failed_indicator.show()
-            return
-
-        if 'token' in response:
-            token = response['token']
-            self._token = token
-            keyring.set_password("euterpe", "token", token)
-
-        self._euterpe.set_address(self._remote_address)
-        self._euterpe.set_token(self._token)
-
+    def _on_login_success(self, login_form):
         self._home_widget.restore_state(self._cache_store)
 
         self.app_stack.set_visible_child(
             self.logged_in_screen
         )
+
+        login_form.destroy()
 
     def logout(self):
         self._token = None
@@ -458,11 +373,26 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if self._search_widget is not None:
             self._search_widget.factory_reset()
 
+        if self._home_widget is not None:
+            self._home_widget.factory_reset()
+
         self._cache_store.truncate()
+
+        self._attach_login_form()
 
         self.app_stack.set_visible_child(
             self.login_scroll_view
         )
+
+    def _attach_login_form(self):
+        '''
+        Creates a login form widget and attaches it to the login_scroll_view. The
+        login_scroll_view is presumed to be empty.
+        '''
+        login_form = EuterpeLoginForm(self._config_store)
+        login_form.connect(SIGNAL_LOGIN_SUCCESS, self._on_login_success)
+        login_form.show()
+        self.login_scroll_view.add(login_form)
 
     def on_headerbar_squeezer_notify(self, squeezer, event):
         child = squeezer.get_visible_child()

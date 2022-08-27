@@ -155,6 +155,9 @@ class EuterpeHomeScreen(Gtk.Viewport):
         }
         store.set_object("recently_added", state)
 
+    def factory_reset(self):
+        pass
+
     def _on_recently_added_albums_callback(self, status, body):
         if status != 200:
             self._show_error("Error, HTTP response code {}".format(status))
