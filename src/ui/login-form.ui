@@ -149,7 +149,6 @@
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <signal name="clicked" handler="login_button_clicked_cb" swapped="no"/>
                 <style>
                   <class name="suggested-action"/>
                 </style>

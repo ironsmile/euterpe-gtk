@@ -70,8 +70,14 @@ class EuterpeLoginForm(Gtk.Viewport):
                 GObject.BindingFlags.INVERT_BOOLEAN
             )
 
+        for obj in [self.server_url, self.service_username, self.service_password]:
+            obj.connect('activate', self._submit_form)
 
-    def on_login_button(self, buttn):
+
+    def _submit_form(self, *args):
+        self.login_button.activate()
+
+    def on_login_button(self, *args):
         remote_url = self.server_url.get_text().strip()
 
         if remote_url == "":
