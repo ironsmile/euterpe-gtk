@@ -9,16 +9,12 @@
 	<description>
 		<p>
 			Mobile and desktop player for the self-hosted Euterpe streaming
-			server. You need an access to the Euterpe server running somewhere in
-			order to use this program effectively.
+			server. You need an access to an Euterpe server running somewhere in
+			order for this program to be useful. You could try it out with the
+			demo Euterpe server, accessible at the project's website.
 		</p>
 		<p>
-			Keep in mind that this is still an early stage for this application.
-			It is absolutely good enough to be your day-to-day Euterpe player but
-			it still has many improvements incoming.
-		</p>
-		<p>
-			With that said, this is what the client supports now:
+			These are some of the things which this player supports:
 		</p>
 		<ul>
 			<li>
@@ -35,18 +31,34 @@
 				Searching the database for music.
 			</li>
 			<li>
+				Browsing by albums and artists based on their tag metadata.
+			</li>
+			<li>
 				Mobile first but convergent. It works on both mobile and desktop Linux.
 			</li>
 		</ul>
 	</description>
 	<developer_name>Doychin Atanasov</developer_name>
+	<update_contact>ironsmile_AT_gmail.com</update_contact>
+	<categories>
+	    <category>AudioVideo</category>
+	    <category>Audio</category>
+	    <category>Player</category>
+	    <category>GTK</category>
+	    <category>GNOME</category>
+	</categories>
 	<screenshots>
 		<screenshot type="default">
-			<image type="source" width="1690" height="819">https://raw.githubusercontent.com/ironsmile/euterpe-gtk/3a25cfb83e25a31fe39b644ce6d8c9eb7fb97ac6/repo/alpha-screenshots.png</image>
-			<image width="1690" height="819">https://i.imgur.com/7X2nbaT.png</image>
-			<image width="1690" height="819">https://i.imgur.com/NbSWFwW.png</image>
-			<image width="1690" height="819">https://i.imgur.com/jFsYGie.png</image>
-			<image width="1690" height="819">https://i.imgur.com/RHEAZOM.png</image>
+			<image type="source" width="1690" height="819">https://i.imgur.com/B5MqGpB.png</image>
+			<image width="1690" height="819">https://i.imgur.com/uF4hfV8.png</image>
+			<image width="1690" height="819">https://i.imgur.com/OgAEGf8.png</image>
+			<image width="1690" height="819">https://i.imgur.com/h3D7hgb.png</image>
+			<image width="1690" height="819">https://i.imgur.com/1dcIdP6.png</image>
+			<image width="1690" height="819">https://i.imgur.com/UaisFWY.png</image>
+			<image width="1690" height="819">https://i.imgur.com/FD6b2Qm.png</image>
+			<image width="1690" height="819">https://i.imgur.com/3WYNXhm.png</image>
+			<image width="1690" height="819">https://i.imgur.com/TBEo3gM.png</image>
+			<image width="1690" height="819">https://i.imgur.com/OTyvR2c.png</image>
 		</screenshot>
 	</screenshots>
 	<content_rating type="oars-1.0" />
@@ -56,6 +68,32 @@
 	<url type="donation">https://github.com/sponsors/ironsmile</url>
 
 	<releases>
+		<release version="0.5.0" date="2022-08-28">
+			<description>
+				<p>
+					This release brings this player to parity with the Euterpe iOS
+					and Android players. Using it one could get the most of their
+					Euterpe server.
+				</p>
+				<ul>
+					<li>
+						The program is properly recognized as supporting mobile
+						form factors by desktop environments such as Phosh.
+					</li>
+					<li>
+						Media browsing UI is implemented which supports going through
+						the server's artists and albums in alphabetical order.
+					</li>
+					<li>
+						Artist and album artwork is now shown when available on the
+						server. No more placeholder images!
+					</li>
+					<li>
+						The player is now easier to use on even smaller screens.
+					</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.4.0" date="2022-01-10">
 			<description>
 				<p>
