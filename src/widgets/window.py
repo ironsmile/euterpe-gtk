@@ -28,6 +28,7 @@ from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
 from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
 from euterpe_gtk.widgets.mini_player import EuterpeMiniPlayer
 from euterpe_gtk.state_storage import StateStorage
+from euterpe_gtk.service import SIGNAL_TOKEN_EXPIRED
 from euterpe_gtk.widgets.player_ui import EuterpePlayerUI
 import euterpe_gtk.log as log
 
@@ -59,6 +60,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     home_screen = Gtk.Template.Child()
 
     restore_failed_dialog = Gtk.Template.Child()
+    token_expired_dialog = Gtk.Template.Child()
 
     about_gtk_version = Gtk.Template.Child()
     about_gstreamer_version = Gtk.Template.Child()
@@ -79,15 +81,14 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         super().__init__(**kwargs)
 
         self._appVersion = appVersion
-        self._token = None
         self._state_restored = False
         self._state_restore_failure = None
+        self._logged_in = False
 
         app = self.get_application()
 
         self._euterpe = app.get_euterpe()
         self._player = app.get_player()
-        self._remote_address = None
         self._search_widget = None
 
         self._current_width = None
@@ -139,6 +140,17 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.restore_failed_dialog.connect(
             "response",
             self._on_restore_failed_response
+        )
+
+        self.token_expired_dialog.connect(
+            "response",
+            self._on_token_expired_response
+        )
+
+        self.login_scroll_view.bind_property(
+            'visible',
+            self.back_button_position, 'visible',
+            GObject.BindingFlags.INVERT_BOOLEAN
         )
 
         self.populate_about()
@@ -197,6 +209,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._player.connect("volume-changed", self._on_player_volume_changed)
 
+        self._euterpe.connect(SIGNAL_TOKEN_EXPIRED, self._on_expired_token)
+
         log.debug("staring restore callback")
         GLib.idle_add(self.restore_state, None)
 
@@ -208,19 +222,16 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._state_restore_failure = None
 
         try:
-            log.debug("restoring address...")
-            self._restore_address()
+            log.debug("restoring service config...")
+            self._restore_service_config()
             log.debug("restoring token...")
             self._restore_token()
-            log.debug("setting up Euterpe instance...")
-            self._euterpe.set_address(self._remote_address)
-            self._euterpe.set_token(self._token)
             log.debug("restoring search state...")
             self._search_widget.restore_state(self._cache_store)
             log.debug("restoring playing state...")
             self._player.restore_state(self._cache_store)
 
-            if self._remote_address is not None:
+            if self._logged_in:
                 log.debug("restoring recently added...")
                 self._home_widget.restore_state(self._cache_store)
         except Exception as err:
@@ -231,17 +242,20 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             emit_signal(self, SIGNAL_STATE_RESTORED)
         return False
 
-    def store_remote_address(self, address):
-        self._config_store.set_string("address", address)
+    def cleanup_service_config(self):
+        self._config_store.set_string("address", "")
+        self._config_store.set_string("username", "")
         self._config_store.save()
 
-    def _restore_address(self):
+    def _restore_service_config(self):
         address = self._config_store.get_string("address")
+        if address != "":
+            self._logged_in = True
+            self._euterpe.set_address(address)
 
-        if address == "":
-            return
-
-        self._remote_address = address
+        username = self._config_store.get_string("username")
+        if username != "":
+            self._euterpe.set_username(username)
 
     def _restore_token(self):
         token = keyring.get_password("euterpe", "token")
@@ -250,7 +264,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             log.debug("no token found in the keyring")
             return
 
-        self._token = token
+        self._euterpe.set_token(token)
 
     def show_login_loading(self):
         self.login_spinner.props.active = True
@@ -301,7 +315,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             return
 
         screen = self.login_scroll_view
-        if self._remote_address is not None:
+        if self._logged_in:
             screen = self.logged_in_screen
         else:
             self._attach_login_form()
@@ -314,10 +328,32 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self.close()
             return
 
-        self.restore_failed_dialog.hide()
+        dialog.hide()
 
         if response_id == Gtk.ResponseType.ACCEPT:
             GLib.idle_add(self.restore_state, None)
+            return
+
+        if response_id == Gtk.ResponseType.REJECT:
+            self.logout()
+
+    def _on_token_expired_response(self, dialog, response_id):
+        if response_id == Gtk.ResponseType.DELETE_EVENT:
+            self.close()
+            return
+
+        dialog.hide()
+
+        if response_id == Gtk.ResponseType.ACCEPT:
+            addr = self._euterpe.get_address()
+            user = self._euterpe.get_username()
+
+            login_form = self._attach_login_form()
+            login_form.lock_remote_address(addr, user)
+
+            self.app_stack.set_visible_child(
+                self.login_scroll_view
+            )
             return
 
         if response_id == Gtk.ResponseType.REJECT:
@@ -344,10 +380,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.back_button_position.add(back_button)
 
     def on_login_status_change(self, stack, event):
-        show_squeezer = (self.logged_in_screen == stack.get_visible_child())
-        self.squeezer.set_visible(show_squeezer)
+        login_visible = (self.logged_in_screen == stack.get_visible_child())
+        self.squeezer.set_visible(login_visible)
 
     def _on_login_success(self, login_form):
+        self._logged_in = True
         self._home_widget.restore_state(self._cache_store)
 
         self.app_stack.set_visible_child(
@@ -357,14 +394,13 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         login_form.destroy()
 
     def logout(self):
-        self._token = None
-        self._remote_address = None
-
         keyring.set_password("euterpe", "token", "")
-        self.store_remote_address("")
+        self.cleanup_service_config()
+        self._logged_in = False
 
         self._euterpe.set_address(None)
         self._euterpe.set_token(None)
+        self._euterpe.set_username(None)
 
         if self._player is not None:
             self._player.stop()
@@ -386,13 +422,18 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     def _attach_login_form(self):
         '''
-        Creates a login form widget and attaches it to the login_scroll_view. The
-        login_scroll_view is presumed to be empty.
+        Creates a login form widget and attaches it to the login_scroll_view.
+
+        Returns the created login_form widget.
         '''
+        for child in self.login_scroll_view.get_children():
+            child.destroy()
+
         login_form = EuterpeLoginForm(self._config_store)
         login_form.connect(SIGNAL_LOGIN_SUCCESS, self._on_login_success)
         login_form.show()
         self.login_scroll_view.add(login_form)
+        return login_form
 
     def on_headerbar_squeezer_notify(self, squeezer, event):
         child = squeezer.get_visible_child()
@@ -530,3 +571,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     def _on_player_volume_changed(self, player, vol):
         self.volume_adjustment.set_value(vol)
+
+    def _on_expired_token(self, *args):
+        self.token_expired_dialog.show_all()

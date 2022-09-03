@@ -51,9 +51,24 @@ class EuterpeLoginForm(Gtk.Viewport):
         self._euterpe = app.get_euterpe()
         self._config_store = config_store
 
-        self.connect("realize", self.on_activate)
+        self.connect("realize", self._on_activate)
 
-    def on_activate(self, *args):
+    def lock_remote_address(self, address, username):
+        '''
+        Sets the address in the remote address field and makes it insensitive. This
+        is meant to be used for when users want to regenerate their password.
+        '''
+        if address is not None:
+            self.server_url.set_text(address)
+            self.server_url.set_sensitive(False)
+        else:
+            log.warning("Trying to lock the login form address without value")
+
+        if username is not None:
+            self.service_username.set_text(username)
+            self.service_username.set_sensitive(False)
+
+    def _on_activate(self, *args):
         self.login_button.connect("clicked", self.on_login_button)
         self.service_password_show_toggle.bind_property(
             'active',
@@ -88,7 +103,7 @@ class EuterpeLoginForm(Gtk.Viewport):
                 not remote_url.startswith("https://"):
             remote_url = 'https://{}'.format(remote_url)
 
-        self.show_login_loading()
+        self._show_login_loading()
 
         username = self.service_username.get_text().strip()
         password = self.service_password.get_text()
@@ -103,10 +118,11 @@ class EuterpeLoginForm(Gtk.Viewport):
             username,
             password,
             remote_url,
+            username,
         )
 
-    def _on_login_request_response(self, status, data, remote_url):
-        self.hide_login_loading()
+    def _on_login_request_response(self, status, data, remote_url, username):
+        self._hide_login_loading()
 
         if status != 200:
             self.login_failed_indicator.show()
@@ -117,9 +133,8 @@ class EuterpeLoginForm(Gtk.Viewport):
             )
             return
 
-        self.store_remote_address(remote_url)
+        self._store_remote_info(remote_url, username)
         keyring.set_password("euterpe", "token", "")
-        self._remote_address = remote_url
 
         # Clean-up the username and password!
         self.service_password.set_text("")
@@ -134,22 +149,30 @@ class EuterpeLoginForm(Gtk.Viewport):
             self.login_failed_indicator.show()
             return
 
+        token = None
+
         if 'token' in response:
             token = response['token']
-            self._token = token
             keyring.set_password("euterpe", "token", token)
+        else:
+            # This is the case where the server did not require authentication. Then
+            # the username will be None and the response will not have a "token" field.
+            # So self._token will be None and this will be set on the euterpe object.
+            pass
 
-        self._euterpe.set_address(self._remote_address)
-        self._euterpe.set_token(self._token)
+        self._euterpe.set_address(remote_url)
+        self._euterpe.set_token(token)
+        self._euterpe.set_username(username)
 
         emit_signal(self, SIGNAL_LOGIN_SUCCESS)
 
-    def show_login_loading(self):
+    def _show_login_loading(self):
         self.login_spinner.props.active = True
 
-    def hide_login_loading(self):
+    def _hide_login_loading(self):
         self.login_spinner.props.active = False
 
-    def store_remote_address(self, address):
+    def _store_remote_info(self, address, username):
         self._config_store.set_string("address", address)
+        self._config_store.set_string("username", username)
         self._config_store.save()

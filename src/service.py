@@ -15,14 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from gi.repository import GObject
 import sys
 import json
 import urllib
 from euterpe_gtk.http import Request, AsyncRequest, Priority
+from euterpe_gtk.utils import emit_signal
 import euterpe_gtk.log as log
 from enum import Enum
 
-class Euterpe:
+SIGNAL_TOKEN_EXPIRED = "token-expired"
+
+class Euterpe(GObject.Object):
+
+    __gsignals__ = {
+        SIGNAL_TOKEN_EXPIRED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+    }
 
     @staticmethod
     def check_login_credentials(
@@ -94,18 +102,33 @@ class Euterpe:
         return urllib.parse.urljoin(remote_url, endpoint.lstrip("/"))
 
     def __init__(self, version):
+        GObject.GObject.__init__(self)
+
         self._remote_address = None
         self._token = None
+        self._username = None
         self._user_agent = "Euterpe-GTK Player/{}".format(version)
 
     def set_address(self, address):
         self._remote_address = address
 
+    def get_address(self):
+        return self._remote_address
+
     def set_token(self, token):
         self._token = token
 
+    def get_token(self):
+        return self._token
+
+    def set_username(self, username):
+        self._username = username
+
+    def get_username(self):
+        return self._username
+
     def search(self, query, callback):
-        cb = JSONBodyCallback(callback)
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
         address = Euterpe.build_url(self._remote_address, ENDPOINT_SEARCH)
         address = "{}?q={}".format(address, urllib.parse.quote(query, safe=''))
         req = self._create_request(address, cb)
@@ -116,7 +139,7 @@ class Euterpe:
             log.warning("unknown rencently added type: {}", what)
             return
 
-        cb = JSONBodyCallback(callback)
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
         address = Euterpe.build_url(self._remote_address, ENDPOINT_BROWSE)
         address = "{}?by={}&per-page=10&order-by=id&order=desc".format(
             address,
@@ -127,7 +150,7 @@ class Euterpe:
 
     def make_request(self, uri, callback):
         full_url = Euterpe.build_url(self._remote_address, uri)
-        cb = JSONBodyCallback(callback)
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
         req = self._create_request(full_url, cb)
         req.get()
 
@@ -144,7 +167,8 @@ class Euterpe:
         if size == ArtworkSize.SMALL:
             address = "{}?size={}".format(address, 'small')
 
-        req = self._create_async_request(address, cancellable, callback, Priority.LOW)
+        cb = TokenExpirationCallback(self, callback)
+        req = self._create_async_request(address, cancellable, cb, Priority.LOW)
         req.get(*args)
 
     def get_artist_artwork(self, artist_id, size, cancellable, callback, *args):
@@ -160,7 +184,8 @@ class Euterpe:
         if size == ArtworkSize.SMALL:
             address = "{}?size={}".format(address, 'small')
 
-        req = self._create_async_request(address, cancellable, callback, Priority.LOW)
+        cb = TokenExpirationCallback(self, callback)
+        req = self._create_async_request(address, cancellable, cb, Priority.LOW)
         req.get(*args)
 
     def get_browse_uri(self, what):
@@ -198,17 +223,14 @@ class Euterpe:
             req.set_header("Authorization", "Bearer {}".format(self._token))
         return req
 
-    def get_track_url(self, trackID):
+    def get_track_url(self, track_id):
         return Euterpe.build_url(
             self._remote_address,
-            ENDPOINT_FILE.format(trackID),
+            ENDPOINT_FILE.format(track_id),
         )
 
-    def get_token(self):
-        return self._token
 
-
-class JSONBodyCallback(object):
+class JSONBodyCallback:
     '''
     A converter from http.Request callback to a callback which receives
     the body as an python object instead of an input stream.
@@ -227,6 +249,24 @@ class JSONBodyCallback(object):
             self._callback(status, None, *args)
         else:
             self._callback(status, responseJSON, *args)
+
+
+class TokenExpirationCallback:
+    '''
+    An http.Request callback which will wrap the passed callback
+    and emit token expire event on 401 HTTP status codes and use
+    src_obj as the event source.
+    '''
+
+    def __init__(self, src_obj, callback):
+        self._callback = callback
+        self._src_obj = src_obj
+
+    def __call__(self, status, *args, **kwargs):
+        if status == 401 and self._src_obj.get_token() is not None:
+            emit_signal(self._src_obj, SIGNAL_TOKEN_EXPIRED)
+
+        self._callback(status, *args, **kwargs)
 
 
 class ArtworkSize(Enum):
