@@ -35,7 +35,9 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     title = Gtk.Template.Child()
     page_label = Gtk.Template.Child()
     loading_indicator = Gtk.Template.Child()
+    content = Gtk.Template.Child()
     buttons_container = Gtk.Template.Child()
+    browse_error = Gtk.Template.Child()
 
     button_next_page = Gtk.Template.Child()
     button_previous_page = Gtk.Template.Child()
@@ -68,7 +70,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.loading_indicator.bind_property(
             'active',
-            self.flow_container, 'visible',
+            self.content, 'visible',
             GObject.BindingFlags.INVERT_BOOLEAN
         )
 
@@ -188,8 +190,16 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
                 Gtk.main_iteration()
 
     def _show_error(self, text):
-        #!TODO: show a dialog message
         log.warning(text)
+        self.browse_error.set_description(text)
+
+        for child in self.content.get_children():
+            child.destroy()
+
+        self.content.add(self.browse_error)
+
+        self.loading_indicator.stop()
+        self.loading_indicator.set_visible(False)
 
     def add(self, widget):
         self.flow_container.add(widget)
