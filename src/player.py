@@ -531,6 +531,9 @@ class Player(GObject.Object):
     def get_volume(self):
         return self._volume_level
 
+    def track_loaded(self):
+        return self._playbin is not None
+
     def restore_state(self, store):
         state = store.get_object("player_state")
         if state is None:

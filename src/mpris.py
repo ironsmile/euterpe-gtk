@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
 from gi.repository import Gio, GLib, Gtk
 from euterpe_gtk.player import Repeat, Shuffle
 import euterpe_gtk.log as log
@@ -51,6 +52,9 @@ class MPRIS:
 
         self._register_interfaces()
         self._track_info = self._get_empty_track()
+
+        self._last_pos = 0
+        self._last_pos_request_time = None
 
         self._player.connect("track-changed", self._on_track_changed)
         self._player.connect("state-changed", self._on_state_changed)
@@ -115,12 +119,7 @@ class MPRIS:
         elif property_name == "Volume":
             return GLib.Variant("d", self._player.get_volume())
         elif property_name == "Position":
-            pos = 0
-            ppos = self._player.get_position()
-            if ppos is not None:
-                pos = ppos * 1000
-
-            return GLib.Variant("x", pos)
+            return GLib.Variant("x", self._get_player_position())
         elif property_name == "CanGoNext":
             return GLib.Variant("b", self._player.has_next())
         elif property_name == "CanGoPrevious":
@@ -131,6 +130,30 @@ class MPRIS:
             "CanPause",
         ]:
             return GLib.Variant("b", self._player.is_active())
+
+    def _get_player_position(self):
+        '''
+        Get player position returns the current position but caches the response
+        for one second.
+        '''
+        pos = self._last_pos
+        now = time.time()
+
+        if self._last_pos_request_time is not None and \
+            now - self._last_pos_request_time < 1:
+            # Make sure the position is not requested from the player more than
+            # once per second. It seems that there are situations where multiple
+            # position requests come in very short succession.
+            return pos
+
+        if self._player.track_loaded():
+            ppos = self._player.get_position()
+            if ppos is not None:
+                pos = ppos * 1000
+
+        self._last_pos_request_time = now
+        self._last_pos = pos
+        return pos
 
     def GetAll(self, interface):
         ret = {}
