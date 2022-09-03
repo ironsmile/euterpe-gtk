@@ -539,14 +539,6 @@ class Player(GObject.Object):
         if state is None:
             return
 
-        if 'playlist' not in state or len(state['playlist']) == 0:
-            return
-
-        self._playlist = state['playlist']
-
-        if 'index' in state:
-            self._current_playlist_index = state['index']
-
         if 'shuffle' in state:
             self._shuffle = Shuffle[state['shuffle']]
             emit_signal(self, SIGNAL_SHUFFLE_CHANGED)
@@ -558,6 +550,14 @@ class Player(GObject.Object):
         if 'volume' in state:
             self._volume_level = state['volume']
             emit_signal(self, SIGNAL_VOLUME_CHANGED, self._volume_level)
+
+        if 'playlist' not in state or len(state['playlist']) == 0:
+            return
+
+        self._playlist = state['playlist']
+
+        if 'index' in state:
+            self._current_playlist_index = state['index']
 
         if self._current_playlist_index is None:
             return
