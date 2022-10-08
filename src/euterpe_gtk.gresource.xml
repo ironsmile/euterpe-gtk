@@ -19,6 +19,7 @@
     <file>ui/entry-list.ui</file>
     <file>ui/paginated-box-list.ui</file>
     <file>ui/login-form.ui</file>
+    <file>ui/regenerate-token.ui</file>
     <file>assets/icon-128.png</file>
     <file preprocess="xml-stripblanks">assets/d-bus.xml</file>
   </gresource>

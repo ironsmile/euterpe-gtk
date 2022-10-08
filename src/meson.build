@@ -62,6 +62,7 @@ euterpe_gtk_widgets_package = [
   'widgets/entry_list.py',
   'widgets/simple_list.py',
   'widgets/login_form.py',
+  'widgets/regenerate_token.py',
 ]
 
 install_data(euterpe_gtk_widgets_package, install_dir: widgetsdir)

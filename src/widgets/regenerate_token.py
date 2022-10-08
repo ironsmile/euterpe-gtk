@@ -1,4 +1,4 @@
-# login_form.py
+# regenerate_token.py
 #
 # Copyright 2022 Doychin Atanasov
 #
@@ -22,18 +22,21 @@ from euterpe_gtk.service import Euterpe
 from euterpe_gtk.utils import emit_signal
 import euterpe_gtk.log as log
 
-SIGNAL_LOGIN_SUCCESS = "login-success"
+SIGNAL_GENERATE_TOKEN_SUCCESS = "generate-token-success"
+SIGNAL_LOGOUT_REQUESTED = "logout-requested"
 
 
-@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/login-form.ui')
-class EuterpeLoginForm(Gtk.Viewport):
-    __gtype_name__ = 'EuterpeLoginForm'
+@Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/regenerate-token.ui')
+class EuterpeTokenForm(Gtk.Viewport):
+    __gtype_name__ = 'EuterpeTokenForm'
 
     __gsignals__ = {
-        SIGNAL_LOGIN_SUCCESS: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_GENERATE_TOKEN_SUCCESS: (GObject.SignalFlags.RUN_FIRST, None, ()),
+        SIGNAL_LOGOUT_REQUESTED: (GObject.SignalFlags.RUN_FIRST, None, ()),
     }
 
-    login_button = Gtk.Template.Child()
+    generate_button = Gtk.Template.Child()
+    logout_button = Gtk.Template.Child()
     login_spinner = Gtk.Template.Child()
     login_failed_indicator = Gtk.Template.Child()
     server_url = Gtk.Template.Child()
@@ -41,7 +44,7 @@ class EuterpeLoginForm(Gtk.Viewport):
     service_password = Gtk.Template.Child()
     service_password_show_toggle = Gtk.Template.Child()
 
-    def __init__(self, config_store, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
         app = Gio.Application.get_default()
@@ -49,20 +52,28 @@ class EuterpeLoginForm(Gtk.Viewport):
             raise Exception("There is no default application")
 
         self._euterpe = app.get_euterpe()
-        self._config_store = config_store
+        self._remote_address = None
+        self._username = None
 
         self.connect("realize", self._on_activate)
 
+    def set_credentials(self, remote_address, username):
+        self._remote_address = remote_address
+        self._username = username
+
+        self.server_url.set_text(remote_address)
+        self.service_username.set_text(username)
+
     def _on_activate(self, *args):
-        self.login_button.connect("clicked", self.on_login_button)
+        self.generate_button.connect("clicked", self._on_generate_button)
+        self.logout_button.connect("clicked", self._on_logout_button)
         self.service_password_show_toggle.bind_property(
             'active',
             self.service_password, 'visibility',
             GObject.BindingFlags.SYNC_CREATE
         )
         for obj in [
-            self.server_url, self.login_button, self.service_username,
-            self.service_password, self.service_password_show_toggle,
+            self.generate_button, self.service_password, self.service_password_show_toggle,
         ]:
             self.login_spinner.bind_property(
                 'active',
@@ -70,31 +81,25 @@ class EuterpeLoginForm(Gtk.Viewport):
                 GObject.BindingFlags.INVERT_BOOLEAN
             )
 
-        for obj in [self.server_url, self.service_username, self.service_password]:
-            obj.connect('activate', self._submit_form)
+        self.service_password.connect('activate', self._submit_form)
 
     def _submit_form(self, *args):
-        self.login_button.activate()
+        self.generate_button.activate()
 
-    def on_login_button(self, *args):
-        remote_url = self.server_url.get_text().strip()
+    def _on_logout_button(self, *args):
+        emit_signal(self, SIGNAL_LOGOUT_REQUESTED)
 
-        if remote_url == "":
-            log.debug('Empty URL is not accepted')
+    def _on_generate_button(self, *args):
+        if self._remote_address is None or self._username is None:
+            log.warning("login button clicked when no address or username are present")
+            self.login_failed_indicator.show()
             return
-
-        if not remote_url.startswith("http://") and \
-                not remote_url.startswith("https://"):
-            remote_url = 'https://{}'.format(remote_url)
 
         self._show_login_loading()
 
-        username = self.service_username.get_text().strip()
+        remote_url = self._remote_address
+        username = self._username
         password = self.service_password.get_text()
-
-        if len(username) == 0:
-            username = None
-            password = None
 
         Euterpe.check_login_credentials(
             remote_url,
@@ -117,13 +122,6 @@ class EuterpeLoginForm(Gtk.Viewport):
             )
             return
 
-        self._store_remote_info(remote_url, username)
-        keyring.set_password("euterpe", "token", "")
-
-        # Clean-up the username and password!
-        self.service_password.set_text("")
-        self.service_username.set_text("")
-
         try:
             response = json.loads(data)
         except Exception as err:
@@ -133,30 +131,21 @@ class EuterpeLoginForm(Gtk.Viewport):
             self.login_failed_indicator.show()
             return
 
-        token = None
+        if 'token' not in response:
+            log.warning("There was no 'token' field in the server response even"
+                "though the response was for successful login.")
+            self.login_failed_indicator.show()
+            return
 
-        if 'token' in response:
-            token = response['token']
-            keyring.set_password("euterpe", "token", token)
-        else:
-            # This is the case where the server did not require authentication. Then
-            # the username will be None and the response will not have a "token" field.
-            # So self._token will be None and this will be set on the euterpe object.
-            pass
+        token = response['token']
+        keyring.set_password("euterpe", "token", token)
 
-        self._euterpe.set_address(remote_url)
         self._euterpe.set_token(token)
-        self._euterpe.set_username(username)
 
-        emit_signal(self, SIGNAL_LOGIN_SUCCESS)
+        emit_signal(self, SIGNAL_GENERATE_TOKEN_SUCCESS)
 
     def _show_login_loading(self):
         self.login_spinner.props.active = True
 
     def _hide_login_loading(self):
         self.login_spinner.props.active = False
-
-    def _store_remote_info(self, address, username):
-        self._config_store.set_string("address", address)
-        self._config_store.set_string("username", username)
-        self._config_store.save()

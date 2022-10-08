@@ -23,6 +23,8 @@ import time
 from gi.repository import GObject, Gtk, Handy, Gst, Gdk, GLib
 from euterpe_gtk.utils import emit_signal, config_file_name, state_file_name
 from euterpe_gtk.widgets.login_form import EuterpeLoginForm, SIGNAL_LOGIN_SUCCESS
+from euterpe_gtk.widgets.regenerate_token import (EuterpeTokenForm,
+    SIGNAL_GENERATE_TOKEN_SUCCESS, SIGNAL_LOGOUT_REQUESTED)
 from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen
 from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
 from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
@@ -348,8 +350,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             addr = self._euterpe.get_address()
             user = self._euterpe.get_username()
 
-            login_form = self._attach_login_form()
-            login_form.lock_remote_address(addr, user)
+            expire_form = self._attach_token_expired_form()
+            expire_form.set_credentials(addr, user)
 
             self.app_stack.set_visible_child(
                 self.login_scroll_view
@@ -435,12 +437,31 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.login_scroll_view.add(login_form)
         return login_form
 
+    def _attach_token_expired_form(self):
+        '''
+        Creates a token expired widget and attaches it to the login_scroll_view.
+
+        Returns the created token_expire widget.
+        '''
+        for child in self.login_scroll_view.get_children():
+            child.destroy()
+
+        token_form = EuterpeTokenForm()
+        token_form.connect(SIGNAL_GENERATE_TOKEN_SUCCESS, self._on_login_success)
+        token_form.connect(SIGNAL_LOGOUT_REQUESTED, self._on_logout_requested)
+        token_form.show()
+        self.login_scroll_view.add(token_form)
+        return token_form
+
     def on_headerbar_squeezer_notify(self, squeezer, event):
         child = squeezer.get_visible_child()
         self.bottom_switcher.set_reveal(child != self.headerbar_switcher)
 
     def open_search_screen(self, btn):
         self.main_stack.set_visible_child(self.search_screen)
+
+    def _on_logout_requested(self, *args, **kwargs):
+        self.logout()
 
     def _on_header_changed(self, obj, showMainHeader):
         if showMainHeader:
