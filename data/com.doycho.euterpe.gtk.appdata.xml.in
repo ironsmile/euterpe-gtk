@@ -67,7 +67,27 @@
 	<url type="help">https://listen-to-euterpe.eu/docs</url>
 	<url type="donation">https://github.com/sponsors/ironsmile</url>
 
+	<recommends>
+		<control>keyboard</control>
+		<control>pointing</control>
+		<control>touch</control>
+	</recommends>
+
+	<requires>
+		<display_length compare="ge">small</display_length>
+		<internet>always</internet>
+	</requires>
+
 	<releases>
+		<release version="0.6.1" date="2022-10-08">
+			<description>
+				<p>
+					This release improves the case where the authentication token for the
+					server has expired. It makes generating a new one possible without
+					logging out.
+				</p>
+			</description>
+		</release>
 		<release version="0.5.0" date="2022-08-28">
 			<description>
 				<p>
