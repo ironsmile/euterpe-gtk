@@ -3,6 +3,10 @@
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="libhandy" version="1.2"/>
+  <object class="GtkMenu" id="album_more_menu">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+  </object>
   <template class="EuterpeAlbum" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -102,6 +106,7 @@
                         <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">View more actions</property>
+                        <property name="popup">album_more_menu</property>
                         <property name="popover">more_menu_popover</property>
                         <child>
                           <object class="GtkImage" id="more-button-dots">
@@ -186,11 +191,14 @@
   <object class="GtkPopoverMenu" id="more_menu_popover">
     <property name="can_focus">False</property>
     <property name="relative_to">more_button</property>
-    <property name="position">bottom</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
+        <property name="margin_left">10</property>
+        <property name="margin_right">10</property>
+        <property name="margin_top">10</property>
+        <property name="margin_bottom">10</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkModelButton" id="append_to_queue">
@@ -207,7 +215,7 @@
         </child>
       </object>
       <packing>
-        <property name="submenu">submenu0</property>
+        <property name="submenu">main</property>
         <property name="position">1</property>
       </packing>
     </child>
