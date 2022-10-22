@@ -125,7 +125,7 @@ class AsyncRequest(object):
             - status (int) - the HTTP response code
             - body (Gio.InputStream) - the HTTP response body
             - cancel (Gio.Cancellable) - a cancellable which cancels the request
-            - *args - the arguments passed to `get`
+            - *args - the arguments passed to `get`, `post` or `put`
         '''
 
         self._session = init_session(priority)
@@ -141,6 +141,18 @@ class AsyncRequest(object):
     def get(self, *args):
         self._args = args
         req = Soup.Message.new("GET", self._address)
+        self._do(req)
+
+    def post(self, content_type, body, *args):
+        self._args = args
+        req = Soup.Message.new("POST", self._address)
+        req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
+        self._do(req)
+
+    def put(self, content_type, body, *args):
+        self._args = args
+        req = Soup.Message.new("PUT", self._address)
+        req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
         self._do(req)
 
     def _do(self, req):

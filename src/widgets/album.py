@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio
 from euterpe_gtk.widgets.track import EuterpeTrack
 from euterpe_gtk.async_artwork import AsyncArtwork
 import euterpe_gtk.log as log
@@ -34,7 +34,12 @@ class EuterpeAlbum(Gtk.Viewport):
     track_list = Gtk.Template.Child()
     loading_spinner = Gtk.Template.Child()
     append_to_queue = Gtk.Template.Child()
+    set_album_image = Gtk.Template.Child()
     image = Gtk.Template.Child()
+
+    notification_text = Gtk.Template.Child()
+    notification_close = Gtk.Template.Child()
+    notification_revealer = Gtk.Template.Child()
 
     def __init__(self, album, win, **kwargs):
         super().__init__(**kwargs)
@@ -42,6 +47,7 @@ class EuterpeAlbum(Gtk.Viewport):
         self._win = win
         self._album = album
         self._album_tracks = []
+        self._cancel_upload = None
 
         album_name = album.get("album", "Unknown")
 
@@ -58,6 +64,14 @@ class EuterpeAlbum(Gtk.Viewport):
         self.append_to_queue.connect(
             "clicked",
             self._on_append_button
+        )
+        self.set_album_image.connect(
+            "clicked",
+            self._on_set_album_image
+        )
+        self.notification_close.connect(
+            "clicked",
+            self._on_notification_close_clicked
         )
 
         for obj in [self.play_button, self.more_button]:
@@ -91,6 +105,56 @@ class EuterpeAlbum(Gtk.Viewport):
     def _on_append_button(self, ab):
         player = self._win.get_player()
         player.append_to_playlist(self._album_tracks)
+        self.show_notification("Album songs appended to the queue.")
+
+    def _on_set_album_image(self, ab):
+        album_id = self._album.get("album_id", None)
+        if album_id is None:
+            log.warning("album ID was None while trying to set its image")
+            self.show_notification("Album data seems to be corrupt. Cannot upload image.")
+            return
+
+        chooser = Gtk.FileChooserNative.new(
+            "Select Album Image",
+            self._win,
+            Gtk.FileChooserAction.OPEN,
+            "_Upload",
+            "_Cancel"
+        )
+
+        images_filter = Gtk.FileFilter.new()
+        images_filter.add_mime_type('image/*')
+        images_filter.set_name("images")
+        chooser.add_filter(images_filter)
+
+        response = chooser.run()
+
+        if response != Gtk.ResponseType.ACCEPT:
+            return
+
+        if self._cancel_upload is not None:
+            self._cancel_upload.cancel()
+
+        self.show_notification("Uploading new image...")
+
+        self._cancel_upload = Gio.Cancellable.new()
+        self._win.get_euterpe().set_album_image(
+            album_id,
+            chooser.get_filename(),
+            self._cancel_upload,
+            self._on_album_set_callback,
+            album_id,
+        )
+
+    def _on_album_set_callback(self, status, body, __cancel, album_id):
+        if status is not None and status >= 201 and status <= 299:
+            self.show_notification("Image uploaded succesfully.")
+            self._artwork_loader.load_album_image(album_id, force = True)
+        else:
+            message = "Upload failed."
+            if body is not None:
+                message = "{} {}".format(message, body)
+            self.show_notification(message)
 
     def _on_search_result(self, status, body, query):
         self.track_list.foreach(self.track_list.remove)
@@ -140,3 +204,10 @@ class EuterpeAlbum(Gtk.Viewport):
     def _on_unrealize(self, *args):
         for child in self.track_list.get_children():
             child.destroy()
+
+    def show_notification(self, text):
+        self.notification_text.set_label(text)
+        self.notification_revealer.set_reveal_child(True)
+
+    def _on_notification_close_clicked(self, *args):
+        self.notification_revealer.set_reveal_child(False)

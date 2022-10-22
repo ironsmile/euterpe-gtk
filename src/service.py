@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject
+from gi.repository import GObject, Gio, GLib
 import sys
 import json
 import urllib
@@ -199,6 +199,48 @@ class Euterpe(GObject.Object):
         )
 
         return address
+
+    def set_album_image(self, album_id, file_name, cancellable, callback, *args):
+        '''
+        Asynchronously reads a file and then sets it as the image for the
+        album identified by `album_id`.
+
+        callback should accept the following arguments:
+
+            * HTTP status of the upload request. May be None on error.
+            * Body of the response. Maybe error message on error.
+            * The cancel function passed here `cancellable`
+            * *`args`
+        '''
+        artwork_path = ENDPOINT_ALBUM_ART.format(album_id)
+        artwork_address = Euterpe.build_url(self._remote_address, artwork_path)
+
+        file = Gio.File.new_for_path(file_name)
+        file.read_async(GLib.PRIORITY_HIGH, cancellable, self._on_image_open,
+            artwork_address, cancellable, callback, args)
+
+    def _on_image_open(self, obj, res, artwork_address, cancellable, callback, args):
+        image_stream = obj.read_finish(res)
+        if image_stream is None:
+            log.warning("failed to open file for uploading to {}", artwork_address)
+            callback(None, "Could open file.", None, *args)
+            return
+
+        image_stream.read_bytes_async(
+            5 * 1024 * 1024, GLib.PRIORITY_HIGH, cancellable, self._on_image_bytes,
+            artwork_address, cancellable, callback, args)
+
+    def _on_image_bytes(self, obj, res, artwork_address, cancellable, callback, args):
+        image_data = obj.read_bytes_finish(res)
+        if image_data is None:
+            log.warning("failed to read file for uploading to {}", artwork_address)
+            callback(None, "Error while reading file.", None, *args)
+            return
+
+        req = self._create_async_request(artwork_address, cancellable, callback,
+                                            Priority.HIGH)
+
+        req.put("image/jpeg", image_data, *args)
 
     def _create_request(self, address, callback):
         '''
