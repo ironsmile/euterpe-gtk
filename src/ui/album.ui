@@ -311,7 +311,7 @@
         <child>
           <object class="GtkModelButton" id="set_album_image">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can_focus">False</property>
             <property name="receives_default">True</property>
             <property name="tooltip_text" translatable="yes">Allows you to select an local image file and set it as the album image.</property>
             <property name="text" translatable="yes">Set Album Image</property>

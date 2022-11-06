@@ -152,7 +152,7 @@ class EuterpeAlbum(Gtk.Viewport):
             self._artwork_loader.load_album_image(album_id, force = True)
         else:
             message = "Upload failed."
-            if body is not None:
+            if body is not None and type(body) is str:
                 message = "{} {}".format(message, body)
             self.show_notification(message)
 
