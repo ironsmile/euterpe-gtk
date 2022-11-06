@@ -8,13 +8,23 @@ desktop application as well.
 
 [![Screenshot](repo/alpha-screenshots.png)](repo/alpha-screenshots.png)
 
-<a href="https://flathub.org/apps/details/com.doycho.euterpe.gtk"><img height="50" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.png"/></a>
+<a href="https://flathub.org/apps/details/com.doycho.euterpe.gtk">
+    <img height="50" alt="Download on Flathub"
+        src="https://flathub.org/assets/badges/flathub-badge-en.png"/>
+</a>
 
 ## Project Status
 
-The program is at the stage where it _could_ be used for your day-to-day Euterpe player.
-But this comes with the huge disclaimer that there is quite a lot more to be done before
-one could consider it "complete".
+The program is mostly done and ready for day-to-day use. It needs some polishing and
+adding the last few minor features before I could call it a complete and release the
+first major version.
+
+## Requirements
+
+* [Python 3.11](https://www.python.org/)
+* GTK+ 3 and its [Python bindings](https://python-gtk-3-tutorial.readthedocs.io/en/latest/install.html)
+* [Libhandy 1.2](https://gnome.pages.gitlab.gnome.org/libhandy/)
+* [py3-keyring](https://pypi.org/project/keyring/)
 
 ## Building From Source
 
@@ -23,13 +33,13 @@ the Python's [keyring](https://pypi.org/project/keyring/) lib before building.
 
 On Alpine they could be installed via `apk`:
 
-```
+```sh
 sudo apk add libhandy1-dev py3-keyring
 ```
 
 After that install as normal GTK3 app:
 
-```
+```sh
 meson . _build --prefix=/usr
 ninja -C _build
 sudo ninja -C _build install
