@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk, Gio
+from gi.repository import GObject, Gtk, Gio, GLib
 from euterpe_gtk.widgets.track import EuterpeTrack
 from euterpe_gtk.async_artwork import AsyncArtwork
 import euterpe_gtk.log as log
@@ -40,6 +40,8 @@ class EuterpeAlbum(Gtk.Viewport):
     notification_text = Gtk.Template.Child()
     notification_close = Gtk.Template.Child()
     notification_revealer = Gtk.Template.Child()
+
+    notif_callback_id = 0
 
     def __init__(self, album, win, **kwargs):
         super().__init__(**kwargs)
@@ -209,5 +211,21 @@ class EuterpeAlbum(Gtk.Viewport):
         self.notification_text.set_label(text)
         self.notification_revealer.set_reveal_child(True)
 
+        self.notif_callback_id += 1
+        GLib.timeout_add(
+            5000,
+            self._clear_notification_timoeut,
+            self.notif_callback_id,
+            priority=GLib.PRIORITY_DEFAULT
+        )
+
     def _on_notification_close_clicked(self, *args):
         self.notification_revealer.set_reveal_child(False)
+
+    def _clear_notification_timoeut(self, notif_id):
+        # Make sure that only the latest notification will be removed. In case
+        # there have been a notification clean-ups pending when new notifications
+        # have been shown.
+        if notif_id == self.notif_callback_id:
+            self.notification_revealer.set_reveal_child(False)
+        return GLib.SOURCE_REMOVE
