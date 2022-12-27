@@ -37,12 +37,6 @@ class EuterpeAlbum(Gtk.Viewport):
     set_album_image = Gtk.Template.Child()
     image = Gtk.Template.Child()
 
-    notification_text = Gtk.Template.Child()
-    notification_close = Gtk.Template.Child()
-    notification_revealer = Gtk.Template.Child()
-
-    notif_callback_id = 0
-
     def __init__(self, album, win, **kwargs):
         super().__init__(**kwargs)
 
@@ -70,10 +64,6 @@ class EuterpeAlbum(Gtk.Viewport):
         self.set_album_image.connect(
             "clicked",
             self._on_set_album_image
-        )
-        self.notification_close.connect(
-            "clicked",
-            self._on_notification_close_clicked
         )
 
         for obj in [self.play_button, self.more_button]:
@@ -150,7 +140,7 @@ class EuterpeAlbum(Gtk.Viewport):
 
     def _on_album_set_callback(self, status, body, __cancel, album_id):
         if status is not None and status >= 201 and status <= 299:
-            self.show_notification("Image uploaded succesfully.")
+            self.show_notification("Image uploaded successfully.")
             self._artwork_loader.load_album_image(album_id, force = True)
         else:
             message = "Upload failed."
@@ -208,24 +198,4 @@ class EuterpeAlbum(Gtk.Viewport):
             child.destroy()
 
     def show_notification(self, text):
-        self.notification_text.set_label(text)
-        self.notification_revealer.set_reveal_child(True)
-
-        self.notif_callback_id += 1
-        GLib.timeout_add(
-            5000,
-            self._clear_notification_timoeut,
-            self.notif_callback_id,
-            priority=GLib.PRIORITY_DEFAULT
-        )
-
-    def _on_notification_close_clicked(self, *args):
-        self.notification_revealer.set_reveal_child(False)
-
-    def _clear_notification_timoeut(self, notif_id):
-        # Make sure that only the latest notification will be removed. In case
-        # there have been a notification clean-ups pending when new notifications
-        # have been shown.
-        if notif_id == self.notif_callback_id:
-            self.notification_revealer.set_reveal_child(False)
-        return GLib.SOURCE_REMOVE
+        self._win.show_notification(text)

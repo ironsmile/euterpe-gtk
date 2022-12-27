@@ -79,6 +79,12 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     miniplayer_position = Gtk.Template.Child()
 
+    notification_text = Gtk.Template.Child()
+    notification_close = Gtk.Template.Child()
+    notification_revealer = Gtk.Template.Child()
+
+    notif_callback_id = 0
+
     def __init__(self, appVersion, **kwargs):
         super().__init__(**kwargs)
 
@@ -153,6 +159,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             'visible',
             self.back_button_position, 'visible',
             GObject.BindingFlags.INVERT_BOOLEAN
+        )
+
+        self.notification_close.connect(
+            "clicked",
+            self._on_notification_close_clicked
         )
 
         self.populate_about()
@@ -595,3 +606,31 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     def _on_expired_token(self, *args):
         self.token_expired_dialog.show_all()
+
+    def show_notification(self, text):
+        '''
+        Shows `text` in an in-app notification on the top centre of the screen. The
+        notification will disappear in 5 seconds automatically. Alternatively the
+        user may remove it with the provided button.
+        '''
+        self.notification_text.set_label(text)
+        self.notification_revealer.set_reveal_child(True)
+
+        self.notif_callback_id += 1
+        GLib.timeout_add(
+            5000,
+            self._clear_notification_timoeut,
+            self.notif_callback_id,
+            priority=GLib.PRIORITY_DEFAULT
+        )
+
+    def _on_notification_close_clicked(self, *args):
+        self.notification_revealer.set_reveal_child(False)
+
+    def _clear_notification_timoeut(self, notif_id):
+        # Make sure that only the latest notification will be removed. In case
+        # there have been a notification clean-ups pending when new notifications
+        # have been shown.
+        if notif_id == self.notif_callback_id:
+            self.notification_revealer.set_reveal_child(False)
+        return GLib.SOURCE_REMOVE
