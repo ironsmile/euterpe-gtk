@@ -70,6 +70,8 @@
         }
     ],
     "build-options" : {
-        "env" : {        }
+        "env" : {
+            "G_MESSAGES_DEBUG" : "euterpe-gtk"
+        }
     }
 }
