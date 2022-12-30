@@ -224,6 +224,29 @@ class Euterpe(GObject.Object):
         file.read_async(GLib.PRIORITY_HIGH, cancellable, self._on_image_open,
             art_url, cancellable, callback, mtype, args)
 
+    def set_artist_image(self, artist_id, file_name, cancellable, callback, *args):
+        '''
+        Asynchronously reads a file and then sets it as the image for the
+        artist identified by `artist_id`.
+
+        callback should accept the following arguments:
+
+            * HTTP status of the upload request. May be None on error.
+            * Body of the response. Maybe error message on error.
+            * The cancel function passed here `cancellable`
+            * *`args`
+        '''
+        artwork_path = ENDPOINT_ARTIST_ART.format(artist_id)
+        art_url = Euterpe.build_url(self._remote_address, artwork_path)
+
+        mtype, encoding = mimetypes.guess_type(file_name)
+        if mtype is None:
+            mtype = "image"
+
+        file = Gio.File.new_for_path(file_name)
+        file.read_async(GLib.PRIORITY_HIGH, cancellable, self._on_image_open,
+            art_url, cancellable, callback, mtype, args)
+
     def _on_image_open(self, obj, res, art_url, cancellable, callback, mtype, args):
         image_stream = obj.read_finish(res)
         if image_stream is None:

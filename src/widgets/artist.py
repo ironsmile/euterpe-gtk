@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio
 from euterpe_gtk.widgets.track import EuterpeTrack
 from euterpe_gtk.widgets.small_album import EuterpeSmallAlbum
 from euterpe_gtk.widgets.album import EuterpeAlbum
@@ -33,6 +33,7 @@ class EuterpeArtist(Gtk.Viewport):
     album_list = Gtk.Template.Child()
     loading_spinner = Gtk.Template.Child()
     image = Gtk.Template.Child()
+    upload_image_button = Gtk.Template.Child()
 
     def __init__(self, artist, win, nav, **kwargs):
         '''
@@ -49,10 +50,16 @@ class EuterpeArtist(Gtk.Viewport):
         self._win = win
         self._artist = artist
         self._albums = []
+        self._cancel_upload = None
 
         artist_name = artist.get("artist", "Unknown")
 
         self.artist_name.set_label(artist_name)
+
+        self.upload_image_button.connect(
+            "clicked",
+            self._on_set_artist_image
+        )
 
         win.get_euterpe().search(artist_name, self._on_search_result)
         self.connect("unrealize", self._on_unrealize)
@@ -121,3 +128,55 @@ class EuterpeArtist(Gtk.Viewport):
     def _on_unrealize(self, *args):
         for child in self.album_list.get_children():
             child.destroy()
+
+    def _on_set_artist_image(self, ab):
+        artist_id = self._artist.get("artist_id", None)
+        if artist_id is None:
+            log.warning("artist ID was None while trying to set its image")
+            self.show_notification("Artist data seems to be corrupt. Cannot upload image.")
+            return
+
+        chooser = Gtk.FileChooserNative.new(
+            "Select Artist Image",
+            self._win,
+            Gtk.FileChooserAction.OPEN,
+            "_Upload",
+            "_Cancel"
+        )
+
+        images_filter = Gtk.FileFilter.new()
+        images_filter.add_mime_type('image/*')
+        images_filter.set_name("images")
+        chooser.add_filter(images_filter)
+
+        response = chooser.run()
+
+        if response != Gtk.ResponseType.ACCEPT:
+            return
+
+        if self._cancel_upload is not None:
+            self._cancel_upload.cancel()
+
+        self.show_notification("Uploading new image...")
+
+        self._cancel_upload = Gio.Cancellable.new()
+        self._win.get_euterpe().set_artist_image(
+            artist_id,
+            chooser.get_filename(),
+            self._cancel_upload,
+            self._on_artist_set_callback,
+            artist_id,
+        )
+
+    def _on_artist_set_callback(self, status, body, __cancel, artist_id):
+        if status is not None and status >= 201 and status <= 299:
+            self.show_notification("Image uploaded successfully.")
+            self._artwork_loader.load_artist_image(artist_id, force=True)
+        else:
+            message = "Upload failed."
+            if body is not None and type(body) is str:
+                message = "{} {}".format(message, body)
+            self.show_notification(message)
+
+    def show_notification(self, text):
+        self._win.show_notification(text)

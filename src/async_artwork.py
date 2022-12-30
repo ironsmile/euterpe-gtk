@@ -35,7 +35,7 @@ class AsyncArtwork(object):
         self._default_icon = gtk_image.get_icon_name()
         self._displayed_artwork_id = None
 
-    def load_album_image(self, album_id, size=ArtworkSize.FULL, force = False):
+    def load_album_image(self, album_id, size=ArtworkSize.FULL, force=False):
         if force != True and self._displayed_artwork_id == album_id:
             return
 
@@ -54,8 +54,8 @@ class AsyncArtwork(object):
             album_id,
         )
 
-    def load_artist_image(self, artist_id, size=ArtworkSize.FULL):
-        if self._displayed_artwork_id == artist_id:
+    def load_artist_image(self, artist_id, size=ArtworkSize.FULL, force=False):
+        if force != True and self._displayed_artwork_id == artist_id:
             return
 
         if self._previous_request is not None:
