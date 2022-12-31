@@ -568,6 +568,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             )
         except Exception as err:
             log.warning("error restoring navigation state: {}", err)
+            return
 
         if nav_visible is None:
             return
