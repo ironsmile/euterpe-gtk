@@ -237,16 +237,19 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         try:
             log.debug("restoring service config...")
             self._restore_service_config()
-            log.debug("restoring token...")
-            self._restore_token()
             log.debug("restoring search state...")
             self._search_widget.restore_state(self._cache_store)
+            log.debug("restoring token...")
+            self._restore_token()
             log.debug("restoring playing state...")
             self._player.restore_state(self._cache_store)
 
             if self._logged_in:
                 log.debug("restoring recently added...")
                 self._home_widget.restore_state(self._cache_store)
+        except keyring.errors.KeyringError as err:
+            log.message("Reading from keyring failed: {}", err)
+            self._state_restore_failure = "Reading from keyring failed: {}".format(err)
         except Exception as err:
             log.message("Restoring state failed: {}", err)
             self._state_restore_failure = "Restoring state failed: {}".format(err)
@@ -324,6 +327,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         log.message("state restored")
 
         if self._state_restore_failure is not None:
+            msg = ("The following error happened during restoring state:\n\n" +
+                self._state_restore_failure) + ("\n\nYou could retry restoring it again. "
+                "Or you could reset all settings to the factory default.")
+
+            self.restore_failed_dialog.format_secondary_text(msg)
             self.restore_failed_dialog.show_all()
             return
 

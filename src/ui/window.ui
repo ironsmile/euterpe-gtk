@@ -706,7 +706,7 @@
     <property name="transient_for">EuterpeGtkWindow</property>
     <property name="attached_to">EuterpeGtkWindow</property>
     <property name="message_type">error</property>
-    <property name="text" translatable="yes">Restoring the program state failed.</property>
+    <property name="text" translatable="yes">Restoring the program state failed</property>
     <property name="secondary_text" translatable="yes">You could retry restoring it again. Or you could reset all settings to the factory default.</property>
     <child internal-child="vbox">
       <object class="GtkBox">
