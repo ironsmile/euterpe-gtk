@@ -90,7 +90,7 @@
                       <object class="GtkButton" id="play_button">
                         <property name="label" translatable="yes">PLAY</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can_focus">True</property>
                         <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="halign">center</property>
@@ -109,7 +109,7 @@
                     <child>
                       <object class="GtkMenuButton" id="more_button">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can_focus">True</property>
                         <property name="focus_on_click">False</property>
                         <property name="receives_default">True</property>
                         <property name="tooltip_text" translatable="yes">View more actions</property>
@@ -212,7 +212,7 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="receives_default">True</property>
-            <property name="text" translatable="yes">Append to play queue</property>
+            <property name="text" translatable="yes">_Append to play queue</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -237,7 +237,7 @@
             <property name="can_focus">False</property>
             <property name="receives_default">True</property>
             <property name="tooltip_text" translatable="yes">Allows you to select an local image file and set it as the album image.</property>
-            <property name="text" translatable="yes">Set Album Image</property>
+            <property name="text" translatable="yes">_Set Album Image</property>
           </object>
           <packing>
             <property name="expand">False</property>

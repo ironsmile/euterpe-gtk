@@ -720,7 +720,7 @@
             <property name="can_focus">True</property>
             <property name="receives_default">False</property>
             <property name="action_name">app.logout</property>
-            <property name="text" translatable="yes">Log Out</property>
+            <property name="text" translatable="yes">L_og Out</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -734,7 +734,7 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="action_name">app.quit</property>
-            <property name="text" translatable="yes">Quit</property>
+            <property name="text" translatable="yes">_Quit</property>
           </object>
           <packing>
             <property name="expand">False</property>

@@ -85,6 +85,11 @@ class Application(Gtk.Application):
             self.add_action(action)
 
         self.set_accels_for_action("app.quit", ["<Control>Q"])
+        self.set_accels_for_action("app.playpause", ["<Control>K"])
+        self.set_accels_for_action("app.next_song", ["<Control>N"])
+        self.set_accels_for_action("app.previous_song", ["<Control>B"])
+        self.set_accels_for_action("app.toggle_repeat", ["<Control>R"])
+        self.set_accels_for_action("app.toggle_shuffle", ["<Control>H"])
 
     def on_logout(self, *args):
         win = self.props.active_window
