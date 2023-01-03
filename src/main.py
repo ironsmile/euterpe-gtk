@@ -25,12 +25,14 @@ gi.require_version('Gst', '1.0')
 gi.require_version('Handy', '1')
 gi.require_version('GLib', '2.0')
 
-from gi.repository import Gtk, Gio, Gst
+from gi.repository import Gtk, Gio, Gst, Gdk
 from euterpe_gtk.player import Player
 from euterpe_gtk.service import Euterpe
 from euterpe_gtk.widgets.window import EuterpeGtkWindow
 
 import euterpe_gtk.log as log
+
+HELP_URL = "https://listen-to-euterpe.eu/docs"
 
 class Application(Gtk.Application):
     def __init__(self, version):
@@ -77,6 +79,7 @@ class Application(Gtk.Application):
             "playpause": self.on_playpause,
             "toggle_repeat": self.on_toggle_repeat,
             "toggle_shuffle": self.on_toggle_shuffle,
+            "reference": self.on_show_help,
         }
 
         for action_name, handler in actions.items():
@@ -90,6 +93,7 @@ class Application(Gtk.Application):
         self.set_accels_for_action("app.previous_song", ["<Control>B"])
         self.set_accels_for_action("app.toggle_repeat", ["<Control>R"])
         self.set_accels_for_action("app.toggle_shuffle", ["<Control>H"])
+        self.set_accels_for_action("app.reference", ["F1"])
 
     def on_logout(self, *args):
         win = self.props.active_window
@@ -122,6 +126,10 @@ class Application(Gtk.Application):
 
     def on_toggle_shuffle(self, *args):
         self._player.toggle_shuffle()
+
+    def on_show_help(self, *args):
+        parent_win = self.props.active_window
+        Gtk.show_uri_on_window(parent_win, HELP_URL, Gdk.CURRENT_TIME)
 
     def get_player(self):
         return self._player
