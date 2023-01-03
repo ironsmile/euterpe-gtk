@@ -22,5 +22,13 @@
     <file>ui/regenerate-token.ui</file>
     <file>assets/icon-128.png</file>
     <file preprocess="xml-stripblanks">assets/d-bus.xml</file>
+
+    <!--
+      The alias is here so that the shortcuts overlay could benefit from
+      the automatic discovery and loading provided by the Gtk.Application.
+      See commit f6d9f9f9 for more information about this feature:
+        https://gitlab.gnome.org/GNOME/gtk/-/commit/f6d9f9f93de1c3c5a7ab
+    -->
+    <file alias="gtk/help-overlay.ui">ui/shortcuts.ui</file>
   </gresource>
 </gresources>
