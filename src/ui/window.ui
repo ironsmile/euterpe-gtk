@@ -720,7 +720,7 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="action_name">win.show-help-overlay</property>
-            <property name="text" translatable="yes">Keyboard Shortcuts</property>
+            <property name="text" translatable="yes">_Keyboard Shortcuts</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -734,7 +734,7 @@
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="action_name">app.reference</property>
-            <property name="text" translatable="yes">Help</property>
+            <property name="text" translatable="yes">_Help</property>
           </object>
           <packing>
             <property name="expand">False</property>
