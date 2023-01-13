@@ -237,10 +237,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         try:
             log.debug("restoring service config...")
             self._restore_service_config()
-            log.debug("restoring search state...")
-            self._search_widget.restore_state(self._cache_store)
             log.debug("restoring token...")
             self._restore_token()
+            log.debug("restoring search state...")
+            self._search_widget.restore_state(self._cache_store)
             log.debug("restoring playing state...")
             self._player.restore_state(self._cache_store)
 
