@@ -355,6 +355,20 @@ class EuterpeSearchScreen(Gtk.Viewport):
         for child in children[1:]:
             self.screen_stack.remove(child)
 
+    def focus_search_input(self):
+        '''
+        Makes sure the search input has been focused. By necessity this
+        removes all screens from the stack in order to reveal the base
+        screen with the button.
+        '''
+        children = self.screen_stack.get_children()
+        self.screen_stack.set_visible_child(self.search_main)
+
+        for child in children[1:]:
+            self.screen_stack.remove(child)
+
+        self.main_search_box.grab_focus()
+
     def restore_state(self, store):
         state = store.get_object("search_state")
         if state is None:
