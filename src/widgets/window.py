@@ -282,12 +282,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._euterpe.set_token(token)
 
-    def show_login_loading(self):
-        self.login_spinner.props.active = True
-
-    def hide_login_loading(self):
-        self.login_spinner.props.active = False
-
     def populate_about(self):
         self.about_python_version.set_label('{}.{}.{}'.format(
             sys.version_info.major,
