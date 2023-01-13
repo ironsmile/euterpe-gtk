@@ -79,6 +79,23 @@
 	</requires>
 
 	<releases>
+		<release version="0.6.2" date="2023-01-13">
+			<description>
+				<p>
+					This release comes with a collection of small changes which aimed
+					to make the day-to-day usage of the program more pleasant.
+				</p>
+				<ul>
+					<li>
+						It is now possible to set the images for albums and artists.
+					</li>
+					<li>
+						Many shortcuts and menu accelerators have been added. Use
+						Ctrl+? to see them all or check out the Main Menu -> Shortcuts.
+					</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.6.1" date="2022-10-08">
 			<description>
 				<p>
