@@ -24,11 +24,13 @@ gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
 gi.require_version('Handy', '1')
 gi.require_version('GLib', '2.0')
+gi.require_version('Soup', '2.4')
 
 from gi.repository import Gtk, Gio, Gst, Gdk
 from euterpe_gtk.player import Player
 from euterpe_gtk.service import Euterpe
 from euterpe_gtk.widgets.window import EuterpeGtkWindow
+import euterpe_gtk.http as http
 
 import euterpe_gtk.log as log
 
@@ -39,6 +41,8 @@ class Application(Gtk.Application):
         super().__init__(application_id='com.doycho.euterpe.gtk',
                          flags=Gio.ApplicationFlags.FLAGS_NONE)
         Gst.init(None)
+        http.Init()
+
         random.seed()
         self._version = version
         self._euterpe = Euterpe(version)

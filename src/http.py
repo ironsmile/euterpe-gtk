@@ -18,7 +18,7 @@
 import gi
 import sys
 import enum
-gi.require_version('Soup', '2.4')
+
 from gi.repository import Soup
 
 class Priority(enum.Enum):
@@ -31,6 +31,18 @@ class Priority(enum.Enum):
     HIGH = 1
 
 _sessions = {}
+
+def Init():
+    '''
+    Init makes sure the HTTP library module is ready for use from anywhere.
+    Currently this means creating Soup sessions for every type of priority.
+
+    Make sure to call this before any other calls to libraries which would
+    want to load LibSoup.
+    '''
+    init_session(Priority.LOW)
+    init_session(Priority.NORMAL)
+    init_session(Priority.HIGH)
 
 def init_session(priority):
     global _sessions
@@ -179,3 +191,4 @@ class AsyncRequest(object):
             self._callback(status, data_stream, self._cancellable, *(self._args))
         except Exception:
             sys.excepthook(*sys.exc_info())
+
