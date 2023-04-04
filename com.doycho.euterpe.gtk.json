@@ -1,7 +1,7 @@
 {
     "app-id" : "com.doycho.euterpe.gtk",
     "runtime" : "org.gnome.Sdk",
-    "runtime-version" : "41",
+    "runtime-version" : "43",
     "sdk" : "org.gnome.Sdk",
     "command" : "euterpe-gtk",
     "finish-args" : [
