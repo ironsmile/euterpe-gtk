@@ -30,8 +30,10 @@ from gi.repository import Gtk, Gio, Gst, Gdk
 from euterpe_gtk.player import Player
 from euterpe_gtk.service import Euterpe
 from euterpe_gtk.widgets.window import EuterpeGtkWindow
-import euterpe_gtk.http as http
+from euterpe_gtk.utils import config_file_name, state_file_name
+from euterpe_gtk.state_storage import StateStorage
 
+import euterpe_gtk.http as http
 import euterpe_gtk.log as log
 
 HELP_URL = "https://listen-to-euterpe.eu/docs"
@@ -48,6 +50,8 @@ class Application(Gtk.Application):
         self._euterpe = Euterpe(version)
         self._player = Player(self._euterpe)
         self._mpris = None
+        self._config_store = None
+        self._cache_store = None
 
         if platform.system() == "Linux":
             self._set_up_mpris()
@@ -141,6 +145,21 @@ class Application(Gtk.Application):
     def get_euterpe(self):
         return self._euterpe
 
+    def get_config_store(self):
+        if self._config_store is None:
+            self._config_store = StateStorage(config_file_name(), "config")
+            log.debug("reading the config store from disk...")
+            self._config_store.load()
+
+        return self._config_store
+
+    def get_cache_store(self):
+        if self._cache_store is None:
+            self._cache_store = StateStorage(state_file_name(), "app_state")
+            log.debug("reading the cache store from disk...")
+            self._cache_store.load()
+
+        return self._cache_store
 
 def main(version):
     app = Application(version)
