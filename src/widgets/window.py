@@ -21,7 +21,7 @@ import json
 import time
 
 from gi.repository import GObject, Gtk, Handy, Gst, Gdk, GLib
-from euterpe_gtk.utils import emit_signal, config_file_name, state_file_name
+from euterpe_gtk.utils import emit_signal
 from euterpe_gtk.widgets.login_form import EuterpeLoginForm, SIGNAL_LOGIN_SUCCESS
 from euterpe_gtk.widgets.regenerate_token import (EuterpeTokenForm,
     SIGNAL_GENERATE_TOKEN_SUCCESS, SIGNAL_LOGOUT_REQUESTED)
@@ -29,7 +29,6 @@ from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen, SEARCH_BUTTON
 from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
 from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
 from euterpe_gtk.widgets.mini_player import EuterpeMiniPlayer
-from euterpe_gtk.state_storage import StateStorage
 from euterpe_gtk.service import SIGNAL_TOKEN_EXPIRED
 from euterpe_gtk.widgets.player_ui import EuterpePlayerUI
 import euterpe_gtk.log as log
@@ -105,11 +104,8 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self.squeezer.set_visible(False)
 
-        self._config_store = StateStorage(config_file_name(), "config")
-        self._cache_store = StateStorage(state_file_name(), "app_state")
-        log.debug("reading key-value files from disk...")
-        self._config_store.load()
-        self._cache_store.load()
+        self._config_store = app.get_config_store()
+        self._cache_store = app.get_cache_store()
 
         log.debug("restoring window state...")
         self._restore_window_state()
