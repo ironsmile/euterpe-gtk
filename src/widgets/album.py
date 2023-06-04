@@ -184,6 +184,7 @@ class EuterpeAlbum(Gtk.Viewport):
             tr_obj = EuterpeTrack(track)
             self.track_list.add(tr_obj)
             tr_obj.connect("play-button-clicked", self.on_track_play_clicked)
+            tr_obj.connect("append-button-clicked", self.on_track_append_clicked)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
@@ -192,6 +193,11 @@ class EuterpeAlbum(Gtk.Viewport):
         player = self._win.get_player()
         player.set_playlist([track])
         player.play()
+
+    def on_track_append_clicked(self, track_widget):
+        track = track_widget.get_track()
+        player = self._win.get_player()
+        player.append_to_playlist([track])
 
     def _on_unrealize(self, *args):
         for child in self.track_list.get_children():
