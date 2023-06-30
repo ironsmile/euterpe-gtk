@@ -270,6 +270,17 @@ class EuterpeSearchScreen(Gtk.Viewport):
         player.set_playlist([track])
         player.play()
 
+    def on_track_append(self, track_widget):
+        player = self._win.get_player()
+
+        if player is None:
+            log.warning("trying to set track when there is no player active")
+            return
+
+        track = track_widget.get_track()
+
+        player.append_to_playlist([track])
+
     def _create_small_artists_widget(self, artist_info):
         artist_obj = EuterpeSmallArtist(artist_info)
         artist_obj.connect("button-next-clicked", self.on_artist_next)
@@ -283,6 +294,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
     def _create_track_widget(self, track_info):
         track_obj = EuterpeTrack(track_info)
         track_obj.connect("play-button-clicked", self.on_track_set)
+        track_obj.connect("append-button-clicked", self.on_track_append)
         return track_obj
 
     def on_see_all_artists(self, btn):
