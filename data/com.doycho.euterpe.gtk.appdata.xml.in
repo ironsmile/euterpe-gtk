@@ -79,6 +79,14 @@
 	</requires>
 
 	<releases>
+		<release version="0.6.3" date="2023-07-01">
+			<description>
+				<p>
+					An option for appending of single tracks to the play queue
+					was added by @dydyamotya.
+				</p>
+			</description>
+		</release>
 		<release version="0.6.2" date="2023-01-13">
 			<description>
 				<p>
