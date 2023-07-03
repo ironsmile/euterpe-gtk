@@ -55,6 +55,7 @@
                     <property name="label" translatable="yes">Album Name</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
+                    <property name="selectable">True</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="scale" value="2"/>
@@ -74,6 +75,7 @@
                     <property name="label" translatable="yes">ALBUM BY ARTIST</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
+                    <property name="selectable">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>

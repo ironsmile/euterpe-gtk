@@ -51,6 +51,7 @@
                     <property name="label" translatable="yes">Artist Name</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
+                    <property name="selectable">True</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="scale" value="2"/>
