@@ -87,7 +87,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     def _on_state_added_artists(self, *args):
         if len(self._recently_added_artists) < 1:
-            self._show_error("No albums found.")
+            self._show_error(self.recently_added_artists, "No artists found.")
             return
 
         self.recently_added_artists.foreach(
@@ -103,7 +103,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     def _on_state_added_albums(self, *args):
         if len(self._recently_added_albums) < 1:
-            self._show_error("No albums found.")
+            self._show_error(self.recently_added_albums, "No albums found.")
             return
 
         self.recently_added_albums.foreach(
@@ -160,11 +160,17 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     def _on_recently_added_albums_callback(self, status, body):
         if status != 200:
-            self._show_error("Error, HTTP response code {}".format(status))
+            self._show_error(
+                self.recently_added_albums,
+                "Error, HTTP response code {}".format(status),
+            )
             return
 
         if body is None or 'data' not in body:
-            self._show_error("Unexpected response from server.")
+            self._show_error(
+                self.recently_added_albums,
+                "Unexpected response from server.",
+            )
             return
 
         self._recently_added_last_updated = time.time()
@@ -172,11 +178,17 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     def _on_recently_added_artists_callback(self, status, body):
         if status != 200:
-            self._show_error("Error, HTTP response code {}".format(status))
+            self._show_error(
+                self.recently_added_artists,
+                "Error, HTTP response code {}".format(status),
+            )
             return
 
         if body is None or 'data' not in body:
-            self._show_error("Unexpected response from server.")
+            self._show_error(
+                self.recently_added_artists,
+                "Unexpected response from server.",
+            )
             return
 
         self._recently_added_last_updated = time.time()
@@ -188,6 +200,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
         err = Gtk.Label.new()
         err.set_label(error_message)
         err.set_line_wrap(True)
+        err.set_justify(Gtk.Justification.CENTER)
         container.add(err)
         err.show()
 
