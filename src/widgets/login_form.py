@@ -111,8 +111,8 @@ class EuterpeLoginForm(Gtk.Viewport):
         if status != 200:
             self.login_failed_indicator.show()
             log.message(
-                "Authentication unsuccessful. "
-                "HTTP status code: {}. Body: {}",
+                ("Authentication unsuccessful. "
+                                "HTTP status code: {}. Body: {}"),
                 status, data
             )
             return
