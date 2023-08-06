@@ -38,6 +38,7 @@ euterpe_gtk_sources = [
   'state_storage.py',
   'mpris.py',
   'async_artwork.py',
+  'ring_list.py',
 ]
 
 install_data(euterpe_gtk_sources, install_dir: moduledir)
