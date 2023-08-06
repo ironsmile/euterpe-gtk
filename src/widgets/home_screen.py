@@ -26,6 +26,8 @@ from euterpe_gtk.widgets.artist import EuterpeArtist
 from euterpe_gtk.navigator import Navigator
 from euterpe_gtk.player import SIGNAL_TRACK_CHANGED
 
+import euterpe_gtk.log as log
+
 # Duration of seconds for which a recently added albums/artists will be
 # valid.
 REFRESH_INTERVAL = 60 * 60 * 24
@@ -169,25 +171,39 @@ class EuterpeHomeScreen(Gtk.Viewport):
                 emit_signal(self, SIGNAL_LISTENED_TO_ALBUMS_CHANGED)
 
     def _on_recently_listened_to_albums_changed(self, *args):
-        self.recently_listened_to_albums.foreach(
-            self.recently_listened_to_albums.remove
-        )
+        album_boxes = {}
+        rc = RemovedAlbumCache(self.recently_listened_to_albums, album_boxes)
+        self.recently_listened_to_albums.foreach(rc.remove_and_store)
 
         for album in self._recently_listened_albums.list():
-            album_widget = EuterpeBoxAlbum(album)
-            album_widget.connect("clicked", self._on_album_click)
+            album_id = album.get("album_id", None)
+            album_widget = None
+
+            if album_id is not None and album_id in album_boxes:
+                album_widget = album_boxes[album_id]
+            else:
+                album_widget = EuterpeBoxAlbum(album)
+                album_widget.connect("clicked", self._on_album_click)
+
             self.recently_listened_to_albums.add(album_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
     def _on_recently_listened_to_artists_changed(self, *args):
-        self.recently_listened_to_artists.foreach(
-            self.recently_listened_to_artists.remove
-        )
+        artist_boxes = {}
+        rc = RemovedArtistCache(self.recently_listened_to_artists, artist_boxes)
+        self.recently_listened_to_artists.foreach(rc.remove_and_store)
 
         for artist in self._recently_listened_artists.list():
-            artist_widget = EuterpeBoxArtist(artist)
-            artist_widget.connect("clicked", self._on_artist_click)
+            artist_id = artist.get("artist_id", None)
+            artist_widget = None
+
+            if artist_id is not None and artist_id in artist_boxes:
+                artist_widget = artist_boxes[artist_id]
+            else:
+                artist_widget = EuterpeBoxArtist(artist)
+                artist_widget.connect("clicked", self._on_artist_click)
+
             self.recently_listened_to_artists.add(artist_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
@@ -347,3 +363,47 @@ def _compare_artists(a, b):
 
 def _compare_albums(a, b):
     return a["album_id"] == b["album_id"]
+
+class RemovedAlbumCache(object):
+    '''
+    RemovedAlbumCache removes GTK Widgets from container but stores them in store_dict
+    when they are EuterpeBoxAlbum.
+    '''
+
+    def __init__(self, container, store_dict):
+        self.container = container
+        self.dict = store_dict
+
+    def remove_and_store(self, widget):
+        self.container.remove(widget)
+        if not isinstance(widget, EuterpeBoxAlbum):
+            return
+
+        album_id = widget.get_album().get("album_id", None)
+        if album_id is None:
+            log.warning("album in RemovedAlbumCache does not have album_id field")
+            return
+
+        self.dict[album_id] = widget
+
+class RemovedArtistCache(object):
+    '''
+    RemovedArtistCache removes GTK Widgets from container but stores them in store_dict
+    when they are EuterpeBoxArtist.
+    '''
+
+    def __init__(self, container, store_dict):
+        self.container = container
+        self.dict = store_dict
+
+    def remove_and_store(self, widget):
+        self.container.remove(widget)
+        if not isinstance(widget, EuterpeBoxArtist):
+            return
+
+        artist_id = widget.get_artist().get("artist_id", None)
+        if artist_id is None:
+            log.warning("artist in RemovedArtistCache does not have artist_id field")
+            return
+
+        self.dict[artist_id] = widget
