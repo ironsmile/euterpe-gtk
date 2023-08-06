@@ -59,6 +59,9 @@ class EuterpeHomeScreen(Gtk.Viewport):
     recently_listened_to_artists = Gtk.Template.Child()
     recently_listened_to_albums = Gtk.Template.Child()
 
+    recently_listened_artists_empty = Gtk.Template.Child()
+    recently_listened_albums_empty = Gtk.Template.Child()
+
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
 
@@ -171,11 +174,17 @@ class EuterpeHomeScreen(Gtk.Viewport):
                 emit_signal(self, SIGNAL_LISTENED_TO_ALBUMS_CHANGED)
 
     def _on_recently_listened_to_albums_changed(self, *args):
+        albums_list = self._recently_listened_albums.list()
+        if len(albums_list) < 1:
+            self._show_error(self.recently_listened_to_albums,
+                self.recently_listened_albums_empty)
+            return
+
         album_boxes = {}
         rc = RemovedAlbumCache(self.recently_listened_to_albums, album_boxes)
         self.recently_listened_to_albums.foreach(rc.remove_and_store)
 
-        for album in self._recently_listened_albums.list():
+        for album in albums_list:
             album_id = album.get("album_id", None)
             album_widget = None
 
@@ -190,11 +199,17 @@ class EuterpeHomeScreen(Gtk.Viewport):
                 Gtk.main_iteration()
 
     def _on_recently_listened_to_artists_changed(self, *args):
+        artists_list = self._recently_listened_artists.list()
+        if len(artists_list) < 1:
+            self._show_error(self.recently_listened_to_artists,
+                self.recently_listened_artists_empty)
+            return
+
         artist_boxes = {}
         rc = RemovedArtistCache(self.recently_listened_to_artists, artist_boxes)
         self.recently_listened_to_artists.foreach(rc.remove_and_store)
 
-        for artist in self._recently_listened_artists.list():
+        for artist in artists_list:
             artist_id = artist.get("artist_id", None)
             artist_widget = None
 
@@ -321,11 +336,15 @@ class EuterpeHomeScreen(Gtk.Viewport):
         self._recently_added_last_updated = time.time()
         self.set_added_artists(body['data'])
 
-    def _show_error(self, container, error_message):
+    def _show_error(self, container, error_widget_or_text):
         container.foreach(container.remove)
 
+        if isinstance(error_widget_or_text, Gtk.Widget):
+            container.add(error_widget_or_text)
+            return
+
         err = Gtk.Label.new()
-        err.set_label(error_message)
+        err.set_label(error_widget_or_text)
         err.set_line_wrap(True)
         err.set_justify(Gtk.Justification.CENTER)
         container.add(err)
