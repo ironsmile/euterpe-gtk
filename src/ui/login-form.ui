@@ -26,7 +26,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="halign">start</property>
-                <property name="label" translatable="yes">Address*</property>
+                <property name="label" translatable="yes">Address (required)</property>
                 <property name="xalign">1</property>
               </object>
               <packing>
@@ -91,7 +91,7 @@
                 <property name="label" translatable="yes">Provite the server connection credentials. The address is required, while the username and password are only for servers which require authentication.</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
-                <property name="max_width_chars">20</property>
+                <property name="max_width_chars">5</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
