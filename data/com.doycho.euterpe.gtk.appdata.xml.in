@@ -40,8 +40,7 @@
 		</ul>
 	</description>
 	<developer_name>Doychin Atanasov</developer_name>
-	<developer>
-		<id>@me@doycho.com</id>
+	<developer id="@me@doycho.com">
 		<name>Doychin Atanasov</name>
 	</developer>
 	<update_contact>ironsmile_AT_gmail.com</update_contact>
