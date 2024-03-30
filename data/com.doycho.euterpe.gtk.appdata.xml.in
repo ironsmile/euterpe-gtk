@@ -3,9 +3,10 @@
 <component type="desktop">
 	<id>com.doycho.euterpe.gtk.desktop</id>
 	<name>Euterpe</name>
-	<summary>Media player client for the Euterpe media server.</summary>
+	<summary>Audio player for the Euterpe media server</summary>
 	<metadata_license>CC0-1.0</metadata_license>
 	<project_license>GPL-3.0-or-later</project_license>
+	<launchable type="desktop-id">com.doycho.euterpe.gtk.desktop</launchable>
 	<description>
 		<p>
 			Mobile and desktop player for the self-hosted Euterpe streaming
@@ -39,6 +40,10 @@
 		</ul>
 	</description>
 	<developer_name>Doychin Atanasov</developer_name>
+	<developer>
+		<id>@me@doycho.com</id>
+		<name>Doychin Atanasov</name>
+	</developer>
 	<update_contact>ironsmile_AT_gmail.com</update_contact>
 	<categories>
 	    <category>AudioVideo</category>
@@ -48,18 +53,47 @@
 	    <category>GNOME</category>
 	</categories>
 	<screenshots>
-		<screenshot type="default">
+		<screenshot environment="gnome:dark" type="default">
+			<caption>Different screens of the mobile program when viewed on mobile display</caption>
 			<image type="source" width="1690" height="819">https://i.imgur.com/B5MqGpB.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The program on a desktop</caption>
 			<image width="1690" height="819">https://i.imgur.com/uF4hfV8.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The album browser screen shown on the left pane</caption>
 			<image width="1690" height="819">https://i.imgur.com/OgAEGf8.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The artist browser screen show to the left</caption>
 			<image width="1690" height="819">https://i.imgur.com/h3D7hgb.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The home screen</caption>
 			<image width="1690" height="819">https://i.imgur.com/1dcIdP6.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The search screen in its desktop variant</caption>
 			<image width="1690" height="819">https://i.imgur.com/UaisFWY.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The login screen show in its mobile variant</caption>
 			<image width="1690" height="819">https://i.imgur.com/FD6b2Qm.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The search screen in its mobile variant</caption>
 			<image width="1690" height="819">https://i.imgur.com/3WYNXhm.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The browse artist screen in its mobile variant</caption>
 			<image width="1690" height="819">https://i.imgur.com/TBEo3gM.png</image>
+		</screenshot>
+		<screenshot environment="gnome:dark">
+			<caption>The playing queue opened on a mobile phone</caption>
 			<image width="1690" height="819">https://i.imgur.com/OTyvR2c.png</image>
 		</screenshot>
+
 	</screenshots>
 	<content_rating type="oars-1.0" />
 	<url type="homepage">https://listen-to-euterpe.eu</url>
@@ -71,10 +105,11 @@
 		<control>keyboard</control>
 		<control>pointing</control>
 		<control>touch</control>
+		<display_length compare="ge">720</display_length>
 	</recommends>
 
 	<requires>
-		<display_length compare="ge">small</display_length>
+		<display_length compare="ge">360</display_length>
 		<internet>always</internet>
 	</requires>
 
@@ -262,10 +297,5 @@
 			</description>
 		</release>
 	</releases>
-
-	<custom>
-		<value key="Purism::form_factor">workstation</value>
-		<value key="Purism::form_factor">mobile</value>
-	</custom>
 
 </component>
