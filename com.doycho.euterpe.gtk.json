@@ -42,7 +42,7 @@
                 {
                     "type" : "git",
                     "url" : "https://gitlab.gnome.org/GNOME/libhandy",
-                    "tag" : "1.2.1"
+                    "tag" : "1.8.3"
                 }
             ]
         },
