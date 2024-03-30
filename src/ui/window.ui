@@ -26,6 +26,7 @@
           <object class="HdyHeaderBar" id="title_tab_bar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">2</property>
             <property name="show_close_button">True</property>
             <property name="centering_policy">strict</property>
             <child type="title">
@@ -50,6 +51,7 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="label">Euterpe</property>
+                    <property name="ellipsize">end</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                     </attributes>
