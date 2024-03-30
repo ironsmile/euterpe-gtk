@@ -79,6 +79,28 @@
 	</requires>
 
 	<releases>
+		<release version="0.7.1" date="2024-03-30">
+			<description>
+				<p>
+					This version comes with few new features and some bug fixes.
+				</p>
+				<ul>
+					<li>
+						The recently listened to albums and artists are shown
+						on the home screen.
+					</li>
+					<li>
+						The login form should now fit better on even smaller mobile
+						phones. Previously it had a small horizontal scroll on PinePhone
+						for example.
+					</li>
+					<li>
+						Some labels throughout the UI can now be selected and copied.
+						Especially album and artists names.
+					</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.6.3" date="2023-07-01">
 			<description>
 				<p>
