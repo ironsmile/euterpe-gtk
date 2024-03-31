@@ -113,7 +113,7 @@
 	</requires>
 
 	<releases>
-		<release version="0.7.1" date="2024-03-30">
+		<release version="0.7.2" date="2024-03-31">
 			<description>
 				<p>
 					This version comes with few new features and some bug fixes.

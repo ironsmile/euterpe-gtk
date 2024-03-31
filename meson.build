@@ -1,10 +1,10 @@
 project('euterpe-gtk',
-          version: '0.7.1',
+          version: '0.7.2',
     meson_version: '>= 0.50.0',
   default_options: [ 'warning_level=2',
                    ],
 )
-dependency('libhandy-1', version: '>= 1.2.0')
+dependency('libhandy-1', version: '>= 1.8.3')
 
 i18n = import('i18n')
 
