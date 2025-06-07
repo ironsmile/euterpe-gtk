@@ -42,6 +42,9 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     button_next_page = Gtk.Template.Child()
     button_previous_page = Gtk.Template.Child()
 
+    button_first_page = Gtk.Template.Child()
+    button_last_page = Gtk.Template.Child()
+
     def __init__(self, euterpe, list_type, create_item_func, **kwargs):
         super().__init__(**kwargs)
 
@@ -53,7 +56,8 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self._next_page = None
         self._previous_page = None
-        self._current_page = '1'
+        self._current_page = 1
+        self._pages_count = None
 
         self.connect("realize", self._create_widgets)
         self.connect("destroy", self._on_destroy)
@@ -66,6 +70,16 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.button_previous_page.connect(
             "clicked",
             self._on_previous_button
+        )
+
+        self.button_first_page.connect(
+            "clicked",
+            self._on_first_page_button
+        )
+
+        self.button_last_page.connect(
+            "clicked",
+            self._on_last_page_button
         )
 
         self.loading_indicator.bind_property(
@@ -123,7 +137,11 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         all_pages = '<unknown>'
 
         if 'pages_count' in body:
-            all_pages = body['pages_count']
+            all_pages = int(body['pages_count'])
+            self._pages_count = all_pages
+
+        self.button_first_page.set_sensitive(self._current_page != 1)
+        self.button_last_page.set_sensitive(self._current_page != self._pages_count)
 
         page_text = 'Page {} of {}'.format(
             self._current_page,
@@ -170,6 +188,34 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self._set_page_by_url(self._previous_page)
         self._euterpe.make_request(self._previous_page, self._on_browse_result_callback)
 
+    def _on_first_page_button(self, btn):
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
+        self._remove_items()
+
+        uri = self._euterpe.get_browse_uri(self._list_type, page=1)
+        if uri is None:
+            log.debug("the returned URI address was None, stopped loading first page")
+            return
+
+        self._current_page = 1
+        self._euterpe.make_request(uri, self._on_browse_result_callback)
+
+    def _on_last_page_button(self, btn):
+        if self._pages_count is None:
+            return
+
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
+        self._remove_items()
+
+        uri = self._euterpe.get_browse_uri(self._list_type, page=self._pages_count)
+        if uri is None:
+            log.debug("the returned URI address was None, stopped loading last page")
+            return
+        self._current_page = self._pages_count
+        self._euterpe.make_request(uri, self._on_browse_result_callback)
+
     def _set_page_by_url(self, url):
         parsed = urllib.parse.urlparse(url)
         qparams =  urllib.parse.parse_qs(parsed.query)
@@ -177,7 +223,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             self._current_page = '<unknown>'
             return
 
-        self._current_page = qparams['page'].pop()
+        self._current_page = int(qparams['page'].pop())
 
     def _on_destroy(self, *args):
         self._removed = True

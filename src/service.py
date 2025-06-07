@@ -189,14 +189,26 @@ class Euterpe(GObject.Object):
         req = self._create_async_request(address, cancellable, cb, Priority.LOW)
         req.get(*args)
 
-    def get_browse_uri(self, what):
+    def get_browse_uri(self, what, page=1, per_page=30, order_by="name", order="asc"):
         if what not in ['album', 'artist', 'song']:
             log.warning("unknown browse type: {}", what)
             return None
 
-        address = "{}?by={}&per-page=30&order-by=name&order=asc".format(
-            ENDPOINT_BROWSE,
-            urllib.parse.quote(what, safe='')
+        if order not in ["asc", "desc"]:
+            log.warning("unknown order: {}", order)
+            return None
+
+        if order_by not in ["id", "name", "random", "frequency", "recency", "year"]:
+            log.warning("unknown order_by: {}", order_by)
+            return
+
+        address = "{endpoint}?by={by}&page={page}&per-page={per_page}&order-by={order_by}&order={order}".format(
+            endpoint=ENDPOINT_BROWSE,
+            by=urllib.parse.quote(what, safe=''),
+            per_page=per_page,
+            page=page,
+            order_by=order_by,
+            order=order,
         )
 
         return address
