@@ -22,6 +22,7 @@ from euterpe_gtk.widgets.box_artist import EuterpeBoxArtist
 from euterpe_gtk.widgets.box_album import EuterpeBoxAlbum
 from euterpe_gtk.widgets.artist import EuterpeArtist
 from euterpe_gtk.widgets.album import EuterpeAlbum
+from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.navigator import Navigator
 
 
@@ -54,13 +55,15 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self._win = win
         self.search_button.connect("clicked", self._on_search_button)
 
-        btns = [
-            self.show_songs_button,
-            self.show_offline_library_button,
-        ]
+        self.show_offline_library_button.connect(
+            "clicked",
+            self._show_not_implemented_screen,
+        )
 
-        for btn in btns:
-            btn.connect("clicked", self._show_not_implemented_screen)
+        self.show_songs_button.connect(
+            "clicked",
+            self._on_browse_songs_button,
+        )
 
         self.show_artists_button.connect(
             "clicked",
@@ -85,6 +88,30 @@ class EuterpeBrowseScreen(Gtk.Viewport):
 
     def get_back_button(self):
         return self.back_button
+
+    def _on_browse_songs_button(self, btn):
+        euterpe = self._win.get_euterpe()
+        bl = PaginatedBoxList(euterpe, 'song', self._create_song_widget)
+        bl.set_title("Songs Browser")
+        self.browse_stack.add(bl)
+        self.browse_stack.set_visible_child(bl)
+
+    def _create_song_widget(self, track_info):
+        song_widget = EuterpeTrack(track_info)
+        song_widget.connect(PLAY_BUTTON_CLICKED, self._on_song_play_request)
+        song_widget.connect(APPEND_BUTTON_CLICKED, self._on_song_append_request)
+        return song_widget
+
+    def _on_song_play_request(self, song_widget):
+        track = song_widget.get_track()
+        player = self._win.get_player()
+        player.set_playlist([track])
+        player.play()
+
+    def _on_song_append_request(self, song_widget):
+        track = song_widget.get_track()
+        player = self._win.get_player()
+        player.append_to_playlist([track])
 
     def _on_browse_artists_button(self, btn):
         euterpe = self._win.get_euterpe()

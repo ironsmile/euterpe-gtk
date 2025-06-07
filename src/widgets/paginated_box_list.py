@@ -174,7 +174,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         parsed = urllib.parse.urlparse(url)
         qparams =  urllib.parse.parse_qs(parsed.query)
         if 'page' not in qparams or len(qparams['page']) < 1:
-            slef._current_page = '<unknown>'
+            self._current_page = '<unknown>'
             return
 
         self._current_page = qparams['page'].pop()

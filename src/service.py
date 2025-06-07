@@ -18,8 +18,8 @@
 from gi.repository import GObject, Gio, GLib
 import sys
 import json
-import urllib
 import mimetypes
+import urllib.parse
 from euterpe_gtk.http import Request, AsyncRequest, Priority
 from euterpe_gtk.utils import emit_signal
 import euterpe_gtk.log as log
@@ -190,7 +190,7 @@ class Euterpe(GObject.Object):
         req.get(*args)
 
     def get_browse_uri(self, what):
-        if what not in ['album', 'artist']:
+        if what not in ['album', 'artist', 'song']:
             log.warning("unknown browse type: {}", what)
             return None
 
