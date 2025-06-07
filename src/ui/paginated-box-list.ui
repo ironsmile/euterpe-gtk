@@ -127,12 +127,12 @@
                     <property name="valign">end</property>
                     <child>
                       <object class="GtkButton" id="button_first_page">
-                        <property name="label" translatable="yes">First</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="focus-on-click">False</property>
                         <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Go to the first page</property>
                         <property name="image">first_page_button_image</property>
                         <property name="always-show-image">True</property>
                       </object>
@@ -179,12 +179,12 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="button_last_page">
-                        <property name="label" translatable="yes">Last</property>
                         <property name="visible">True</property>
                         <property name="sensitive">False</property>
                         <property name="can-focus">True</property>
                         <property name="focus-on-click">False</property>
                         <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">Go to the last page</property>
                         <property name="image">last_page_button_icon</property>
                         <property name="image-position">right</property>
                         <property name="always-show-image">True</property>
