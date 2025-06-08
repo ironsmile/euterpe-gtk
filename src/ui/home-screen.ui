@@ -1,41 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="libhandy" version="1.8"/>
   <template class="EuterpeHomeScreen" parent="GtkViewport">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="shadow_type">none</property>
+    <property name="can-focus">False</property>
+    <property name="shadow-type">none</property>
     <child>
       <object class="GtkStack" id="screen_stack">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="transition_type">slide-left-right</property>
+        <property name="can-focus">False</property>
+        <property name="transition-type">slide-left-right</property>
         <child>
           <object class="GtkScrolledWindow" id="main_screen">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <child>
               <object class="GtkViewport">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="shadow_type">none</property>
+                <property name="can-focus">False</property>
+                <property name="shadow-type">none</property>
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="valign">center</property>
-                    <property name="margin_bottom">10</property>
+                    <property name="margin-bottom">10</property>
                     <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="halign">center</property>
-                        <property name="margin_top">10</property>
-                        <property name="margin_bottom">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
                         <property name="label" translatable="yes">Recently Added Artists</property>
                         <property name="justify">center</property>
                         <property name="wrap">True</property>
@@ -52,14 +52,14 @@
                     <child>
                       <object class="HdyCarousel" id="recently_added_artists">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="spacing">10</property>
-                        <property name="allow_scroll_wheel">False</property>
-                        <property name="allow_long_swipes">True</property>
+                        <property name="allow-scroll-wheel">False</property>
+                        <property name="allow-long-swipes">True</property>
                         <child>
                           <object class="GtkSpinner">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="active">True</property>
                           </object>
                         </child>
@@ -73,7 +73,7 @@
                     <child>
                       <object class="HdyCarouselIndicatorDots">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="carousel">recently_added_artists</property>
                       </object>
                       <packing>
@@ -85,10 +85,10 @@
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="halign">center</property>
-                        <property name="margin_top">20</property>
-                        <property name="margin_bottom">10</property>
+                        <property name="margin-top">20</property>
+                        <property name="margin-bottom">10</property>
                         <property name="label" translatable="yes">Recently Added Albums</property>
                         <property name="justify">center</property>
                         <property name="wrap">True</property>
@@ -105,14 +105,14 @@
                     <child>
                       <object class="HdyCarousel" id="recently_added_albums">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="spacing">10</property>
-                        <property name="allow_scroll_wheel">False</property>
-                        <property name="allow_long_swipes">True</property>
+                        <property name="allow-scroll-wheel">False</property>
+                        <property name="allow-long-swipes">True</property>
                         <child>
                           <object class="GtkSpinner">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="active">True</property>
                           </object>
                         </child>
@@ -126,7 +126,7 @@
                     <child>
                       <object class="HdyCarouselIndicatorDots">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="carousel">recently_added_albums</property>
                       </object>
                       <packing>
@@ -138,10 +138,10 @@
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="halign">center</property>
-                        <property name="margin_top">10</property>
-                        <property name="margin_bottom">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
                         <property name="label" translatable="yes">Recently Listened To Artists</property>
                         <property name="justify">center</property>
                         <property name="wrap">True</property>
@@ -158,14 +158,14 @@
                     <child>
                       <object class="HdyCarousel" id="recently_listened_to_artists">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="spacing">10</property>
-                        <property name="allow_scroll_wheel">False</property>
-                        <property name="allow_long_swipes">True</property>
+                        <property name="allow-scroll-wheel">False</property>
+                        <property name="allow-long-swipes">True</property>
                         <child>
                           <object class="GtkLabel" id="recently_listened_artists_empty">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">You havent listened to anything yet.
 Artist history will be listed here once you play some tracks.</property>
                             <property name="justify">center</property>
@@ -186,7 +186,7 @@ Artist history will be listed here once you play some tracks.</property>
                     <child>
                       <object class="HdyCarouselIndicatorDots">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="carousel">recently_listened_to_artists</property>
                       </object>
                       <packing>
@@ -198,10 +198,10 @@ Artist history will be listed here once you play some tracks.</property>
                     <child>
                       <object class="GtkLabel">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="halign">center</property>
-                        <property name="margin_top">20</property>
-                        <property name="margin_bottom">10</property>
+                        <property name="margin-top">20</property>
+                        <property name="margin-bottom">10</property>
                         <property name="label" translatable="yes">Recently Listened To Albums</property>
                         <property name="justify">center</property>
                         <property name="wrap">True</property>
@@ -218,14 +218,14 @@ Artist history will be listed here once you play some tracks.</property>
                     <child>
                       <object class="HdyCarousel" id="recently_listened_to_albums">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="spacing">10</property>
-                        <property name="allow_scroll_wheel">False</property>
-                        <property name="allow_long_swipes">True</property>
+                        <property name="allow-scroll-wheel">False</property>
+                        <property name="allow-long-swipes">True</property>
                         <child>
                           <object class="GtkLabel" id="recently_listened_albums_empty">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="label" translatable="yes">You havent listened to anything yet.
 Artist history will be listed here once you play some tracks. We need better wrapping around here.</property>
                             <property name="justify">center</property>
@@ -246,7 +246,7 @@ Artist history will be listed here once you play some tracks. We need better wra
                     <child>
                       <object class="HdyCarouselIndicatorDots">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
+                        <property name="can-focus">False</property>
                         <property name="carousel">recently_listened_to_albums</property>
                       </object>
                       <packing>
@@ -270,14 +270,14 @@ Artist history will be listed here once you play some tracks. We need better wra
   </template>
   <object class="GtkImage" id="back_button_image">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">go-previous-symbolic</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-previous-symbolic</property>
   </object>
   <object class="GtkButton" id="back_button">
-    <property name="can_focus">False</property>
-    <property name="focus_on_click">False</property>
-    <property name="receives_default">True</property>
+    <property name="can-focus">False</property>
+    <property name="focus-on-click">False</property>
+    <property name="receives-default">True</property>
     <property name="image">back_button_image</property>
-    <property name="always_show_image">True</property>
+    <property name="always-show-image">True</property>
   </object>
 </interface>
