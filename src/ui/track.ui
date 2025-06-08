@@ -184,7 +184,7 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="text" translatable="yes">_Play</property>
+            <property name="text" translatable="yes">▶️ _Play</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -197,7 +197,7 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="text" translatable="yes">_Append to Play Queue</property>
+            <property name="text" translatable="yes">➕ _Append to Play Queue</property>
           </object>
           <packing>
             <property name="expand">False</property>

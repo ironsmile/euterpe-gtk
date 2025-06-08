@@ -214,7 +214,7 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="receives-default">True</property>
-            <property name="text" translatable="yes">_Append to Play Queue</property>
+            <property name="text" translatable="yes">➕ _Append to Play Queue</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -239,7 +239,7 @@
             <property name="can-focus">False</property>
             <property name="receives-default">True</property>
             <property name="tooltip-text" translatable="yes">Select an local image file and set it as the album image.</property>
-            <property name="text" translatable="yes">_Set Album Image</property>
+            <property name="text" translatable="yes">🖼️ _Set Album Image</property>
           </object>
           <packing>
             <property name="expand">False</property>
