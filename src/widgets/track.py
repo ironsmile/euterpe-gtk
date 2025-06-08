@@ -37,18 +37,18 @@ class EuterpeTrack(Gtk.Viewport):
     track_play_button = Gtk.Template.Child()
     track_append_button = Gtk.Template.Child()
     track_duration = Gtk.Template.Child()
+    secondary_info = Gtk.Template.Child()
 
     def __init__(self, track, **kwargs):
         super().__init__(**kwargs)
 
         self._track = track
         self.track_name.set_label(track.get("title", "<N/A>"))
-        self.track_info.set_label(
-            "{}, {}".format(
-                track.get("artist", "<N/A>"),
-                track.get("album", "<N/A>"),
-            )
-        )
+        self.track_info.set_label("{}, {}".format(
+            self._track.get("artist", "<N/A>"),
+            self._track.get("album", "<N/A>"),
+        ))
+        self._set_seconday_info()
         ms = track.get("duration", None)
         self._set_duration(ms)
 
@@ -60,6 +60,19 @@ class EuterpeTrack(Gtk.Viewport):
         if ms is not None:
             duration = format_duration(ms)
         self.track_duration.set_label(duration)
+
+    def _set_seconday_info(self):
+        if "bitrate" in self._track:
+            self.secondary_info.set_label(" {:d} kbps".format(
+                int(self._track["bitrate"] / 1024)
+            ))
+            self.secondary_info.set_tooltip_text(
+                self._track.get("format", "format unknown")
+            )
+        elif "format" in self._track:
+            self.secondary_info.set_label(self._track["format"])
+        else:
+            self.secondary_info.set_label("")
 
     def _on_play_button(self, pb):
         emit_signal(self, PLAY_BUTTON_CLICKED)
