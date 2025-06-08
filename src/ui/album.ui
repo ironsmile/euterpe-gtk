@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
   <requires lib="libhandy" version="1.8"/>
   <object class="GtkMenu" id="album_more_menu">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
+    <property name="can-focus">False</property>
   </object>
   <object class="GtkImage" id="play_button_image">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="icon_name">media-playback-start-symbolic</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">media-playback-start-symbolic</property>
   </object>
   <template class="EuterpeAlbum" parent="GtkViewport">
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="shadow_type">none</property>
+    <property name="can-focus">False</property>
+    <property name="shadow-type">none</property>
     <child>
       <object class="GtkScrolledWindow">
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
+        <property name="can-focus">True</property>
         <child>
           <object class="GtkViewport">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_left">10</property>
-            <property name="margin_right">10</property>
-            <property name="shadow_type">none</property>
+            <property name="can-focus">False</property>
+            <property name="margin-left">10</property>
+            <property name="margin-right">10</property>
+            <property name="shadow-type">none</property>
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">20</property>
                 <child>
                   <object class="GtkImage" id="image">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="margin_top">10</property>
-                    <property name="pixel_size">330</property>
-                    <property name="icon_name">media-optical-cd-audio-symbolic</property>
+                    <property name="can-focus">False</property>
+                    <property name="margin-top">10</property>
+                    <property name="pixel-size">330</property>
+                    <property name="icon-name">media-optical-cd-audio-symbolic</property>
                     <property name="icon_size">6</property>
                   </object>
                   <packing>
@@ -51,7 +51,7 @@
                 <child>
                   <object class="GtkLabel" id="album_name">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Album Name</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
@@ -71,7 +71,7 @@
                   <object class="GtkLabel" id="artist_info">
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">ALBUM BY ARTIST</property>
                     <property name="justify">center</property>
                     <property name="wrap">True</property>
@@ -86,18 +86,18 @@
                 <child>
                   <object class="GtkBox">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="halign">center</property>
                     <child>
                       <object class="GtkButton" id="play_button">
                         <property name="label" translatable="yes">PLAY</property>
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="focus_on_click">False</property>
-                        <property name="receives_default">True</property>
+                        <property name="can-focus">True</property>
+                        <property name="focus-on-click">False</property>
+                        <property name="receives-default">True</property>
                         <property name="halign">center</property>
                         <property name="image">play_button_image</property>
-                        <property name="always_show_image">True</property>
+                        <property name="always-show-image">True</property>
                         <style>
                           <class name="suggested-action"/>
                         </style>
@@ -111,17 +111,17 @@
                     <child>
                       <object class="GtkMenuButton" id="more_button">
                         <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="focus_on_click">False</property>
-                        <property name="receives_default">True</property>
-                        <property name="tooltip_text" translatable="yes">View more actions</property>
+                        <property name="can-focus">True</property>
+                        <property name="focus-on-click">False</property>
+                        <property name="receives-default">True</property>
+                        <property name="tooltip-text" translatable="yes">View more actions</property>
                         <property name="popup">album_more_menu</property>
                         <property name="popover">more_menu_popover</property>
                         <child>
                           <object class="GtkImage" id="more-button-dots">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
-                            <property name="icon_name">view-more-symbolic</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">view-more-symbolic</property>
                           </object>
                         </child>
                       </object>
@@ -144,7 +144,7 @@
                 <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Includes</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
@@ -159,20 +159,20 @@
                 <child>
                   <object class="HdyClamp">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="maximum_size">550</property>
-                    <property name="tightening_threshold">550</property>
+                    <property name="can-focus">False</property>
+                    <property name="maximum-size">550</property>
+                    <property name="tightening-threshold">550</property>
                     <child>
                       <object class="GtkBox" id="track_list">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="margin_bottom">10</property>
+                        <property name="can-focus">False</property>
+                        <property name="margin-bottom">10</property>
                         <property name="orientation">vertical</property>
                         <property name="spacing">10</property>
                         <child>
                           <object class="GtkSpinner" id="loading_spinner">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
+                            <property name="can-focus">False</property>
                             <property name="active">True</property>
                           </object>
                           <packing>
@@ -198,23 +198,23 @@
     </child>
   </template>
   <object class="GtkPopoverMenu" id="more_menu_popover">
-    <property name="can_focus">False</property>
-    <property name="relative_to">more_button</property>
+    <property name="can-focus">False</property>
+    <property name="relative-to">more_button</property>
     <child>
       <object class="GtkBox">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="margin_left">10</property>
-        <property name="margin_right">10</property>
-        <property name="margin_top">10</property>
-        <property name="margin_bottom">10</property>
+        <property name="can-focus">False</property>
+        <property name="margin-left">10</property>
+        <property name="margin-right">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
         <property name="orientation">vertical</property>
         <child>
           <object class="GtkModelButton" id="append_to_queue">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="receives_default">True</property>
-            <property name="text" translatable="yes">_Append to play queue</property>
+            <property name="can-focus">False</property>
+            <property name="receives-default">True</property>
+            <property name="text" translatable="yes">_Append to Play Queue</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -225,7 +225,7 @@
         <child>
           <object class="GtkSeparator">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can-focus">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -236,9 +236,9 @@
         <child>
           <object class="GtkModelButton" id="set_album_image">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="receives_default">True</property>
-            <property name="tooltip_text" translatable="yes">Allows you to select an local image file and set it as the album image.</property>
+            <property name="can-focus">False</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Select an local image file and set it as the album image.</property>
             <property name="text" translatable="yes">_Set Album Image</property>
           </object>
           <packing>
