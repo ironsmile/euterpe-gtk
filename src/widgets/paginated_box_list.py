@@ -45,6 +45,11 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     button_first_page = Gtk.Template.Child()
     button_last_page = Gtk.Template.Child()
 
+    sorting_type_select = Gtk.Template.Child()
+    sorting_direction_select = Gtk.Template.Child()
+    sort_type_row = Gtk.Template.Child()
+    sort_direction_row = Gtk.Template.Child()
+
     def __init__(self, euterpe, list_type, create_item_func, **kwargs):
         super().__init__(**kwargs)
 
@@ -58,6 +63,8 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self._previous_page = None
         self._current_page = 1
         self._pages_count = None
+        self._order_by = "name"
+        self._order = "asc"
 
         self.connect("realize", self._create_widgets)
         self.connect("destroy", self._on_destroy)
@@ -94,6 +101,33 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             GObject.BindingFlags.INVERT_BOOLEAN
         )
 
+        for sort_type in order_by_list_type.get(list_type, []):
+            self.sorting_type_select.append(sort_type, order_human_name.get(
+                sort_type, sort_type.title()
+            ))
+            if sort_type == self._order_by:
+                self.sorting_type_select.set_active_id(sort_type)
+
+        self.sort_type_row.set_activatable_widget(self.sorting_type_select)
+        self.sort_type_row.add(self.sorting_type_select)
+        self.sorting_type_select.show()
+
+        self.sorting_direction_select.set_active_id(self._order)
+
+        self.sort_direction_row.set_activatable_widget(self.sorting_direction_select)
+        self.sort_direction_row.add(self.sorting_direction_select)
+        self.sorting_direction_select.show()
+
+        self.sorting_direction_select.connect(
+            "changed",
+            self._on_sorting_changed
+        )
+
+        self.sorting_type_select.connect(
+            "changed",
+            self._on_sorting_changed
+        )
+
     def _create_widgets(self, *args):
         if self._widgets_created:
             return
@@ -104,7 +138,9 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.set_visible(True)
         self._remove_items()
 
-        uri = self._euterpe.get_browse_uri(self._list_type)
+        uri = self._euterpe.get_browse_uri(self._list_type,
+            order_by=self._order_by,
+            order=self._order)
         if uri is None:
             log.debug("the returned browse_url address was None, skipping creating widgets")
             return
@@ -140,12 +176,21 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             all_pages = int(body['pages_count'])
             self._pages_count = all_pages
 
+        if self._order_by == "random":
+            # There is no point of having pages for a random sorting.
+            self._current_page = 1
+            self._pages_count = 1
+            self._previous_page = None
+            self._next_page = None
+            self.button_next_page.set_sensitive(False)
+            self.button_previous_page.set_sensitive(False)
+
         self.button_first_page.set_sensitive(self._current_page != 1)
         self.button_last_page.set_sensitive(self._current_page != self._pages_count)
 
         page_text = 'Page {} of {}'.format(
             self._current_page,
-            all_pages
+            self._pages_count
         )
 
         self.page_label.set_text(page_text)
@@ -165,6 +210,25 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
                 break
 
         return False
+
+    def _on_sorting_changed(self, comboBox):
+        self._order_by = self.sorting_type_select.get_active_id()
+        self._order = self.sorting_direction_select.get_active_id()
+
+        uri = self._euterpe.get_browse_uri(self._list_type,
+            order_by=self._order_by,
+            order=self._order,
+            page=1)
+        if uri is None:
+            log.debug("the returned browse_url address was None, skipping creating widgets")
+            return
+
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
+        self._remove_items()
+
+        self._current_page = 1
+        self._euterpe.make_request(uri, self._on_browse_result_callback)
 
     def _on_next_button(self, btn):
         if self._next_page is None:
@@ -193,7 +257,10 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.set_visible(True)
         self._remove_items()
 
-        uri = self._euterpe.get_browse_uri(self._list_type, page=1)
+        uri = self._euterpe.get_browse_uri(self._list_type,
+            order_by=self._order_by,
+            order=self._order,
+            page=1)
         if uri is None:
             log.debug("the returned URI address was None, stopped loading first page")
             return
@@ -209,7 +276,10 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.set_visible(True)
         self._remove_items()
 
-        uri = self._euterpe.get_browse_uri(self._list_type, page=self._pages_count)
+        uri = self._euterpe.get_browse_uri(self._list_type,
+            order_by=self._order_by,
+            order=self._order,
+            page=self._pages_count)
         if uri is None:
             log.debug("the returned URI address was None, stopped loading last page")
             return
@@ -252,3 +322,18 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
     def set_title(self, text):
         self.title.set_label(text)
+
+order_by_list_type = {
+    "song": ["name", "id", "year", "random", "frequency", "recency"],
+    "album": ["name", "id", "year", "random", "frequency", "recency"],
+    "artist": ["name", "id", "random"],
+}
+
+order_human_name = {
+    "id": "Time Added",
+    "name": "Name",
+    "year": "Year",
+    "random": "Random",
+    "frequency": "Frequently Played",
+    "recency": "Recently Played",
+}

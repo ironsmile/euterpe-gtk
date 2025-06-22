@@ -12,6 +12,53 @@
       <placeholder/>
     </child>
   </object>
+  <object class="GtkPopover" id="browse_settings_popup">
+    <property name="can-focus">False</property>
+    <child>
+      <object class="GtkBox">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="orientation">vertical</property>
+        <property name="spacing">10</property>
+        <child>
+          <object class="HdyActionRow" id="sort_type_row">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="activatable">False</property>
+            <property name="title" translatable="yes">Sorting</property>
+            <property name="icon-name">applications-engineering-symbolic</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="HdyActionRow" id="sort_direction_row">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="activatable">False</property>
+            <property name="title" translatable="yes">Order</property>
+            <property name="icon-name">view-sort-descending</property>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </object>
   <object class="GtkImage" id="first_page_button_image">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -50,14 +97,47 @@
             <property name="margin-bottom">10</property>
             <property name="orientation">vertical</property>
             <child>
-              <object class="GtkLabel" id="title">
+              <object class="GtkBox" id="header_box">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">List Title</property>
-                <property name="justify">center</property>
-                <attributes>
-                  <attribute name="weight" value="bold"/>
-                </attributes>
+                <child>
+                  <object class="GtkMenuButton" id="browse_settings_button">
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="focus-on-click">False</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Control browsing settings</property>
+                    <property name="popover">browse_settings_popup</property>
+                    <child>
+                      <object class="GtkImage" id="browser_button_icon">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="icon-name">view-more-symbolic</property>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="title">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">List Title</property>
+                    <property name="justify">center</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -217,4 +297,17 @@
       </object>
     </child>
   </template>
+  <object class="GtkComboBoxText" id="sorting_direction_select">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <items>
+      <item id="asc" translatable="yes">Ascending</item>
+      <item id="desc" translatable="yes">Descending</item>
+    </items>
+  </object>
+  <object class="GtkComboBoxText" id="sorting_type_select">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="active">0</property>
+  </object>
 </interface>
