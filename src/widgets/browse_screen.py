@@ -90,8 +90,8 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         return self.back_button
 
     def _on_browse_songs_button(self, btn):
-        euterpe = self._win.get_euterpe()
-        bl = PaginatedBoxList(euterpe, 'song', self._create_song_widget)
+        app = self._win.get_application()
+        bl = PaginatedBoxList(app, 'song', self._create_song_widget)
         bl.set_title("Songs Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
@@ -114,8 +114,8 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         player.append_to_playlist([track])
 
     def _on_browse_artists_button(self, btn):
-        euterpe = self._win.get_euterpe()
-        bl = PaginatedBoxList(euterpe, 'artist', self._create_artists_widget)
+        app = self._win.get_application()
+        bl = PaginatedBoxList(app, 'artist', self._create_artists_widget)
         bl.set_title("Artists Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
@@ -131,8 +131,8 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self._nav.show_screen(artist_screen)
 
     def _on_browse_albums_button(self, btn):
-        euterpe = self._win.get_euterpe()
-        bl = PaginatedBoxList(euterpe, 'album', self._create_album_widget)
+        app = self._win.get_application()
+        bl = PaginatedBoxList(app, 'album', self._create_album_widget)
         bl.set_title("Albums Browser")
         self.browse_stack.add(bl)
         self.browse_stack.set_visible_child(bl)
