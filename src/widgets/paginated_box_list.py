@@ -112,9 +112,11 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         )
 
         for sort_type in order_by_list_type.get(list_type, []):
-            self.sorting_type_select.append(sort_type, order_human_name.get(
-                sort_type, sort_type.title()
-            ))
+            settings = order_settings.get(sort_type, None)
+            sort_human_name = sort_type.title()
+            if settings is not None:
+                sort_human_name = settings.get("human_name", sort_human_name)
+            self.sorting_type_select.append(sort_type, sort_human_name)
             if sort_type == self.get_order_by():
                 self.sorting_type_select.set_active_id(sort_type)
 
@@ -130,12 +132,12 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.sorting_direction_select.connect(
             "changed",
-            self._on_sorting_changed
+            self._on_sorting_order_changed
         )
 
         self.sorting_type_select.connect(
             "changed",
-            self._on_sorting_changed
+            self._on_sorting_type_changed
         )
 
     def _store_config(self):
@@ -235,11 +237,36 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         return False
 
-    def _on_sorting_changed(self, comboBox):
+    def _on_sorting_type_changed(self, comboBox):
         self._browse_cfg["order_by"] = self.sorting_type_select.get_active_id()
+
+        # Set the default sorting direction if the sorting type was changed.
+        old_order = self._browse_cfg["order"]
+        settings = order_settings.get(self._browse_cfg["order_by"], None)
+        if settings is not None:
+            self._browse_cfg["order"] = settings.get(
+                "default_direction",
+                self._browse_cfg["order"],
+            )
+            if old_order != self._browse_cfg["order"]:
+                self.sorting_direction_select.set_active_id(self._browse_cfg["order"])
+                # Calling set_active_id of the order direction widget will cause its
+                # "changed" signal to fire and the list will be reloaded. No need
+                # to reload it as part of this handler as well.
+                return
+
+        self._store_config()
+        self._load_due_to_change_sorting()
+
+    def _on_sorting_order_changed(self, comboBox):
         self._browse_cfg["order"] = self.sorting_direction_select.get_active_id()
         self._store_config()
+        self._load_due_to_change_sorting()
 
+    def _load_due_to_change_sorting(self):
+        """
+        Gets the first page while using the (presumably) new ordering settings.
+        """
         uri = self._euterpe.get_browse_uri(self._list_type,
             order_by=self.get_order_by(),
             order=self.get_order(),
@@ -354,11 +381,29 @@ order_by_list_type = {
     "artist": ["name", "id", "random"],
 }
 
-order_human_name = {
-    "id": "Time Added",
-    "name": "Name",
-    "year": "Year",
-    "random": "Random",
-    "frequency": "Frequently Played",
-    "recency": "Recently Played",
+order_settings = {
+    "id": {
+        "human_name": "Time Added",
+        "default_direction": "desc",
+    },
+    "name": {
+        "human_name": "Name",
+        "default_direction": "asc",
+    },
+    "year": {
+        "human_name": "Year",
+        "default_direction": "desc",
+    },
+    "random": {
+        "human_name": "Random",
+        "default_direction": "desc",
+    },
+    "frequency": {
+        "human_name": "Frequently Played",
+        "default_direction": "desc",
+    },
+    "recency": {
+        "human_name": "Recently Played",
+        "default_direction": "desc",
+    },
 }
