@@ -65,6 +65,13 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self._current_page = 1
         self._pages_count = None
 
+        if self._list_type == "song":
+            self.flow_container.props.max_children_per_line = 1
+
+        if self._list_type in ["song", "playlist"]:
+            self.flow_container.props.activate_on_single_click = False
+            self.flow_container.props.selection_mode = Gtk.SelectionMode.NONE
+
         self._default_order_by = "name"
         self._default_order = "asc"
 
@@ -156,6 +163,16 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     def get_order(self):
         return self._browse_cfg.get("order", self._default_order)
 
+    def _get_new_page_uri(self, page=1):
+        if self._list_type == "playlist":
+            return self._euterpe.get_playlists_uri(page=page)
+
+        return self._euterpe.get_browse_uri(self._list_type,
+            order_by=self.get_order_by(),
+            order=self.get_order(),
+            page=page,
+        )
+
     def _create_widgets(self, *args):
         if self._widgets_created:
             return
@@ -166,9 +183,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.set_visible(True)
         self._remove_items()
 
-        uri = self._euterpe.get_browse_uri(self._list_type,
-            order_by=self.get_order_by(),
-            order=self.get_order())
+        uri = self._get_new_page_uri(page=1)
         if uri is None:
             log.debug("the returned browse_url address was None, skipping creating widgets")
             return
@@ -180,7 +195,11 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             self._show_error("Error, HTTP response code {}".format(status))
             return
 
-        if body is None or 'data' not in body:
+        listKey = 'data'
+        if self._list_type == "playlist":
+            listKey = "playlists"
+
+        if body is None or listKey not in body:
             self._show_error("Unexpected response from server.")
             return
 
@@ -226,7 +245,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.stop()
         self.loading_indicator.set_visible(False)
 
-        self._populate_items(body['data'])
+        self._populate_items(body[listKey])
 
     def _populate_items(self, items):
         for item in items:
@@ -269,10 +288,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         """
         Gets the first page while using the (presumably) new ordering settings.
         """
-        uri = self._euterpe.get_browse_uri(self._list_type,
-            order_by=self.get_order_by(),
-            order=self.get_order(),
-            page=1)
+        uri = uri = self._get_new_page_uri(page=1)
         if uri is None:
             log.debug("the returned browse_url address was None, skipping creating widgets")
             return
@@ -311,10 +327,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.set_visible(True)
         self._remove_items()
 
-        uri = self._euterpe.get_browse_uri(self._list_type,
-            order_by=self.get_order_by(),
-            order=self.get_order(),
-            page=1)
+        uri = self._get_new_page_uri(page=1)
         if uri is None:
             log.debug("the returned URI address was None, stopped loading first page")
             return
@@ -330,10 +343,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self.loading_indicator.set_visible(True)
         self._remove_items()
 
-        uri = self._euterpe.get_browse_uri(self._list_type,
-            order_by=self.get_order_by(),
-            order=self.get_order(),
-            page=self._pages_count)
+        uri = self._get_new_page_uri(page=self._pages_count)
         if uri is None:
             log.debug("the returned URI address was None, stopped loading last page")
             return

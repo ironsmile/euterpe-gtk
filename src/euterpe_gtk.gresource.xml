@@ -20,6 +20,9 @@
     <file>ui/paginated-box-list.ui</file>
     <file>ui/login-form.ui</file>
     <file>ui/regenerate-token.ui</file>
+    <file>ui/playlists-screen.ui</file>
+    <file>ui/small-playlist.ui</file>
+    <file>ui/playlist.ui</file>
     <file>assets/icon-128.png</file>
     <file preprocess="xml-stripblanks">assets/d-bus.xml</file>
 

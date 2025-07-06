@@ -28,6 +28,7 @@ from euterpe_gtk.widgets.regenerate_token import (EuterpeTokenForm,
 from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen, SEARCH_BUTTON_CLICKED
 from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
 from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
+from euterpe_gtk.widgets.playlists_screen import EuterpePlaylistsScreen
 from euterpe_gtk.widgets.mini_player import EuterpeMiniPlayer
 from euterpe_gtk.service import SIGNAL_TOKEN_EXPIRED
 from euterpe_gtk.widgets.player_ui import EuterpePlayerUI
@@ -59,15 +60,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     search_screen = Gtk.Template.Child()
     browse_screen = Gtk.Template.Child()
     home_screen = Gtk.Template.Child()
+    playlists_screen = Gtk.Template.Child()
 
     restore_failed_dialog = Gtk.Template.Child()
     token_expired_dialog = Gtk.Template.Child()
-
-    about_gtk_version = Gtk.Template.Child()
-    about_gstreamer_version = Gtk.Template.Child()
-    about_python_version = Gtk.Template.Child()
-    about_euterpe_version = Gtk.Template.Child()
-    about_libhandy_version = Gtk.Template.Child()
 
     logged_in_screen = Gtk.Template.Child()
     login_scroll_view = Gtk.Template.Child()
@@ -84,10 +80,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
     notif_callback_id = 0
 
-    def __init__(self, appVersion, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._appVersion = appVersion
         self._state_restored = False
         self._state_restore_failure = None
         self._logged_in = False
@@ -162,8 +157,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._on_notification_close_clicked
         )
 
-        self.populate_about()
-
         browse_screen = EuterpeBrowseScreen(self)
         self.browse_screen.add(browse_screen)
         browse_screen.connect(
@@ -182,6 +175,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._home_widget = EuterpeHomeScreen(self)
         self.home_screen.add(self._home_widget)
+
+        self._playlists_widget = EuterpePlaylistsScreen(self)
+        self.playlists_screen.add(self._playlists_widget)
 
         mini_player = EuterpeMiniPlayer(self._player)
         mini_player.connect(
@@ -286,30 +282,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             return
 
         self._euterpe.set_token(token)
-
-    def populate_about(self):
-        self.about_python_version.set_label('{}.{}.{}'.format(
-            sys.version_info.major,
-            sys.version_info.minor,
-            sys.version_info.micro,
-        ))
-
-        gstVer = Gst.version()
-        self.about_gstreamer_version.set_label('{}.{}.{}'.format(
-            gstVer.major,
-            gstVer.minor,
-            gstVer.micro
-        ))
-
-        self.about_gtk_version.set_label('{}.{}.{}'.format(
-            Gtk.get_major_version(),
-            Gtk.get_minor_version(),
-            Gtk.get_micro_version()
-        ))
-
-        self.about_libhandy_version.set_label("unknown")
-
-        self.about_euterpe_version.set_label(self._appVersion)
 
     def on_state_restored(self, _):
         '''

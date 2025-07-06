@@ -26,7 +26,7 @@ gi.require_version('Handy', '1')
 gi.require_version('GLib', '2.0')
 gi.require_version('Soup', '2.4')
 
-from gi.repository import Gtk, Gio, Gst, Gdk
+from gi.repository import Gtk, Gio, Gst, Gdk, GLib
 from euterpe_gtk.player import Player
 from euterpe_gtk.service import Euterpe
 from euterpe_gtk.widgets.window import EuterpeGtkWindow
@@ -60,6 +60,8 @@ class Application(Gtk.Application):
         self.connect("shutdown", self._on_shutdown)
         self.connect("query-end", self._on_query_end)
 
+        GLib.set_application_name("Euterpe")
+
     def do_activate(self):
         win = self.props.active_window
         if win:
@@ -68,7 +70,7 @@ class Application(Gtk.Application):
 
         self._set_actions()
 
-        win = EuterpeGtkWindow(self._version, application=self)
+        win = EuterpeGtkWindow(application=self)
         win.present()
 
     def _set_up_mpris(self):
@@ -92,6 +94,7 @@ class Application(Gtk.Application):
             "toggle_repeat": self.on_toggle_repeat,
             "toggle_shuffle": self.on_toggle_shuffle,
             "reference": self.on_show_help,
+            "about_dialog": self.on_about_dialog,
         }
 
         for action_name, handler in actions.items():
@@ -138,6 +141,25 @@ class Application(Gtk.Application):
     def on_show_help(self, *args):
         parent_win = self.props.active_window
         Gtk.show_uri_on_window(parent_win, HELP_URL, Gdk.CURRENT_TIME)
+
+    def on_about_dialog(self, *args):
+        dialog = Gtk.AboutDialog(
+            authors=[
+                "Doychin Atanasov <ironsmile@gmail.com>",
+                "dydyamotya <matderevenayv@yandex.ru>",
+            ],
+            artists=[
+                "Iconnice",
+            ],
+            license_type=Gtk.License.GPL_3_0_ONLY,
+            copyright="© 2021-2025 Doychin Atanasov",
+            version=self._version,
+            website="https://listen-to-euterpe.eu/",
+            website_label="Vist the Euterpe website",
+            comments="Desktop client for the\nEuterpe music streaming server.",
+            logo_icon_name="com.doycho.euterpe.gtk",
+        )
+        dialog.show()
 
     def get_player(self):
         return self._player

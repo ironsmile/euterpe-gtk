@@ -213,6 +213,15 @@ class Euterpe(GObject.Object):
 
         return address
 
+    def get_playlists_uri(self, page=1, per_page=40):
+        address = "{endpoint}?page={page}&per-page={per_page}".format(
+            endpoint=ENDPOINT_PLAYLISTS,
+            per_page=per_page,
+            page=page,
+        )
+
+        return address
+
     def set_album_image(self, album_id, file_name, cancellable, callback, *args):
         '''
         Asynchronously reads a file and then sets it as the image for the
@@ -363,3 +372,4 @@ ENDPOINT_FILE = '/v1/file/{}'
 ENDPOINT_ALBUM_ART = '/v1/album/{}/artwork'
 ENDPOINT_ARTIST_ART = '/v1/artist/{}/image'
 ENDPOINT_BROWSE = "/v1/browse/"
+ENDPOINT_PLAYLISTS = "/v1/playlists/"
