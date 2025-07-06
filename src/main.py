@@ -15,10 +15,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
 import gi
 import platform
 import random
+import sys
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Gst', '1.0')
@@ -55,6 +55,8 @@ class Application(Gtk.Application):
 
         if platform.system() == "Linux":
             self._set_up_mpris()
+
+        self.connect("shutdown", self._on_shutdown)
 
     def do_activate(self):
         win = self.props.active_window
@@ -109,12 +111,8 @@ class Application(Gtk.Application):
             win.logout()
 
     def on_quit(self, *args):
-        win = self.props.active_window
-        if win and hasattr(win, "store_state"):
-            try:
-                win.store_state()
-            except Exception as err:
-                log.error("Error storing window state: {}", err)
+        # Nothingi interesting to do. Everything is already hooked up with the
+        # "shutdown" signal.
         self.quit()
 
     def on_next_song(self, *args):
@@ -160,6 +158,22 @@ class Application(Gtk.Application):
             self._cache_store.load()
 
         return self._cache_store
+
+    def _store_app_state(self):
+        win = self.props.active_window
+        if win and hasattr(win, "store_state"):
+            try:
+                win.store_state()
+            except Exception as err:
+                log.error("Error storing window state: {}", err)
+
+        if self._cache_store is not None:
+            self._cache_store.save()
+            log.message("state saved")
+
+    def _on_shutdown(self, *args):
+        print("shutting down")
+        self._store_app_state()
 
 def main(version):
     app = Application(version)

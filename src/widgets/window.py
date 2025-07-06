@@ -523,7 +523,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._home_widget.store_state(self._cache_store)
         self._store_window_state()
         self._store_navigation_state()
-        self._cache_store.save()
 
     def _on_size_allocate(self, __win, allocation):
         if self.is_maximized():
