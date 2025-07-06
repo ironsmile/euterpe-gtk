@@ -56,7 +56,9 @@ class Application(Gtk.Application):
         if platform.system() == "Linux":
             self._set_up_mpris()
 
+        self.props.register_session = True
         self.connect("shutdown", self._on_shutdown)
+        self.connect("query-end", self._on_query_end)
 
     def do_activate(self):
         win = self.props.active_window
@@ -172,8 +174,19 @@ class Application(Gtk.Application):
             log.message("state saved")
 
     def _on_shutdown(self, *args):
-        print("shutting down")
         self._store_app_state()
+
+    def _on_query_end(self, *args):
+        cookie = self.inhibit(
+            self.props.active_window,
+            Gtk.ApplicationInhibitFlags.LOGOUT,
+            "saving app state"
+        )
+        try:
+            self._store_app_state()
+        except Exception as err:
+            log.error("Error saving the state: {}", err)
+        self.uninhibit(cookie)
 
 def main(version):
     app = Application(version)
