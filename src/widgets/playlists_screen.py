@@ -29,6 +29,8 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
 
     screen_stack = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
+    new_playlist_button = Gtk.Template.Child()
+    create_playlist_popover = Gtk.Template.Child()
 
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
@@ -73,6 +75,7 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         bl = PaginatedBoxList(app, 'playlist', self._create_playlist_widget)
         self._main_widget = bl
         bl.set_title("Playlists")
+        bl.add_header_main_action(self.new_playlist_button)
         self.screen_stack.add(bl)
         self.screen_stack.set_visible_child(bl)
 

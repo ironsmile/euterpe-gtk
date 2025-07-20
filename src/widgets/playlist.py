@@ -84,6 +84,9 @@ class EuterpePlaylist(Gtk.Viewport):
         player = self._win.get_player()
         player.append_to_playlist([track])
 
+    def show_notification(self, text):
+        self._win.show_notification(text)
+
     def _on_play_button(self, pb):
         player = self._win.get_player()
         player.set_playlist(self._playlist_tracks)

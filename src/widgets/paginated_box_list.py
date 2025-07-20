@@ -50,6 +50,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     sort_type_row = Gtk.Template.Child()
     sort_direction_row = Gtk.Template.Child()
     browse_settings_button = Gtk.Template.Child()
+    header_box = Gtk.Template.Child()
 
     def __init__(self, app, list_type, create_item_func, **kwargs):
         super().__init__(**kwargs)
@@ -160,6 +161,9 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         """
         self._cfg_store.set_object(self._list_type, self._browse_cfg, self._cfg_namespace)
         self._cfg_store.save()
+
+    def add_header_main_action(self, widget):
+        self.header_box.add(widget)
 
     def get_order_by(self):
         return self._browse_cfg.get("order_by", self._default_order_by)
