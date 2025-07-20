@@ -49,6 +49,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     sorting_direction_select = Gtk.Template.Child()
     sort_type_row = Gtk.Template.Child()
     sort_direction_row = Gtk.Template.Child()
+    browse_settings_button = Gtk.Template.Child()
 
     def __init__(self, app, list_type, create_item_func, **kwargs):
         super().__init__(**kwargs)
@@ -71,6 +72,9 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         if self._list_type in ["song", "playlist"]:
             self.flow_container.props.activate_on_single_click = False
             self.flow_container.props.selection_mode = Gtk.SelectionMode.NONE
+
+        if self._list_type == "playlist":
+            self.browse_settings_button.hide()
 
         self._default_order_by = "name"
         self._default_order = "asc"

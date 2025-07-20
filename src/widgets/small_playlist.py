@@ -39,21 +39,9 @@ class EuterpeSmallPlaylist(Gtk.Viewport):
         super().__init__(**kwargs)
 
         self._playlist = playlist
-
-        tracks_count = playlist.get("tracks_count", 0)
-        tracks_info = "no tracks"
-        if tracks_count == 1:
-            tracks_info = "single track"
-        elif tracks_count > 1:
-            tracks_info = "{} tracks".format(tracks_count)
-
-        tracks_info = "{}, {}".format(
-            tracks_info,
-            self._format_duration(playlist.get("duration", None)),
-        )
         self.playlist_name.set_label(playlist.get("name", "<Unnamed>"))
         self.playlist_desc.set_label(playlist.get("description", ""))
-        self.secondary_info.set_label(tracks_info)
+        self.secondary_info.set_label(self._get_tracks_info())
 
         self.playlist_open_button.connect("clicked", self._on_next_button)
 
@@ -67,3 +55,18 @@ class EuterpeSmallPlaylist(Gtk.Viewport):
         if ms is not None:
             return format_duration(ms)
         return "unknown duration"
+
+    def _get_tracks_info(self):
+        tracks_count = self._playlist.get("tracks_count", 0)
+        tracks_info = "no tracks"
+        if tracks_count == 1:
+            tracks_info = "single track"
+        elif tracks_count > 1:
+            tracks_info = "{} tracks".format(tracks_count)
+
+        tracks_info = "{}, {}".format(
+            tracks_info,
+            self._format_duration(self._playlist.get("duration", None)),
+        )
+
+        return tracks_info

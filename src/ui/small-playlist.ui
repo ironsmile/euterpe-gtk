@@ -39,6 +39,19 @@
               </packing>
             </child>
             <child>
+              <object class="GtkImage">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="pixel-size">150</property>
+                <property name="icon-name">folder-music-symbolic</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkLabel" id="playlist_desc">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -55,7 +68,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -71,7 +84,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
