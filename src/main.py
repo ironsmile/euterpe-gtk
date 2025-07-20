@@ -158,7 +158,9 @@ class Application(Gtk.Application):
             website_label="Vist the Euterpe website",
             comments="Desktop client for the\nEuterpe music streaming server.",
             logo_icon_name="com.doycho.euterpe.gtk",
+            flags=Gtk.DialogFlags.MODAL,
         )
+        dialog.set_transient_for(self.props.active_window)
         dialog.show()
 
     def get_player(self):
