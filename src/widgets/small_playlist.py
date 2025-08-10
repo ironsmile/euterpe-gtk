@@ -58,15 +58,16 @@ class EuterpeSmallPlaylist(Gtk.Viewport):
 
     def _get_tracks_info(self):
         tracks_count = self._playlist.get("tracks_count", 0)
-        tracks_info = "no tracks"
+        tracks_info = "no songs"
         if tracks_count == 1:
-            tracks_info = "single track"
+            tracks_info = "single song"
         elif tracks_count > 1:
-            tracks_info = "{} tracks".format(tracks_count)
+            tracks_info = "{} songs".format(tracks_count)
 
-        tracks_info = "{}, {}".format(
-            tracks_info,
-            self._format_duration(self._playlist.get("duration", None)),
-        )
+        if tracks_count != 0:
+            tracks_info = "{}, {}".format(
+                tracks_info,
+                self._format_duration(self._playlist.get("duration", None)),
+            )
 
         return tracks_info

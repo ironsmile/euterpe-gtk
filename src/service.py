@@ -143,6 +143,30 @@ class Euterpe(GObject.Object):
         req = self._create_request(address, cb)
         req.get()
 
+    def create_playlist(self, name, description, callback, *args):
+        """
+        Creates an empty playlist.
+        """
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_PLAYLISTS)
+        req = self._create_request(address, cb)
+        req.post(
+            "application/json",
+            bytes(json.dumps({"name": name, "description": description}), 'utf-8'),
+            *args,
+        )
+
+    def delete_playlist(self, playlist_id, callback, *args):
+        """
+        Deletes a particular playlist from the server.
+        """
+        cb = TokenExpirationCallback(self, callback)
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_PLAYLIST.format(
+            playlist_id,
+        ))
+        req = self._create_request(address, cb)
+        req.delete(*args)
+
     def get_recently_added(self, what, callback):
         if what not in ['album', 'artist']:
             log.warning("unknown rencently added type: {}", what)
@@ -380,5 +404,5 @@ ENDPOINT_FILE = '/v1/file/{}'
 ENDPOINT_ALBUM_ART = '/v1/album/{}/artwork'
 ENDPOINT_ARTIST_ART = '/v1/artist/{}/image'
 ENDPOINT_BROWSE = "/v1/browse/"
-ENDPOINT_PLAYLISTS = "/v1/playlists/"
+ENDPOINT_PLAYLISTS = "/v1/playlists"
 ENDPOINT_PLAYLIST = "/v1/playlist/{:d}"

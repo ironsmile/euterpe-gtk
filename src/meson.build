@@ -67,6 +67,7 @@ euterpe_gtk_widgets_package = [
   'widgets/playlists_screen.py',
   'widgets/small_playlist.py',
   'widgets/playlist.py',
+  'widgets/playlist_delete_confirm.py',
 ]
 
 install_data(euterpe_gtk_widgets_package, install_dir: widgetsdir)

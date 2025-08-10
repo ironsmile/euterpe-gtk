@@ -74,9 +74,6 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             self.flow_container.props.activate_on_single_click = False
             self.flow_container.props.selection_mode = Gtk.SelectionMode.NONE
 
-        if self._list_type == "playlist":
-            self.browse_settings_button.hide()
-
         self._default_order_by = "name"
         self._default_order = "asc"
 
@@ -154,6 +151,8 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             self._on_sorting_type_changed
         )
 
+        self.header_box.set_center_widget(self.title)
+
     def _store_config(self):
         """
         Stores the config for browsing into the configuration storage object which
@@ -162,14 +161,29 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         self._cfg_store.set_object(self._list_type, self._browse_cfg, self._cfg_namespace)
         self._cfg_store.save()
 
-    def add_header_main_action(self, widget):
-        self.header_box.add(widget)
+    def replace_header_main_action(self, widget):
+        """
+        Removes the browse settings button and adds another widget in its place.
+        """
+        self.browse_settings_button.destroy()
+        self.header_box.pack_start(widget, False, False, 0)
 
     def get_order_by(self):
         return self._browse_cfg.get("order_by", self._default_order_by)
 
     def get_order(self):
         return self._browse_cfg.get("order", self._default_order)
+
+    def refresh(self):
+        self.show_loading()
+        self._remove_items()
+
+        current_page = self._current_page
+        if not isinstance(current_page, int):
+            current_page = 1
+
+        uri = self._get_new_page_uri(page=current_page)
+        self._euterpe.make_request(uri, self._on_browse_result_callback)
 
     def _get_new_page_uri(self, page=1):
         if self._list_type == "playlist":
@@ -187,8 +201,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self._widgets_created = True
 
-        self.loading_indicator.start()
-        self.loading_indicator.set_visible(True)
+        self.show_loading()
         self._remove_items()
 
         uri = self._get_new_page_uri(page=1)
@@ -250,8 +263,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.page_label.set_text(page_text)
 
-        self.loading_indicator.stop()
-        self.loading_indicator.set_visible(False)
+        self.hide_loading()
 
         self._populate_items(body[listKey])
 
@@ -301,8 +313,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
             log.debug("the returned browse_url address was None, skipping creating widgets")
             return
 
-        self.loading_indicator.start()
-        self.loading_indicator.set_visible(True)
+        self.show_loading()
         self._remove_items()
 
         self._current_page = 1
@@ -312,8 +323,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         if self._next_page is None:
             return
 
-        self.loading_indicator.start()
-        self.loading_indicator.set_visible(True)
+        self.show_loading()
         self._remove_items()
 
         self._set_page_by_url(self._next_page)
@@ -323,16 +333,14 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         if self._previous_page is None:
             return
 
-        self.loading_indicator.start()
-        self.loading_indicator.set_visible(True)
+        self.show_loading()
         self._remove_items()
 
         self._set_page_by_url(self._previous_page)
         self._euterpe.make_request(self._previous_page, self._on_browse_result_callback)
 
     def _on_first_page_button(self, btn):
-        self.loading_indicator.start()
-        self.loading_indicator.set_visible(True)
+        self.show_loading()
         self._remove_items()
 
         uri = self._get_new_page_uri(page=1)
@@ -347,8 +355,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
         if self._pages_count is None:
             return
 
-        self.loading_indicator.start()
-        self.loading_indicator.set_visible(True)
+        self.show_loading()
         self._remove_items()
 
         uri = self._get_new_page_uri(page=self._pages_count)
@@ -386,6 +393,13 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self.content.add(self.browse_error)
 
+        self.hide_loading()
+
+    def show_loading(self):
+        self.loading_indicator.start()
+        self.loading_indicator.set_visible(True)
+
+    def hide_loading(self):
         self.loading_indicator.stop()
         self.loading_indicator.set_visible(False)
 

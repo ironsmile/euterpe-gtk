@@ -98,6 +98,11 @@ class Request(object):
         req.set_request(content_type, Soup.MemoryUse.COPY, body)
         self._do(req)
 
+    def delete(self, *args):
+        self._args = args
+        req = Soup.Message.new("DELETE", self._address)
+        self._do(req)
+
     def _do(self, req):
         try:
             for k, v in self._headers.items():
@@ -120,13 +125,15 @@ class Request(object):
 
 class AsyncRequest(object):
     '''
-        Request is an utility for creating HTTP requests using the
+        AsyncRequest is an utility for creating HTTP requests using the
         Soup framework. So that all the processing is done in the
         background and does not hog the main UI thread.
 
         Note that the request callback will be called once the response
         headers have been received. At this stage the body hasn't been
         read yet.
+
+        AsyncRequests supports cancellation using its `cancellable` argument.
     '''
 
     def __init__(self, address, cancellable, callback, priority=Priority.NORMAL):
@@ -165,6 +172,11 @@ class AsyncRequest(object):
         self._args = args
         req = Soup.Message.new("PUT", self._address)
         req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
+        self._do(req)
+
+    def delete(self, *args):
+        self._args = args
+        req = Soup.Message.new("DELETE", self._address)
         self._do(req)
 
     def _do(self, req):

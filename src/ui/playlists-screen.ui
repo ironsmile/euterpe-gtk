@@ -34,10 +34,14 @@
     <property name="can-focus">False</property>
     <property name="relative-to">new_playlist_button</property>
     <child>
-      <!-- n-columns=3 n-rows=3 -->
+      <!-- n-columns=2 n-rows=3 -->
       <object class="GtkGrid">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
+        <property name="margin-left">10</property>
+        <property name="margin-right">10</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
         <property name="row-spacing">10</property>
         <property name="column-spacing">10</property>
         <child>
@@ -68,7 +72,8 @@
         <child>
           <object class="GtkEntry" id="new_playlist_name">
             <property name="visible">True</property>
-            <property name="can-focus">False</property>
+            <property name="can-focus">True</property>
+            <property name="has-focus">True</property>
             <property name="activates-default">True</property>
           </object>
           <packing>
@@ -89,7 +94,9 @@
             <child>
               <object class="GtkTextView" id="new_playlist_description">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can-focus">True</property>
+                <property name="input-hints">GTK_INPUT_HINT_SPELLCHECK | GTK_INPUT_HINT_NONE</property>
+                <property name="populate-all">True</property>
               </object>
             </child>
           </object>
@@ -118,16 +125,14 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
+          <object class="GtkSpinner" id="create_request_indicator">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+          </object>
+          <packing>
+            <property name="left-attach">0</property>
+            <property name="top-attach">2</property>
+          </packing>
         </child>
       </object>
     </child>
@@ -137,6 +142,7 @@
     <property name="can-focus">True</property>
     <property name="focus-on-click">False</property>
     <property name="receives-default">True</property>
+    <property name="tooltip-text" translatable="yes">Create a new playlist</property>
     <property name="halign">center</property>
     <property name="popover">create_playlist_popover</property>
     <child>

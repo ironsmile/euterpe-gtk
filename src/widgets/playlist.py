@@ -18,6 +18,7 @@
 from gi.repository import GObject, Gtk, Gio, GLib
 from euterpe_gtk.widgets.track import EuterpeTrack
 from euterpe_gtk.utils import emit_signal, format_duration
+from euterpe_gtk.widgets.playlist_delete_confirm import PlaylistDeleteConfirm
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/playlist.ui')
@@ -35,6 +36,7 @@ class EuterpePlaylist(Gtk.Viewport):
 
     play_button = Gtk.Template.Child()
     append_to_queue = Gtk.Template.Child()
+    delete_playlist = Gtk.Template.Child()
 
     def __init__(self, playlist, win, **kwargs):
         super().__init__(**kwargs)
@@ -62,14 +64,12 @@ class EuterpePlaylist(Gtk.Viewport):
             "clicked",
             self._on_append_button
         )
+        self.delete_playlist.connect(
+            "clicked",
+            self._on_delete_button
+        )
 
-        for obj in [self.play_button, self.more_button]:
-            self.loading_spinner.bind_property(
-                'active',
-                obj, 'sensitive',
-                GObject.BindingFlags.INVERT_BOOLEAN
-            )
-
+        self._disable_actions_on_spinner(self.loading_spinner)
         self.connect("unrealize", self._on_unrealize)
         win.get_euterpe().get_playlist(playlist["id"], self._on_playlist_result)
 
@@ -97,18 +97,70 @@ class EuterpePlaylist(Gtk.Viewport):
         player.append_to_playlist(self._playlist_tracks)
         self.show_notification("Playlist songs appended to the queue.")
 
+    def _on_delete_button(self, db):
+        delete_widget = PlaylistDeleteConfirm()
+
+        delete_widget.connect(
+            "response",
+            self._on_delete_confirm_response
+        )
+        delete_widget.set_transient_for(self._win)
+        delete_widget.show_all()
+
+    def _on_delete_confirm_response(self, dialog, response_id):
+        if response_id == Gtk.ResponseType.DELETE_EVENT:
+            return
+
+        if response_id == Gtk.ResponseType.ACCEPT:
+            self.track_list.foreach(self.track_list.remove)
+            spinner = Gtk.Spinner()
+            spinner.set_halign(Gtk.Align.FILL)
+            spinner.set_valign(Gtk.Align.FILL)
+            self._disable_actions_on_spinner(spinner)
+            self.track_list.pack_start(spinner, True, True, 0)
+            spinner.show()
+            spinner.start()
+
+            self._win.get_euterpe().delete_playlist(
+                self._playlist["id"],
+                self._on_delete_response,
+            )
+
+        dialog.destroy()
+
+    def _on_delete_response(self, status, body):
+        if status != 204:
+            self.track_list.foreach(self.track_list.remove)
+            self._show_error(
+                "Error removing a playlist. HTTP response code {}.".format(
+                    status
+                )
+            )
+            return
+
+        self.show_notification("Playlist removed.")
+
+    def _disable_actions_on_spinner(self, spinner):
+        for obj in [self.play_button, self.more_button]:
+            spinner.bind_property(
+                'active',
+                obj, 'sensitive',
+                GObject.BindingFlags.INVERT_BOOLEAN
+            )
+
     def _get_tracks_info(self):
         tracks_count = self._playlist.get("tracks_count", 0)
-        tracks_info = "no tracks"
+        tracks_info = "no songs"
         if tracks_count == 1:
-            tracks_info = "single track"
+            tracks_info = "single song"
         elif tracks_count > 1:
-            tracks_info = "{} tracks".format(tracks_count)
+            tracks_info = "{} songs".format(tracks_count)
 
-        tracks_info = "{}, {}".format(
-            tracks_info,
-            self._format_duration(self._playlist.get("duration", None)),
-        )
+        if tracks_count != 0:
+            tracks_info = "{}, {}".format(
+                tracks_info,
+                self._format_duration(self._playlist.get("duration", None)),
+            )
 
         return tracks_info
 
@@ -125,14 +177,11 @@ class EuterpePlaylist(Gtk.Viewport):
         self.track_list.foreach(self.track_list.remove)
 
         if status != 200:
-            label = Gtk.Label.new()
-            label.set_text(
+            self._show_error(
                 "Error getting playlist. HTTP response code {}.".format(
                     status
                 )
             )
-            self.track_list.add(label)
-            label.show()
             return
 
         playlist_tracks = []
@@ -141,7 +190,7 @@ class EuterpePlaylist(Gtk.Viewport):
 
         if len(playlist_tracks) == 0:
             label = Gtk.Label.new()
-            label.set_text("No tracks found.")
+            label.set_text("No songs found.")
             self.track_list.add(label)
             label.show()
             return
@@ -155,3 +204,9 @@ class EuterpePlaylist(Gtk.Viewport):
             tr_obj.connect("append-button-clicked", self.on_track_append_clicked)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
+
+    def _show_error(self, text):
+        label = Gtk.Label.new()
+        label.set_text(text)
+        self.track_list.pack_start(label, True, True, 0)
+        label.show()

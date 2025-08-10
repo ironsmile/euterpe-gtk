@@ -123,22 +123,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel" id="title">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="label" translatable="yes">List Title</property>
-                    <property name="justify">center</property>
-                    <attributes>
-                      <attribute name="weight" value="bold"/>
-                    </attributes>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
                   <placeholder/>
                 </child>
               </object>
@@ -313,5 +297,14 @@
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="active">0</property>
+  </object>
+  <object class="GtkLabel" id="title">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="label" translatable="yes">List Title</property>
+    <property name="justify">center</property>
+    <attributes>
+      <attribute name="weight" value="bold"/>
+    </attributes>
   </object>
 </interface>

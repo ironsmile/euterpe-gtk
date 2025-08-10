@@ -23,6 +23,7 @@
     <file>ui/playlists-screen.ui</file>
     <file>ui/small-playlist.ui</file>
     <file>ui/playlist.ui</file>
+    <file>ui/playlist-delete-confirm.ui</file>
     <file>assets/icon-128.png</file>
     <file preprocess="xml-stripblanks">assets/d-bus.xml</file>
 

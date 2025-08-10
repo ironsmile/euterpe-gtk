@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import Gtk
+from gi.repository import GObject, Gtk
 
 from euterpe_gtk.widgets.paginated_box_list import PaginatedBoxList
 from euterpe_gtk.widgets.small_playlist import EuterpeSmallPlaylist
 from euterpe_gtk.widgets.playlist import EuterpePlaylist
 from euterpe_gtk.navigator import Navigator
+import euterpe_gtk.log as log
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/playlists-screen.ui')
@@ -30,13 +31,20 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
     screen_stack = Gtk.Template.Child()
     back_button = Gtk.Template.Child()
     new_playlist_button = Gtk.Template.Child()
+
     create_playlist_popover = Gtk.Template.Child()
+    new_playlist_name = Gtk.Template.Child()
+    new_playlist_description = Gtk.Template.Child()
+    create_playlist_button = Gtk.Template.Child()
+    create_request_indicator = Gtk.Template.Child()
 
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
 
         self._win = win
+        self._euterpe = self._win.get_application().get_euterpe()
         self._main_widget = None
+        self._box_list = None
 
         self.back_button.connect(
             "clicked",
@@ -47,6 +55,27 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
             "notify::visible-child",
             self._on_screen_stack_change_child
         )
+
+        self.new_playlist_name.connect(
+            "notify::text",
+            self._on_new_playlist_title_changed,
+            self.create_playlist_button,
+        )
+
+        self.create_playlist_button.connect(
+            "clicked",
+            self._on_create_playlist_clicked,
+            self.new_playlist_name,
+            self.new_playlist_description,
+            self.create_playlist_popover,
+        )
+
+        self.create_request_indicator.bind_property(
+            'active',
+            self.create_playlist_button, 'sensitive',
+            GObject.BindingFlags.INVERT_BOOLEAN
+        )
+
         self._nav = Navigator(self.screen_stack)
         self._show_initial_screen()
 
@@ -75,7 +104,8 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         bl = PaginatedBoxList(app, 'playlist', self._create_playlist_widget)
         self._main_widget = bl
         bl.set_title("Playlists")
-        bl.add_header_main_action(self.new_playlist_button)
+        bl.replace_header_main_action(self.new_playlist_button)
+        self._box_list = bl
         self.screen_stack.add(bl)
         self.screen_stack.set_visible_child(bl)
 
@@ -83,6 +113,65 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         playlist_obj = EuterpeSmallPlaylist(playlist_info)
         playlist_obj.connect("button-next-clicked", self.on_playlist_clicked)
         return playlist_obj
+
+    def _on_new_playlist_title_changed(self, entry, _, create_button):
+        create_button.set_sensitive(len(entry.get_text()) > 0)
+
+    def _on_create_playlist_clicked(self, button, name_entry, desc_entry, popover):
+        desc_buffer = desc_entry.get_buffer()
+
+        self._euterpe.create_playlist(
+            name_entry.get_text(),
+            desc_buffer.get_slice(
+                desc_buffer.get_start_iter(),
+                desc_buffer.get_end_iter(),
+                include_hidden_chars=False,
+            ),
+            self._create_playlist_callback,
+            name_entry,
+            desc_entry,
+            popover,
+        )
+        self.create_request_indicator.start()
+
+    def _create_playlist_callback(self, status, body, name_entry, desc_entry, popover):
+        self.create_request_indicator.stop()
+
+        if status != 200:
+            self._show_error("Error, HTTP response code {}".format(status))
+            return
+
+        if "created_playlsit_id" not in body:
+            self._show_error("Unexpected response from server.")
+            return
+
+        self._win.show_notification("Playlist created.")
+
+        desc_buffer = desc_entry.get_buffer()
+
+        playlist_info = {
+            "id": body["created_playlsit_id"],
+            "name": name_entry.get_text(),
+            "description": desc_buffer.get_slice(
+                desc_buffer.get_start_iter(),
+                desc_buffer.get_end_iter(),
+                include_hidden_chars=False,
+            ),
+        }
+
+        popover.popdown()
+        name_entry.set_text("")
+        desc_buffer.set_text("")
+
+        if self._box_list is not None:
+            self._box_list.refresh()
+
+        playlist_screen = EuterpePlaylist(playlist_info, self._win)
+        self._nav.show_screen(playlist_screen)
+
+    def _show_error(self, text):
+        #!TODO: show the error to the user.
+        log.warning(text)
 
     def on_playlist_clicked(self, playlist_widget):
         playlist_info = playlist_widget.get_playlist()
