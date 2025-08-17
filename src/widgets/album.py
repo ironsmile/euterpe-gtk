@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from gi.repository import GObject, Gtk, Gio, GLib
-from euterpe_gtk.widgets.track import EuterpeTrack
+from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.async_artwork import AsyncArtwork
 import euterpe_gtk.log as log
 
@@ -183,8 +183,8 @@ class EuterpeAlbum(Gtk.Viewport):
         for track in self._album_tracks:
             tr_obj = EuterpeTrack(track)
             self.track_list.add(tr_obj)
-            tr_obj.connect("play-button-clicked", self.on_track_play_clicked)
-            tr_obj.connect("append-button-clicked", self.on_track_append_clicked)
+            tr_obj.connect(PLAY_BUTTON_CLICKED, self.on_track_play_clicked)
+            tr_obj.connect(APPEND_BUTTON_CLICKED, self.on_track_append_clicked)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 

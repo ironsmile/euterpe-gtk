@@ -23,7 +23,7 @@ from euterpe_gtk.widgets.small_album import EuterpeSmallAlbum
 from euterpe_gtk.widgets.small_artist import EuterpeSmallArtist
 from euterpe_gtk.widgets.album import EuterpeAlbum
 from euterpe_gtk.widgets.artist import EuterpeArtist
-from euterpe_gtk.widgets.track import EuterpeTrack
+from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.widgets.simple_list import EuterpeSimpleList
 import euterpe_gtk.log as log
 
@@ -293,8 +293,8 @@ class EuterpeSearchScreen(Gtk.Viewport):
 
     def _create_track_widget(self, track_info):
         track_obj = EuterpeTrack(track_info)
-        track_obj.connect("play-button-clicked", self.on_track_set)
-        track_obj.connect("append-button-clicked", self.on_track_append)
+        track_obj.connect(PLAY_BUTTON_CLICKED, self.on_track_set)
+        track_obj.connect(APPEND_BUTTON_CLICKED, self.on_track_append)
         return track_obj
 
     def on_see_all_artists(self, btn):

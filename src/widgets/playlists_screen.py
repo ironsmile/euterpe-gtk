@@ -19,7 +19,7 @@ from gi.repository import GObject, Gtk
 
 from euterpe_gtk.widgets.paginated_box_list import PaginatedBoxList
 from euterpe_gtk.widgets.small_playlist import EuterpeSmallPlaylist
-from euterpe_gtk.widgets.playlist import EuterpePlaylist
+from euterpe_gtk.widgets.playlist import EuterpePlaylist, SIGNAL_PLAYLIST_DELETED
 from euterpe_gtk.navigator import Navigator
 import euterpe_gtk.log as log
 
@@ -90,14 +90,7 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
             self.back_button.show()
 
     def _on_back_button(self, btn):
-        children = self.screen_stack.get_children()
-        if len(children) <= 1:
-            return
-
-        visible_child = self.screen_stack.get_visible_child()
-        previous_child = children[-2]
-        self.screen_stack.set_visible_child(previous_child)
-        self.screen_stack.remove(visible_child)
+        self._remove_top_stack_child()
 
     def _show_initial_screen(self):
         app = self._win.get_application()
@@ -166,8 +159,7 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         if self._box_list is not None:
             self._box_list.refresh()
 
-        playlist_screen = EuterpePlaylist(playlist_info, self._win)
-        self._nav.show_screen(playlist_screen)
+        self._show_playlist(playlist_info)
 
     def _show_error(self, text):
         #!TODO: show the error to the user.
@@ -175,5 +167,27 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
 
     def on_playlist_clicked(self, playlist_widget):
         playlist_info = playlist_widget.get_playlist()
-        playlist_screen = EuterpePlaylist(playlist_info, self._win)
-        self._nav.show_screen(playlist_screen)
+        self._show_playlist(playlist_info)
+
+    def _show_playlist(self, playlist_info):
+        """
+        Creates a new playlist object and navigates to it.
+        """
+        playlist_widget = EuterpePlaylist(playlist_info, self._win)
+        playlist_widget.connect(SIGNAL_PLAYLIST_DELETED, self._on_playlist_delete)
+        self._nav.show_screen(playlist_widget)
+
+    def _on_playlist_delete(self, playlist_widget):
+        self._remove_top_stack_child()
+        if self._box_list is not None:
+            self._box_list.refresh()
+
+    def _remove_top_stack_child(self):
+        children = self.screen_stack.get_children()
+        if len(children) <= 1:
+            return
+
+        visible_child = self.screen_stack.get_visible_child()
+        previous_child = children[-2]
+        self.screen_stack.set_visible_child(previous_child)
+        self.screen_stack.remove(visible_child)

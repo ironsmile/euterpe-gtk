@@ -1,4 +1,4 @@
-# playlist.py
+# playlist_delete_confirm.py
 #
 # Copyright 2025 Doychin Atanasov
 #

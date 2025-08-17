@@ -15,15 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk, Gio, GLib
-from euterpe_gtk.widgets.track import EuterpeTrack
+from gi.repository import GObject, Gtk
+from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.utils import emit_signal, format_duration
 from euterpe_gtk.widgets.playlist_delete_confirm import PlaylistDeleteConfirm
+
+
+SIGNAL_PLAYLIST_DELETED = "playlist-deleted"
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/playlist.ui')
 class EuterpePlaylist(Gtk.Viewport):
     __gtype_name__ = 'EuterpePlaylist'
+
+    __gsignals__ = {
+        SIGNAL_PLAYLIST_DELETED: (GObject.SignalFlags.RUN_FIRST, None, ()),
+    }
 
     playlist_name = Gtk.Template.Child()
     description = Gtk.Template.Child()
@@ -139,6 +146,7 @@ class EuterpePlaylist(Gtk.Viewport):
             return
 
         self.show_notification("Playlist removed.")
+        emit_signal(self, SIGNAL_PLAYLIST_DELETED)
 
     def _disable_actions_on_spinner(self, spinner):
         for obj in [self.play_button, self.more_button]:
@@ -200,8 +208,8 @@ class EuterpePlaylist(Gtk.Viewport):
         for track in self._playlist_tracks:
             tr_obj = EuterpeTrack(track)
             self.track_list.add(tr_obj)
-            tr_obj.connect("play-button-clicked", self.on_track_play_clicked)
-            tr_obj.connect("append-button-clicked", self.on_track_append_clicked)
+            tr_obj.connect(PLAY_BUTTON_CLICKED, self.on_track_play_clicked)
+            tr_obj.connect(APPEND_BUTTON_CLICKED, self.on_track_append_clicked)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
