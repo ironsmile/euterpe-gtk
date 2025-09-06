@@ -28,6 +28,7 @@
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="ellipsize">end</property>
+                <property name="max-width-chars">25</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>

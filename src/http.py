@@ -98,6 +98,18 @@ class Request(object):
         req.set_request(content_type, Soup.MemoryUse.COPY, body)
         self._do(req)
 
+    def patch(self, content_type, body, *args):
+        self._args = args
+        req = Soup.Message.new("PATCH", self._address)
+        req.set_request(content_type, Soup.MemoryUse.COPY, body)
+        self._do(req)
+
+    def put(self, content_type, body, *args):
+        self._args = args
+        req = Soup.Message.new("PUT", self._address)
+        req.set_request(content_type, Soup.MemoryUse.COPY, body)
+        self._do(req)
+
     def delete(self, *args):
         self._args = args
         req = Soup.Message.new("DELETE", self._address)
@@ -171,6 +183,12 @@ class AsyncRequest(object):
     def put(self, content_type, body, *args):
         self._args = args
         req = Soup.Message.new("PUT", self._address)
+        req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
+        self._do(req)
+
+    def patch(self, content_type, body, *args):
+        self._args = args
+        req = Soup.Message.new("PATCH", self._address)
         req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
         self._do(req)
 

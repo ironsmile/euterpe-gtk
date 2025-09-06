@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio
 from euterpe_gtk.utils import emit_signal, format_duration
+from euterpe_gtk.widgets.add_to_playlist import AddToPlaylist
 
 
 PLAY_BUTTON_CLICKED = "play-button-clicked"
@@ -38,9 +39,16 @@ class EuterpeTrack(Gtk.Viewport):
     track_append_button = Gtk.Template.Child()
     track_duration = Gtk.Template.Child()
     secondary_info = Gtk.Template.Child()
+    track_append_to_playlist = Gtk.Template.Child()
 
     def __init__(self, track, **kwargs):
         super().__init__(**kwargs)
+
+        app = Gio.Application.get_default()
+        if app is None:
+            raise Exception("There is no default application")
+
+        self._app = app
 
         self._track = track
         self.track_name.set_label(track.get("title", "<N/A>"))
@@ -54,6 +62,7 @@ class EuterpeTrack(Gtk.Viewport):
 
         self.track_play_button.connect("clicked", self._on_play_button)
         self.track_append_button.connect("clicked", self._on_append_button)
+        self.track_append_to_playlist.connect("clicked", self._on_add_playlist_button)
 
     def _set_duration(self, ms):
         duration = "n/a"
@@ -79,6 +88,12 @@ class EuterpeTrack(Gtk.Viewport):
 
     def _on_append_button(self, pb):
         emit_signal(self, APPEND_BUTTON_CLICKED)
+
+    def _on_add_playlist_button(self, btn):
+        add_widget = AddToPlaylist([self._track])
+        add_widget.set_transient_for(self._app.props.active_window)
+        add_widget.set_default_size(300,600)
+        add_widget.show_all()
 
     def get_track(self):
         return self._track.copy()

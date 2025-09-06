@@ -143,6 +143,39 @@ class Euterpe(GObject.Object):
         req = self._create_request(address, cb)
         req.get()
 
+    def get_playlists(self, callback, page=1):
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
+        address = ("{}?per-page=500&page={}".format(
+            Euterpe.build_url(self._remote_address, ENDPOINT_PLAYLISTS),
+            page,
+        ))
+        req = self._create_request(address, cb)
+        req.get()
+
+    def change_playlist(self, playlist_id, callback,
+        name=None, description=None, add_track_ids=None, remove_indeces=None,
+    ):
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_PLAYLIST.format(
+            playlist_id,
+        ))
+        body = {}
+
+        if name is not None:
+            body["name"] = name
+        if description is not None:
+            body["description"] = description
+        if add_track_ids is not None:
+            body["add_tracks_by_id"] = add_track_ids
+        if remove_indeces is not None:
+            body["remove_indeces"] = remove_indeces
+
+        req = self._create_request(address, cb)
+        req.patch(
+            "appliction/json",
+            bytes(json.dumps(body), 'utf-8'),
+        )
+
     def create_playlist(self, name, description, callback, *args):
         """
         Creates an empty playlist.
