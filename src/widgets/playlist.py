@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk, Handy
+from gi.repository import GObject, Gtk, Gio, Handy
 from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.utils import emit_signal, format_duration
 from euterpe_gtk.widgets.playlist_delete_confirm import PlaylistDeleteConfirm
@@ -36,6 +36,7 @@ class EuterpePlaylist(Gtk.Viewport):
     description = Gtk.Template.Child()
     info = Gtk.Template.Child()
 
+    tracks_clamp = Gtk.Template.Child()
     track_list = Gtk.Template.Child()
     play_button = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
@@ -44,24 +45,24 @@ class EuterpePlaylist(Gtk.Viewport):
     play_button = Gtk.Template.Child()
     append_to_queue = Gtk.Template.Child()
     delete_playlist = Gtk.Template.Child()
+    edit_playlist = Gtk.Template.Child()
+    done_editing_button = Gtk.Template.Child()
+    remove_selected_button = Gtk.Template.Child()
 
-    def __init__(self, playlist, win, **kwargs):
+    def __init__(self, playlist, **kwargs):
         super().__init__(**kwargs)
 
-        self._win = win
+        app = Gio.Application.get_default()
+        if app is None:
+            raise Exception("There is no default application")
+
+        self._app = app
+
+        self._win = app.props.active_window
         self._playlist = playlist
         self._playlist_tracks = []
 
-        self.playlist_name.set_label(playlist.get("name", "<Unnamed>"))
-
-        descr = playlist.get("description", None)
-        if descr is None or descr == "":
-            self.description.hide()
-        else:
-            self.description.set_label(descr)
-
-        self.playlist_name.set_label(playlist.get("name", "<Unnamed>"))
-        self._set_tracks_info()
+        self._refresh_playlist_info()
 
         self.play_button.connect(
             "clicked",
@@ -75,10 +76,43 @@ class EuterpePlaylist(Gtk.Viewport):
             "clicked",
             self._on_delete_button
         )
+        self.edit_playlist.connect(
+            "clicked",
+            self._on_edit_button
+        )
+        self.done_editing_button.connect(
+            "clicked",
+            self._on_edit_done_button
+        )
+        self.remove_selected_button.connect(
+            "clicked",
+            self._on_remove_selected_button
+        )
+
+        self.loading_spinner.bind_property(
+            'active',
+            self.tracks_clamp, 'visible',
+            GObject.BindingFlags.INVERT_BOOLEAN
+        )
 
         self._disable_actions_on_spinner(self.loading_spinner)
+        self.connect("realize", self._on_realize)
         self.connect("unrealize", self._on_unrealize)
-        win.get_euterpe().get_playlist(playlist["id"], self._on_playlist_result)
+
+    def _refresh_playlist_info(self):
+        self.playlist_name.set_label(self._playlist.get("name", "<Unnamed>"))
+        descr = self._playlist.get("description", None)
+        if descr is None or descr == "":
+            self.description.hide()
+        else:
+            self.description.set_label(descr)
+
+        self.playlist_name.set_label(self._playlist.get("name", "<Unnamed>"))
+        self._set_tracks_info()
+
+    def _on_realize(self, widget):
+        self.tracks_clamp.set_visible(False)
+        self._win.get_euterpe().get_playlist(self._playlist["id"], self._on_playlist_result)
 
     def on_track_play_clicked(self, track_widget):
         track = track_widget.get_track()
@@ -119,14 +153,7 @@ class EuterpePlaylist(Gtk.Viewport):
             return
 
         if response_id == Gtk.ResponseType.ACCEPT:
-            self.track_list.foreach(self.track_list.remove)
-            spinner = Gtk.Spinner()
-            spinner.set_halign(Gtk.Align.FILL)
-            spinner.set_valign(Gtk.Align.FILL)
-            self._disable_actions_on_spinner(spinner)
-            self.track_list.pack_start(spinner, True, True, 0)
-            spinner.show()
-            spinner.start()
+            self._show_spinner()
 
             self._win.get_euterpe().delete_playlist(
                 self._playlist["id"],
@@ -137,7 +164,6 @@ class EuterpePlaylist(Gtk.Viewport):
 
     def _on_delete_response(self, status, body):
         if status != 204:
-            self.track_list.foreach(self.track_list.remove)
             self._show_error(
                 "Error removing a playlist. HTTP response code {}.".format(
                     status
@@ -188,6 +214,7 @@ class EuterpePlaylist(Gtk.Viewport):
 
     def _on_playlist_result(self, status, body):
         self.track_list.foreach(self.track_list.remove)
+        self._hide_spinner()
 
         if status != 200:
             self._show_error(
@@ -201,8 +228,12 @@ class EuterpePlaylist(Gtk.Viewport):
         for track in body.get("tracks", []):
             playlist_tracks.append(track)
 
+        self._playlist = body
+        if "tracks" in self._playlist:
+            del(self._playlist["tracks"])
+        self._refresh_playlist_info()
+
         if len(playlist_tracks) == 0:
-            self._show_no_tracks()
             return
 
         self._playlist_tracks = playlist_tracks
@@ -215,36 +246,57 @@ class EuterpePlaylist(Gtk.Viewport):
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
-    def _show_no_tracks(self):
-        """
-        Shows a full-screen message that there are not racks in this playlist.
-        """
-        status_page = Handy.StatusPage(
-            title="Playlist Empty",
-            description="This playlist contains no tracks. You can use the"+
-                "the search button below in find something interestng to add.",
-            icon_name="audio-x-generic-symbolic",
-        )
-
-        search_button = Gtk.Button(
-            label="Search",
-            action_name="app.search",
-        )
-        status_page.add(search_button)
-        search_button.set_halign(Gtk.Align.CENTER)
-        search_button.props.always_show_image = True
-        search_button.set_image_position(Gtk.PositionType.LEFT)
-        search_button.set_image(Gtk.Image(
-            icon_name="system-search-symbolic",
-        ))
-        search_button.show()
-
-        self.track_list.add(status_page)
-        self.track_list.set_child_packing(status_page, True, True, 10, Gtk.PackType.START)
-        status_page.show()
-
     def _show_error(self, text):
+        #!TODO: change this so that it does not use "pack_start"
         label = Gtk.Label.new()
         label.set_text(text)
         self.track_list.pack_start(label, True, True, 0)
         label.show()
+
+    def _on_edit_button(self, btn):
+        self.enter_edit_mode()
+
+    def _on_edit_done_button(self, btn):
+        self.exit_edit_mode()
+
+    def _show_spinner(self):
+        self.loading_spinner.set_visible(True)
+        self.loading_spinner.start()
+
+    def _hide_spinner(self):
+        self.loading_spinner.set_visible(False)
+        self.loading_spinner.stop()
+
+    def _on_remove_selected_button(self, btn):
+        selected = self.track_list.get_selected_rows()
+        if len(selected) < 1:
+            return
+
+        self._show_spinner()
+        selected_indx = [r.get_index() for r in selected]
+        self._app.get_euterpe().change_playlist(
+            self._playlist["id"],
+            self._on_playlist_changed,
+            remove_indeces=selected_indx,
+        )
+
+    def _on_playlist_changed(self, status, body):
+        if status < 200 or status >= 300:
+            self._show_error("HTTP response code {}.".format(status))
+            return
+
+        self._win.get_euterpe().get_playlist(self._playlist["id"], self._on_playlist_result)
+
+    def enter_edit_mode(self):
+        self.play_button.set_visible(False)
+        self.more_button.set_visible(False)
+        self.done_editing_button.set_visible(True)
+        self.remove_selected_button.set_visible(True)
+        self.track_list.set_selection_mode(Gtk.SelectionMode.MULTIPLE)
+
+    def exit_edit_mode(self):
+        self.play_button.set_visible(True)
+        self.more_button.set_visible(True)
+        self.done_editing_button.set_visible(False)
+        self.remove_selected_button.set_visible(False)
+        self.track_list.set_selection_mode(Gtk.SelectionMode.NONE)

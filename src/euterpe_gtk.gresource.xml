@@ -26,6 +26,7 @@
     <file>ui/playlist-delete-confirm.ui</file>
     <file>ui/add-to-playlist.ui</file>
     <file>assets/icon-128.png</file>
+    <file>assets/app-styles.css</file>
     <file preprocess="xml-stripblanks">assets/d-bus.xml</file>
 
     <!--

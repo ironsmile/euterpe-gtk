@@ -173,7 +173,7 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         """
         Creates a new playlist object and navigates to it.
         """
-        playlist_widget = EuterpePlaylist(playlist_info, self._win)
+        playlist_widget = EuterpePlaylist(playlist_info)
         playlist_widget.connect(SIGNAL_PLAYLIST_DELETED, self._on_playlist_delete)
         self._nav.show_screen(playlist_widget)
 
