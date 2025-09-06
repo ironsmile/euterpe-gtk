@@ -95,6 +95,7 @@ class Application(Gtk.Application):
             "toggle_shuffle": self.on_toggle_shuffle,
             "reference": self.on_show_help,
             "about_dialog": self.on_about_dialog,
+            "search": self.on_search,
         }
 
         for action_name, handler in actions.items():
@@ -108,6 +109,7 @@ class Application(Gtk.Application):
         self.set_accels_for_action("app.previous_song", ["<Control>B"])
         self.set_accels_for_action("app.toggle_repeat", ["<Control>R"])
         self.set_accels_for_action("app.toggle_shuffle", ["<Control>H"])
+        self.set_accels_for_action("app.search", ["<Control>F"])
         self.set_accels_for_action("app.reference", ["F1"])
 
     def on_logout(self, *args):
@@ -162,6 +164,15 @@ class Application(Gtk.Application):
         )
         dialog.set_transient_for(self.props.active_window)
         dialog.show()
+
+    def on_search(self, *args):
+        win = self.props.active_window
+        if win is None:
+            return
+        if win and hasattr(win, "open_search_screen"):
+            win.open_search_screen(*args)
+        else:
+            log.error("the main window has no 'open_search_screen' property")
 
     def get_player(self):
         return self._player

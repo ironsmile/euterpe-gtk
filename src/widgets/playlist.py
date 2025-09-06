@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Handy
 from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.utils import emit_signal, format_duration
 from euterpe_gtk.widgets.playlist_delete_confirm import PlaylistDeleteConfirm
@@ -61,7 +61,7 @@ class EuterpePlaylist(Gtk.Viewport):
             self.description.set_label(descr)
 
         self.playlist_name.set_label(playlist.get("name", "<Unnamed>"))
-        self.info.set_label(self._get_tracks_info())
+        self._set_tracks_info()
 
         self.play_button.connect(
             "clicked",
@@ -156,9 +156,13 @@ class EuterpePlaylist(Gtk.Viewport):
                 GObject.BindingFlags.INVERT_BOOLEAN
             )
 
-    def _get_tracks_info(self):
+    def _set_tracks_info(self):
         tracks_count = self._playlist.get("tracks_count", 0)
-        tracks_info = "no songs"
+        if tracks_count == 0:
+            self.info.hide()
+            return
+
+        tracks_info = "--"
         if tracks_count == 1:
             tracks_info = "single song"
         elif tracks_count > 1:
@@ -170,7 +174,8 @@ class EuterpePlaylist(Gtk.Viewport):
                 self._format_duration(self._playlist.get("duration", None)),
             )
 
-        return tracks_info
+        self.info.set_label(tracks_info)
+        self.info.show()
 
     def _format_duration(self, ms):
         if ms is not None:
@@ -197,10 +202,7 @@ class EuterpePlaylist(Gtk.Viewport):
             playlist_tracks.append(track)
 
         if len(playlist_tracks) == 0:
-            label = Gtk.Label.new()
-            label.set_text("No songs found.")
-            self.track_list.add(label)
-            label.show()
+            self._show_no_tracks()
             return
 
         self._playlist_tracks = playlist_tracks
@@ -212,6 +214,34 @@ class EuterpePlaylist(Gtk.Viewport):
             tr_obj.connect(APPEND_BUTTON_CLICKED, self.on_track_append_clicked)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
+
+    def _show_no_tracks(self):
+        """
+        Shows a full-screen message that there are not racks in this playlist.
+        """
+        status_page = Handy.StatusPage(
+            title="Playlist Empty",
+            description="This playlist contains no tracks. You can use the"+
+                "the search button below in find something interestng to add.",
+            icon_name="audio-x-generic-symbolic",
+        )
+
+        search_button = Gtk.Button(
+            label="Search",
+            action_name="app.search",
+        )
+        status_page.add(search_button)
+        search_button.set_halign(Gtk.Align.CENTER)
+        search_button.props.always_show_image = True
+        search_button.set_image_position(Gtk.PositionType.LEFT)
+        search_button.set_image(Gtk.Image(
+            icon_name="system-search-symbolic",
+        ))
+        search_button.show()
+
+        self.track_list.add(status_page)
+        self.track_list.set_child_packing(status_page, True, True, 10, Gtk.PackType.START)
+        status_page.show()
 
     def _show_error(self, text):
         label = Gtk.Label.new()

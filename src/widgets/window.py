@@ -25,7 +25,7 @@ from euterpe_gtk.utils import emit_signal
 from euterpe_gtk.widgets.login_form import EuterpeLoginForm, SIGNAL_LOGIN_SUCCESS
 from euterpe_gtk.widgets.regenerate_token import (EuterpeTokenForm,
     SIGNAL_GENERATE_TOKEN_SUCCESS, SIGNAL_LOGOUT_REQUESTED)
-from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen, SEARCH_BUTTON_CLICKED
+from euterpe_gtk.widgets.browse_screen import EuterpeBrowseScreen
 from euterpe_gtk.widgets.search_screen import EuterpeSearchScreen
 from euterpe_gtk.widgets.home_screen import EuterpeHomeScreen
 from euterpe_gtk.widgets.playlists_screen import EuterpePlaylistsScreen
@@ -159,10 +159,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         browse_screen = EuterpeBrowseScreen(self)
         self.browse_screen.add(browse_screen)
-        browse_screen.connect(
-            SEARCH_BUTTON_CLICKED,
-            self.open_search_screen
-        )
 
         self._search_widget = EuterpeSearchScreen(self)
         self.search_screen.add(self._search_widget)
@@ -215,15 +211,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._player.connect("volume-changed", self._on_player_volume_changed)
 
         self._euterpe.connect(SIGNAL_TOKEN_EXPIRED, self._on_expired_token)
-
-        accel = Gtk.AccelGroup()
-        accel.connect(
-            Gdk.keyval_from_name('F'),
-            Gdk.ModifierType.CONTROL_MASK,
-            0,
-            self._on_search_shortcut,
-        )
-        self.add_accel_group(accel)
 
         log.debug("staring restore callback")
         GLib.idle_add(self.restore_state, None)
@@ -614,6 +601,3 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if notif_id == self.notif_callback_id:
             self.notification_revealer.set_reveal_child(False)
         return GLib.SOURCE_REMOVE
-
-    def _on_search_shortcut(self, *args):
-        self.open_search_screen(*args)

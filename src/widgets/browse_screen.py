@@ -26,16 +26,10 @@ from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_
 from euterpe_gtk.navigator import Navigator
 
 
-SEARCH_BUTTON_CLICKED = "search-button-clicked"
-
-
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/browse-screen.ui')
 class EuterpeBrowseScreen(Gtk.Viewport):
     __gtype_name__ = 'EuterpeBrowseScreen'
 
-    __gsignals__ = {
-        SEARCH_BUTTON_CLICKED: (GObject.SignalFlags.RUN_FIRST, None, ()),
-    }
 
     show_artists_button = Gtk.Template.Child()
     show_albums_button = Gtk.Template.Child()
@@ -53,7 +47,6 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         super().__init__(**kwargs)
 
         self._win = win
-        self.search_button.connect("clicked", self._on_search_button)
 
         self.show_offline_library_button.connect(
             "clicked",
@@ -146,9 +139,6 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         album_dict = album_widget.get_album()
         album_screen = EuterpeAlbum(album_dict, self._win)
         self._nav.show_screen(album_screen)
-
-    def _on_search_button(self, btn):
-        emit_signal(self, SEARCH_BUTTON_CLICKED)
 
     def _on_back_button(self, btn):
         children = self.browse_stack.get_children()
