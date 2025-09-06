@@ -122,7 +122,7 @@ class EuterpeArtist(Gtk.Viewport):
 
     def on_on_album_clicked(self, album_widget):
         album_dict = album_widget.get_album()
-        album_screen = EuterpeAlbum(album_dict, self._win)
+        album_screen = EuterpeAlbum(album_dict)
         self._nav.show_screen(album_screen)
 
     def _on_unrealize(self, *args):

@@ -250,7 +250,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
 
     def on_album_next(self, album_widget):
         album_dict = album_widget.get_album()
-        album_screen = EuterpeAlbum(album_dict, self._win)
+        album_screen = EuterpeAlbum(album_dict)
         self._nav.show_screen(album_screen)
 
     def on_artist_next(self, artist_widget):

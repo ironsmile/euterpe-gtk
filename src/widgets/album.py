@@ -17,6 +17,7 @@
 
 from gi.repository import GObject, Gtk, Gio, GLib
 from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
+from euterpe_gtk.widgets.add_to_playlist import AddToPlaylist
 from euterpe_gtk.async_artwork import AsyncArtwork
 import euterpe_gtk.log as log
 
@@ -34,13 +35,18 @@ class EuterpeAlbum(Gtk.Viewport):
     track_list = Gtk.Template.Child()
     loading_spinner = Gtk.Template.Child()
     append_to_queue = Gtk.Template.Child()
+    album_append_to_playlist = Gtk.Template.Child()
     set_album_image = Gtk.Template.Child()
     image = Gtk.Template.Child()
 
-    def __init__(self, album, win, **kwargs):
+    def __init__(self, album, **kwargs):
         super().__init__(**kwargs)
 
-        self._win = win
+        app = Gio.Application.get_default()
+        if app is None:
+            raise Exception("There is no default application")
+
+        self._win = app.props.active_window
         self._album = album
         self._album_tracks = []
         self._cancel_upload = None
@@ -52,7 +58,7 @@ class EuterpeAlbum(Gtk.Viewport):
             album.get("artist", "Unknown").upper()
         ))
 
-        win.get_euterpe().search(album_name, self._on_search_result)
+        app.get_euterpe().search(album_name, self._on_search_result)
         self.play_button.connect(
             "clicked",
             self._on_play_button
@@ -60,6 +66,10 @@ class EuterpeAlbum(Gtk.Viewport):
         self.append_to_queue.connect(
             "clicked",
             self._on_append_button
+        )
+        self.album_append_to_playlist.connect(
+            "clicked",
+            self._on_add_playlist_button
         )
         self.set_album_image.connect(
             "clicked",
@@ -98,6 +108,12 @@ class EuterpeAlbum(Gtk.Viewport):
         player = self._win.get_player()
         player.append_to_playlist(self._album_tracks)
         self.show_notification("Album songs appended to the queue.")
+
+    def _on_add_playlist_button(self, btn):
+        add_widget = AddToPlaylist(self._album_tracks)
+        add_widget.set_transient_for(self._win)
+        add_widget.set_default_size(300,600)
+        add_widget.show_all()
 
     def _on_set_album_image(self, ab):
         album_id = self._album.get("album_id", None)

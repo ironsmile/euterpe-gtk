@@ -97,18 +97,30 @@
               </packing>
             </child>
             <child>
-              <object class="GtkListBox" id="list_with_playlists">
+              <object class="GtkScrolledWindow">
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <child type="placeholder">
-                  <object class="HdyStatusPage" id="status_page">
+                <property name="can-focus">True</property>
+                <child>
+                  <object class="GtkViewport">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="icon-name">audio-x-generic-symbolic</property>
-                    <property name="title" translatable="yes">No Playlists</property>
-                    <property name="description" translatable="yes">There are no created playlists. You can navigate to the "Playlists" section and create one.</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkListBox" id="list_with_playlists">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child type="placeholder">
+                          <object class="HdyStatusPage" id="status_page">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">audio-x-generic-symbolic</property>
+                            <property name="title" translatable="yes">No Playlists</property>
+                            <property name="description" translatable="yes">There are no created playlists. You can navigate to the "Playlists" section and create one.</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>

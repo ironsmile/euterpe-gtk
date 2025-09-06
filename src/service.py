@@ -155,7 +155,7 @@ class Euterpe(GObject.Object):
     def change_playlist(self, playlist_id, callback,
         name=None, description=None, add_track_ids=None, remove_indeces=None,
     ):
-        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
+        cb = TokenExpirationCallback(self, callback)
         address = Euterpe.build_url(self._remote_address, ENDPOINT_PLAYLIST.format(
             playlist_id,
         ))

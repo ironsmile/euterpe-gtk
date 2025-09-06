@@ -379,7 +379,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     def _on_album_click(self, album_widget):
         album_dict = album_widget.get_album()
-        album_screen = EuterpeAlbum(album_dict, self._win)
+        album_screen = EuterpeAlbum(album_dict)
         self._nav.show_screen(album_screen)
 
     def _on_artist_click(self, artist_widget):
