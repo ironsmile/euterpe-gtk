@@ -247,11 +247,19 @@ class EuterpePlaylist(Gtk.Viewport):
                 Gtk.main_iteration()
 
     def _show_error(self, text):
-        #!TODO: change this so that it does not use "pack_start"
-        label = Gtk.Label.new()
-        label.set_text(text)
-        self.track_list.pack_start(label, True, True, 0)
-        label.show()
+        self._hide_spinner()
+        dialog = Gtk.MessageDialog(
+            message_type=Gtk.MessageType.ERROR,
+            text=text,
+            modal=True,
+            buttons=Gtk.ButtonsType.CLOSE,
+        )
+        dialog.set_transient_for(self._win)
+        dialog.connect("response", self._remove_dialog)
+        dialog.show()
+
+    def _remove_dialog(self, dialog, response):
+        dialog.destroy()
 
     def _on_edit_button(self, btn):
         self.enter_edit_mode()
