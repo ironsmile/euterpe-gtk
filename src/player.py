@@ -132,11 +132,19 @@ class Player(GObject.Object):
             headers.set_value("Authorization", "Bearer " + token)
             src.set_property('extra-headers', headers)
 
+        buff = Gst.ElementFactory.make("queue2", "buffer")
+        buff.set_property("use-buffering", True)
+        buff.set_property("max-size-bytes", 10485760) # 10MB
+        buff.set_property("max-size-time", 30000000000) # 30s
+        buff.set_property("high-watermark", 0.20)
+
         dec = Gst.ElementFactory.make("decodebin", "decoder")
 
         pipeline.add(src)
+        pipeline.add(buff)
         pipeline.add(dec)
-        src.link(dec)
+        src.link(buff)
+        buff.link(dec)
 
         audio = Gst.Bin.new('audiobin')
         conv = Gst.ElementFactory.make("audioconvert", "aconv")
