@@ -116,7 +116,28 @@
 	</requires>
 
 	<releases>
-		<release version="0.8.0" date="2025-09-09">
+		<release version="0.8.1" date="2025-09-08">
+			<description>
+				<p>
+					This version comes with few small improvements.
+				</p>
+				<ul>
+					<li>
+						Switch to using the version 3 of Libsoup. This makes it
+						easier install the player on more modern desktop environments
+						and runtimes.
+					</li>
+					<li>
+						Build a small buffer of data while streaming. This may help
+						with spotty networks.
+					</li>
+					<li>
+						Improve the stability of the Gstreamer pipeline.
+					</li>
+				</ul>
+			</description>
+		</release>
+		<release version="0.8.0" date="2025-09-08">
 			<description>
 				<p>
 					This version comes with few new features and some bug fixes.
