@@ -84,7 +84,7 @@ class Euterpe(GObject.Object):
         req = Request(login_token_url, callback)
         req.post(
             "application/json",
-            bytes(json.dumps(body), 'utf-8'),
+            GLib.Bytes.new(bytes(json.dumps(body), 'utf-8')),
             *args
         )
 
@@ -173,7 +173,7 @@ class Euterpe(GObject.Object):
         req = self._create_request(address, cb)
         req.patch(
             "appliction/json",
-            bytes(json.dumps(body), 'utf-8'),
+             GLib.Bytes.new(bytes(json.dumps(body), 'utf-8')),
         )
 
     def create_playlist(self, name, description, callback, *args):
@@ -185,7 +185,7 @@ class Euterpe(GObject.Object):
         req = self._create_request(address, cb)
         req.post(
             "application/json",
-            bytes(json.dumps({"name": name, "description": description}), 'utf-8'),
+            GLib.Bytes.new(bytes(json.dumps({"name": name, "description": description}), 'utf-8')),
             *args,
         )
 

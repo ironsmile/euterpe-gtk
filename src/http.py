@@ -30,7 +30,7 @@ class Priority(enum.Enum):
     NORMAL = 0
     HIGH = 1
 
-_sessions = {}
+_session = None
 
 def Init():
     '''
@@ -40,23 +40,20 @@ def Init():
     Make sure to call this before any other calls to libraries which would
     want to load LibSoup.
     '''
-    init_session(Priority.LOW)
-    init_session(Priority.NORMAL)
-    init_session(Priority.HIGH)
+    init_session()
 
-def init_session(priority):
-    global _sessions
+def init_session():
+    global _session
 
-    sess = _sessions.get(priority, None)
-    if sess is not None:
-        return sess
+    if _session is not None:
+        return _session
 
-    sess = Soup.Session()
-    sess.props.user_agent = "Euterpe-GTK HTTP Client"
-    sess.props.max_conns = 6
+    _session = Soup.Session(
+        max_conns=6,
+        user_agent="Euterpe-GTK HTTP Client",
+    )
 
-    _sessions[priority] = sess
-    return sess
+    return _session
 
 
 class Request(object):
@@ -78,60 +75,62 @@ class Request(object):
             * *args - the arguments passed to `get` or `post`
         '''
 
-        self._session = init_session(priority)
+        self._priority = to_soup_priority(priority)
+        self._session = init_session()
         self._address = address
         self._callback = callback
         self._headers = {}
-        self._args = []
 
     def set_header(self, name, value):
         self._headers[name] = value
 
     def get(self, *args):
-        self._args = args
         req = Soup.Message.new("GET", self._address)
-        self._do(req)
+        self._do(req, args)
 
     def post(self, content_type, body, *args):
-        self._args = args
         req = Soup.Message.new("POST", self._address)
-        req.set_request(content_type, Soup.MemoryUse.COPY, body)
-        self._do(req)
+        req.set_request_body_from_bytes(content_type, body)
+        self._do(req, args)
 
     def patch(self, content_type, body, *args):
-        self._args = args
         req = Soup.Message.new("PATCH", self._address)
-        req.set_request(content_type, Soup.MemoryUse.COPY, body)
-        self._do(req)
+        req.set_request_body_from_bytes(content_type, body)
+        self._do(req, args)
 
     def put(self, content_type, body, *args):
-        self._args = args
         req = Soup.Message.new("PUT", self._address)
-        req.set_request(content_type, Soup.MemoryUse.COPY, body)
-        self._do(req)
+        req.set_request_body_from_bytes(content_type, body)
+        self._do(req, args)
 
     def delete(self, *args):
-        self._args = args
         req = Soup.Message.new("DELETE", self._address)
-        self._do(req)
+        self._do(req, args)
 
-    def _do(self, req):
+    def _do(self, req, args):
         try:
             for k, v in self._headers.items():
                 req.props.request_headers.append(k, v)
-            self._session.queue_message(req, self._request_cb, None)
+            self._session.send_and_read_async(
+                req,
+                self._priority,
+                None,
+                self._request_cb,
+                args,
+            )
         except Exception:
             sys.excepthook(*sys.exc_info())
             self._callback(None, None)
 
-    def _request_cb(self, session, message, data):
-        status = message.props.status_code
-        resp_body = message.props.response_body_data.get_data()
-        self._call_callback(status, resp_body)
+    def _request_cb(self, source, result, args):
+        message = source.get_async_result_message(result)
+        status = message.get_status()
+        resp_body = source.send_and_read_finish(result).get_data()
+        self._call_callback(status, resp_body, args)
 
-    def _call_callback(self, status, data):
+    def _call_callback(self, status, body, args):
         try:
-            self._callback(status, data, *(self._args))
+            self._callback(status, body, *(args))
         except Exception:
             sys.excepthook(*sys.exc_info())
 
@@ -159,66 +158,76 @@ class AsyncRequest(object):
             - *args - the arguments passed to `get`, `post` or `put`
         '''
 
-        self._session = init_session(priority)
+        self._priority = to_soup_priority(priority)
+        self._session = init_session()
         self._address = address
         self._callback = callback
         self._headers = {}
-        self._args = []
         self._cancellable = cancellable
 
     def set_header(self, name, value):
         self._headers[name] = value
 
     def get(self, *args):
-        self._args = args
         req = Soup.Message.new("GET", self._address)
-        self._do(req)
+        self._do(req, args)
 
     def post(self, content_type, body, *args):
-        self._args = args
         req = Soup.Message.new("POST", self._address)
-        req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
-        self._do(req)
+        req.set_request_body_from_bytes(content_type, body)
+        self._do(req, args)
 
     def put(self, content_type, body, *args):
-        self._args = args
         req = Soup.Message.new("PUT", self._address)
-        req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
-        self._do(req)
+        req.set_request_body_from_bytes(content_type, body)
+        self._do(req, args)
 
     def patch(self, content_type, body, *args):
-        self._args = args
         req = Soup.Message.new("PATCH", self._address)
-        req.set_request(content_type, Soup.MemoryUse.COPY, body.get_data())
-        self._do(req)
+        req.set_request_body_from_bytes(content_type, body)
+        self._do(req, args)
 
     def delete(self, *args):
-        self._args = args
         req = Soup.Message.new("DELETE", self._address)
-        self._do(req)
+        self._do(req, args)
 
-    def _do(self, req):
+    def _do(self, req, args):
         try:
             for k, v in self._headers.items():
                 req.props.request_headers.append(k, v)
-            self._session.send_async(req, self._cancellable, self._request_cb, req)
+            self._session.send_async(
+                req,
+                self._priority,
+                self._cancellable,
+                self._request_cb,
+                args,
+            )
         except Exception:
             sys.excepthook(*sys.exc_info())
-            self._callback(None, None, None, *(self._args))
+            self._callback(None, None, None, *(args))
 
-    def _request_cb(self, session, res, message):
+    def _request_cb(self, source, result, args):
+        message = source.get_async_result_message(result)
+        status = message.get_status()
         try:
-            body_stream = session.send_finish(res)
+            body_stream = source.send_finish(result)
         except Exception:
-            self._callback(None, None, None, *(self._args))
+            self._callback(None, None, None, *(args))
             return
 
-        status = message.status_code
-        self._call_callback(status, body_stream)
+        self._call_callback(status, body_stream, args)
 
-    def _call_callback(self, status, data_stream):
+    def _call_callback(self, status, data_stream, args):
         try:
-            self._callback(status, data_stream, self._cancellable, *(self._args))
+            self._callback(status, data_stream, self._cancellable, *(args))
         except Exception:
             sys.excepthook(*sys.exc_info())
 
+
+def to_soup_priority(priority):
+    if priority == Priority.LOW:
+        return Soup.MessagePriority.LOW
+    elif priority == Priority.HIGH:
+        return Soup.MessagePriority.HIGH
+    else:
+        return Soup.MessagePriority.NORMAL
