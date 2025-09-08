@@ -104,6 +104,10 @@ class Player(GObject.Object):
         if pl_len == 0:
             return
 
+        if self._current_playlist_index is None:
+            log.warning("trying to load from current index when it is None")
+            return
+
         if self._current_playlist_index >= pl_len:
             self._current_playlist_index = 0
 
@@ -180,6 +184,8 @@ class Player(GObject.Object):
     def _on_bus_eos(self, bus, message):
         if message.type != Gst.MessageType.EOS:
             log.warning("unexpected eos message type: {}", message.type)
+            return
+
         log.debug("end-of-stream bus message received")
 
         if self.has_next():
@@ -189,6 +195,10 @@ class Player(GObject.Object):
 
     def _on_stream_start(self, bus, message):
         if self._seek_to is None:
+            return
+
+        if self._playbin is None:
+            log.warning("received stream-start when the playbin was still None")
             return
 
         seek_to = self._seek_to
@@ -235,6 +245,10 @@ class Player(GObject.Object):
         if position < 0:
             val = 0
 
+        if self._playbin is None:
+            log.warning("playbin was None when seeking to position")
+            return
+
         (ok, dur) = self._playbin.query_duration(Gst.Format.TIME)
         if not ok:
             log.warning("could not query playbin duration in ns")
@@ -260,6 +274,10 @@ class Player(GObject.Object):
 
         offset is a number in milliseconds.
         '''
+        if self._playbin is None:
+            log.warning("playbin was None when seeking with offset")
+            return
+
         track = self.get_track_info()
         if track is None:
             log.warning("Seeking not possible, no track is loaded")
@@ -273,7 +291,7 @@ class Player(GObject.Object):
         new_pos = pos + offset
         if new_pos < 0:
             new_pos = 0
-        elif track['duration'] is not None and new_pos > track['duration']:
+        elif track.get('duration', None) is not None and new_pos > track['duration']:
             new_pos = track['duration']
 
         new_pos_ns = int(new_pos * 1e6)
@@ -301,7 +319,7 @@ class Player(GObject.Object):
             self._load_from_current_index()
 
         if self._playbin is None:
-            log.warning("trying to play when there are not racks in the playlist")
+            log.warning("trying to play when there are not tracks in the playlist")
             return
 
         self._playbin.set_state(Gst.State.PLAYING)
@@ -366,6 +384,10 @@ class Player(GObject.Object):
             log.warning("trying next on empty playlist")
             return
 
+        if self._current_playlist_index is None:
+            log.warning("calling next() when current playlist index is None")
+            return
+
         ind = self._current_playlist_index
         if self._repeat == Repeat.SONG:
             # Do nothing, leave the song index the same!
@@ -409,6 +431,10 @@ class Player(GObject.Object):
 
     def previous(self):
         if len(self._playlist) == 0:
+            return
+
+        if self._current_playlist_index is None:
+            log.warning("calling previous() when current playlist index is None")
             return
 
         ind = self._current_playlist_index
@@ -455,6 +481,9 @@ class Player(GObject.Object):
 
         Note that the duration is in milliseconds.
         '''
+        if self._current_playlist_index is None:
+            return None
+
         if self._current_playlist_index >= len(self._playlist):
             return None
 
