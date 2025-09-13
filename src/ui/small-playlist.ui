@@ -28,7 +28,7 @@
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="ellipsize">end</property>
-                <property name="max-width-chars">25</property>
+                <property name="max-width-chars">20</property>
                 <attributes>
                   <attribute name="weight" value="bold"/>
                 </attributes>
@@ -62,8 +62,8 @@
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="ellipsize">end</property>
-                <property name="width-chars">25</property>
-                <property name="max-width-chars">25</property>
+                <property name="width-chars">20</property>
+                <property name="max-width-chars">20</property>
                 <style>
                   <class name="dim-label"/>
                 </style>
