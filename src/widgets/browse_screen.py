@@ -141,14 +141,9 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self._nav.show_screen(album_screen)
 
     def _on_back_button(self, btn):
-        children = self.browse_stack.get_children()
-        if len(children) <= 1:
+        visible_child = self._nav.go_back()
+        if visible_child is None:
             return
-
-        visible_child = self.browse_stack.get_visible_child()
-        previous_child = children[-2]
-        self.browse_stack.set_visible_child(previous_child)
-        self.browse_stack.remove(visible_child)
 
         if visible_child is not self.browse_main and\
                 visible_child is not self.not_implemented:

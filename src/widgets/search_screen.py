@@ -341,14 +341,7 @@ class EuterpeSearchScreen(Gtk.Viewport):
             self.back_button.show()
 
     def _on_back_button(self, btn):
-        children = self.screen_stack.get_children()
-        if len(children) <= 1:
-            return
-
-        visible_child = self.screen_stack.get_visible_child()
-        previous_child = children[-2]
-        self.screen_stack.set_visible_child(previous_child)
-        self.screen_stack.remove(visible_child)
+        self._nav.go_back()
 
     def factory_reset(self):
         '''
