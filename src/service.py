@@ -254,7 +254,7 @@ class Euterpe(GObject.Object):
         req = self._create_async_request(address, cancellable, cb, Priority.LOW)
         req.get(*args)
 
-    def get_browse_uri(self, what, page=1, per_page=30, order_by="name", order="asc"):
+    def get_browse_uri(self, what, page=1, per_page=60, order_by="name", order="asc"):
         if what not in ['album', 'artist', 'song']:
             log.warning("unknown browse type: {}", what)
             return None
@@ -278,7 +278,7 @@ class Euterpe(GObject.Object):
 
         return address
 
-    def get_playlists_uri(self, page=1, per_page=40):
+    def get_playlists_uri(self, page=1, per_page=60):
         address = "{endpoint}?page={page}&per-page={per_page}".format(
             endpoint=ENDPOINT_PLAYLISTS,
             per_page=per_page,
