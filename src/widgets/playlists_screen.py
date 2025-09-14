@@ -29,7 +29,6 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
     __gtype_name__ = 'EuterpePlaylistsScreen'
 
     screen_stack = Gtk.Template.Child()
-    back_button = Gtk.Template.Child()
     new_playlist_button = Gtk.Template.Child()
 
     create_playlist_popover = Gtk.Template.Child()
@@ -45,16 +44,6 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         self._euterpe = self._win.get_application().get_euterpe()
         self._main_widget = None
         self._box_list = None
-
-        self.back_button.connect(
-            "clicked",
-            self._on_back_button
-        )
-
-        self.screen_stack.connect(
-            "notify::visible-child",
-            self._on_screen_stack_change_child
-        )
 
         self.new_playlist_name.connect(
             "notify::text",
@@ -76,21 +65,11 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
             GObject.BindingFlags.INVERT_BOOLEAN
         )
 
-        self._nav = Navigator(self.screen_stack)
+        self._nav = Navigator(self.screen_stack, self._main_widget)
         self._show_initial_screen()
 
-    def get_back_button(self):
-        return self.back_button
-
-    def _on_screen_stack_change_child(self, stack, event):
-        is_main = (self._main_widget is stack.get_visible_child())
-        if is_main:
-            self.back_button.hide()
-        else:
-            self.back_button.show()
-
-    def _on_back_button(self, btn):
-        self._nav.go_back()
+    def get_nav(self):
+        return self._nav
 
     def _show_initial_screen(self):
         app = self._win.get_application()
@@ -101,6 +80,7 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         self._box_list = bl
         self.screen_stack.add(bl)
         self.screen_stack.set_visible_child(bl)
+        self._nav.set_root_scree(self._main_widget)
 
     def _create_playlist_widget(self, playlist_info):
         playlist_obj = EuterpeSmallPlaylist(playlist_info)

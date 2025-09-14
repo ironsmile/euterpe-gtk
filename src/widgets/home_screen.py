@@ -51,7 +51,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     screen_stack = Gtk.Template.Child()
     main_screen = Gtk.Template.Child()
-    back_button = Gtk.Template.Child()
 
     recently_added_artists = Gtk.Template.Child()
     recently_added_albums = Gtk.Template.Child()
@@ -72,11 +71,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
         self._win = win
         self._player = app.get_player()
 
-        self.back_button.connect(
-            "clicked",
-            self._on_back_button
-        )
-
         self._recently_added_last_updated = None
         self._recently_added_artists = []
         self._recently_added_albums = []
@@ -84,11 +78,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
         self._recently_listened_artists = RingList(10, _compare_artists)
         self._recently_listened_albums = RingList(10, _compare_albums)
 
-        self.screen_stack.connect(
-            "notify::visible-child",
-            self._on_screen_stack_change_child
-        )
-        self._nav = Navigator(self.screen_stack)
+        self._nav = Navigator(self.screen_stack, self.main_screen)
 
         self.connect(
             SIGNAL_ADDED_ALBUMS_RESTORED,
@@ -233,8 +223,8 @@ class EuterpeHomeScreen(Gtk.Viewport):
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
-    def get_back_button(self):
-        return self.back_button
+    def get_nav(self):
+        return self._nav
 
     def restore_state(self, store):
         '''
@@ -359,16 +349,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
         err.set_justify(Gtk.Justification.CENTER)
         container.add(err)
         err.show()
-
-    def _on_screen_stack_change_child(self, stack, event):
-        is_main = (self.main_screen is stack.get_visible_child())
-        if is_main:
-            self.back_button.hide()
-        else:
-            self.back_button.show()
-
-    def _on_back_button(self, btn):
-        self._nav.go_back()
 
     def _on_album_click(self, album_widget):
         album_dict = album_widget.get_album()

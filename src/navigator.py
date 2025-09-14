@@ -5,8 +5,9 @@ class Navigator(object):
         GTK widget on top of certain stack.
     '''
 
-    def __init__(self, gtk_stack):
+    def __init__(self, gtk_stack, root_screen):
         self._stack = gtk_stack
+        self._root_screen = root_screen
 
     def show_screen(self, widget):
         self._stack.add(widget)
@@ -29,5 +30,14 @@ class Navigator(object):
         self._stack.remove(visible_child)
         return visible_child
 
-    def get_stack_size(self):
-        return len(self._stack.get_children())
+    def set_root_scree(self, widget):
+        self._root_screen = widget
+
+    def is_root_screen(self):
+        """
+        Returns true when the currently visible screen is the stack's root screen.
+        """
+        return self._stack.get_visible_child() is self._root_screen
+
+    def connect_stack_change(self, callback):
+        self._stack.connect("notify::visible-child", callback, self)

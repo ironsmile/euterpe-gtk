@@ -58,7 +58,6 @@ class EuterpeSearchScreen(Gtk.Viewport):
 
     screen_stack = Gtk.Template.Child()
     search_main = Gtk.Template.Child()
-    back_button = Gtk.Template.Child()
 
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
@@ -70,10 +69,6 @@ class EuterpeSearchScreen(Gtk.Viewport):
         self._found_artists = []
         self._search_query = ""
 
-        self.back_button.connect(
-            "clicked",
-            self._on_back_button
-        )
         self.main_search_box.connect(
             "activate",
             self.on_search
@@ -99,15 +94,11 @@ class EuterpeSearchScreen(Gtk.Viewport):
             self.search_results_container, 'visible',
             GObject.BindingFlags.INVERT_BOOLEAN
         )
-        self.screen_stack.connect(
-            "notify::visible-child",
-            self._on_screen_stack_change_child
-        )
-        self._nav = Navigator(self.screen_stack)
+        self._nav = Navigator(self.screen_stack, self.search_main)
         self.connect(STATE_RESTORED, self._on_state_restored)
 
-    def get_back_button(self):
-        return self.back_button
+    def get_nav(self):
+        return self._nav
 
     def _cleanup_search_results(self):
         self.search_result_viewport.foreach(
@@ -332,16 +323,6 @@ class EuterpeSearchScreen(Gtk.Viewport):
         ))
 
         self._nav.show_screen(songs_list)
-
-    def _on_screen_stack_change_child(self, stack, event):
-        is_main = (self.search_main is stack.get_visible_child())
-        if is_main:
-            self.back_button.hide()
-        else:
-            self.back_button.show()
-
-    def _on_back_button(self, btn):
-        self._nav.go_back()
 
     def factory_reset(self):
         '''

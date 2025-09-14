@@ -3,6 +3,11 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <requires lib="libhandy" version="1.8"/>
+  <object class="GtkImage" id="header_back_button">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-previous-symbolic</property>
+  </object>
   <object class="GtkMenu" id="primary_menu">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -58,6 +63,9 @@
                   </object>
                 </child>
               </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
             </child>
             <child>
               <object class="GtkViewport" id="back_button_position">
@@ -65,7 +73,14 @@
                 <property name="can-focus">False</property>
                 <property name="shadow-type">none</property>
                 <child>
-                  <placeholder/>
+                  <object class="GtkButton" id="back_button">
+                    <property name="can-focus">True</property>
+                    <property name="focus-on-click">False</property>
+                    <property name="receives-default">True</property>
+                    <property name="action-name">win.go-back</property>
+                    <property name="image">header_back_button</property>
+                    <property name="always-show-image">True</property>
+                  </object>
                 </child>
               </object>
             </child>

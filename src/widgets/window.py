@@ -20,7 +20,7 @@ import keyring
 import json
 import time
 
-from gi.repository import GObject, Gtk, Handy, Gst, Gdk, GLib
+from gi.repository import GObject, Gtk, Handy, Gst, Gdk, GLib, Gio
 from euterpe_gtk.utils import emit_signal
 from euterpe_gtk.widgets.login_form import EuterpeLoginForm, SIGNAL_LOGIN_SUCCESS
 from euterpe_gtk.widgets.regenerate_token import (EuterpeTokenForm,
@@ -56,6 +56,7 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
     main_stack = Gtk.Template.Child()
     title_tab_bar = Gtk.Template.Child()
     back_button_position = Gtk.Template.Child()
+    back_button = Gtk.Template.Child()
 
     search_screen = Gtk.Template.Child()
     browse_screen = Gtk.Template.Child()
@@ -159,9 +160,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         browse_screen = EuterpeBrowseScreen(self)
         self.browse_screen.add(browse_screen)
+        browse_screen.get_nav().connect_stack_change(self._on_child_stack_change)
 
         self._search_widget = EuterpeSearchScreen(self)
         self.search_screen.add(self._search_widget)
+        self._search_widget.get_nav().connect_stack_change(self._on_child_stack_change)
 
         self._player_ui = EuterpePlayerUI()
         self.logged_in_screen.add(self._player_ui)
@@ -171,9 +174,11 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
 
         self._home_widget = EuterpeHomeScreen(self)
         self.home_screen.add(self._home_widget)
+        self._home_widget.get_nav().connect_stack_change(self._on_child_stack_change)
 
         self._playlists_widget = EuterpePlaylistsScreen(self)
         self.playlists_screen.add(self._playlists_widget)
+        self._playlists_widget.get_nav().connect_stack_change(self._on_child_stack_change)
 
         mini_player = EuterpeMiniPlayer(self._player)
         mini_player.connect(
@@ -211,6 +216,10 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._player.connect("volume-changed", self._on_player_volume_changed)
 
         self._euterpe.connect(SIGNAL_TOKEN_EXPIRED, self._on_expired_token)
+
+        back_action = Gio.SimpleAction.new("go-back", None)
+        back_action.connect("activate", self._on_back_request)
+        self.add_action(back_action)
 
         log.debug("staring restore callback")
         GLib.idle_add(self.restore_state, None)
@@ -342,7 +351,15 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self.set_back_button_to_visible_child(stack)
 
     def set_back_button_to_visible_child(self, stack):
-        self.back_button_position.foreach(self.back_button_position.remove)
+        """
+        Changes the visibility of the window's back button based on the
+        current visible child state.
+
+        The visible child is supposed to be another stack. If this stack is of
+        size one then do not show the "back" button. There's nowhere this child
+        could go back to. Otherwise show it.
+        """
+        self.back_button.hide()
         visible_child = stack.get_visible_child()
         if not issubclass(type(visible_child), Gtk.Container):
             return
@@ -351,12 +368,30 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         if len(grand_children) != 1:
             return
 
-        screen = grand_children[0]
-        if not hasattr(screen, 'get_back_button'):
+        if not hasattr(grand_children[0], 'get_nav'):
+            log.warning("main stack grand child does not have 'get_nav' method")
             return
 
-        back_button = screen.get_back_button()
-        self.back_button_position.add(back_button)
+        nav = grand_children[0].get_nav()
+        if nav.is_root_screen():
+            return
+
+        self.back_button.show()
+
+    def _on_back_request(self, *args):
+        visible_child = self.main_stack.get_visible_child()
+
+        grand_children = visible_child.get_children()
+        if len(grand_children) != 1:
+            return
+
+        nav = grand_children[0].get_nav()
+        if nav.is_root_screen():
+            return
+        nav.go_back()
+
+    def _on_child_stack_change(self, stack, event, nav, *args):
+        self.set_back_button_to_visible_child(self.main_stack)
 
     def on_login_status_change(self, stack, event):
         login_visible = (self.logged_in_screen == stack.get_visible_child())

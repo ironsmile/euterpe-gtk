@@ -40,7 +40,6 @@ class EuterpeBrowseScreen(Gtk.Viewport):
     browse_stack = Gtk.Template.Child()
 
     not_implemented = Gtk.Template.Child()
-    back_button = Gtk.Template.Child()
     browse_main = Gtk.Template.Child()
 
     def __init__(self, win, **kwargs):
@@ -68,19 +67,10 @@ class EuterpeBrowseScreen(Gtk.Viewport):
             self._on_browse_albums_button
         )
 
-        self.back_button.connect(
-            "clicked",
-            self._on_back_button
-        )
+        self._nav = Navigator(self.browse_stack, self.browse_main)
 
-        self.browse_stack.connect(
-            "notify::visible-child",
-            self._on_browse_stack_change_child
-        )
-        self._nav = Navigator(self.browse_stack)
-
-    def get_back_button(self):
-        return self.back_button
+    def get_nav(self):
+        return self._nav
 
     def _on_browse_songs_button(self, btn):
         app = self._win.get_application()
@@ -140,22 +130,6 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         album_screen = EuterpeAlbum(album_dict)
         self._nav.show_screen(album_screen)
 
-    def _on_back_button(self, btn):
-        visible_child = self._nav.go_back()
-        if visible_child is None:
-            return
-
-        if visible_child is not self.browse_main and\
-                visible_child is not self.not_implemented:
-            visible_child.destroy()
-
     def _show_not_implemented_screen(self, btn):
         self.browse_stack.add(self.not_implemented)
         self.browse_stack.set_visible_child(self.not_implemented)
-
-    def _on_browse_stack_change_child(self, stack, event):
-        is_main = (self.browse_main is stack.get_visible_child())
-        if is_main:
-            self.back_button.hide()
-        else:
-            self.back_button.show()

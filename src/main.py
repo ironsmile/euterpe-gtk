@@ -121,6 +121,7 @@ class Application(Gtk.Application):
         self.set_accels_for_action("app.toggle_shuffle", ["<Control>H"])
         self.set_accels_for_action("app.search", ["<Control>F"])
         self.set_accels_for_action("app.reference", ["F1"])
+        self.set_accels_for_action("win.go-back", ["<Alt>Left"])
 
     def on_logout(self, *args):
         win = self.props.active_window

@@ -17,19 +17,6 @@
       </object>
     </child>
   </template>
-  <object class="GtkImage" id="back_button_image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">go-previous-symbolic</property>
-  </object>
-  <object class="GtkButton" id="back_button">
-    <property name="visible">True</property>
-    <property name="can-focus">True</property>
-    <property name="focus-on-click">False</property>
-    <property name="receives-default">True</property>
-    <property name="image">back_button_image</property>
-    <property name="always-show-image">True</property>
-  </object>
   <object class="GtkPopover" id="create_playlist_popover">
     <property name="can-focus">False</property>
     <property name="relative-to">new_playlist_button</property>
