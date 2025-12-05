@@ -354,5 +354,10 @@
 			</description>
 		</release>
 	</releases>
+	<keywords>
+		<keyword>music player</keyword>
+		<keyword>euterpe server</keyword>
+		<keyword>audio streaming</keyword>
+	</keywords>
 
 </component>
