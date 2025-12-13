@@ -15,8 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, GLib
 from euterpe_gtk.utils import emit_signal
+import euterpe_gtk.log as log
 
 SIGNAL_PAN_UP = "pan-up"
 
@@ -40,31 +41,48 @@ class EuterpeMiniPlayer(Gtk.Viewport):
     def __init__(self, player, **kwargs):
         super().__init__(**kwargs)
 
+        self._progress_signal = None
+        self._track_changed_signal = None
+        self._state_changed_signal = None
+        self._first_state_changed_signal = None
         self._player = player
 
         self.show_big_player_button.connect(
             "clicked",
             self.on_show_big_player_clicked
         )
-        self._player.connect(
+        self._first_state_changed_signal = player.connect(
             "state-changed",
-            self.on_player_state_changed
+            self.on_first_player_state_change
         )
-        self._player.connect(
-            "progress",
-            self.on_track_progress_changed
+        self.connect(
+            "map",
+            self.on_mapped
         )
-        self._player.connect(
-            "track-changed",
-            self.on_track_changed
+        self.connect(
+            "unmap",
+            self.on_unmapped
         )
+
+    def on_first_player_state_change(self, player):
+        '''
+            This signal handler is ran only up to the first state change when the
+            player is active. It shows the widget and then disconnects itself.
+        '''
+        if player is not self._player:
+            return
+
+        if not player.is_active():
+            return
+
+        self.show()
+        if self._first_state_changed_signal is not None:
+            player.handler_disconnect(self._first_state_changed_signal)
+            self._first_state_changed_signal = None
 
     def on_player_state_changed(self, player):
         if player is not self._player:
             return
-
-        if player.is_active():
-            self.show()
 
         if player.is_playing():
             self.play_pause_button.set_image(self.pause_button_icon)
@@ -94,3 +112,61 @@ class EuterpeMiniPlayer(Gtk.Viewport):
 
     def on_show_big_player_clicked(self, btn):
         emit_signal(self, SIGNAL_PAN_UP)
+
+    def on_mapped(self, *args):
+        log.debug("mini player mapped")
+        player = self._player
+
+        # Track progress
+        self._disconnect_progress()
+        GLib.idle_add(self._set_current_progress)
+        self._progress_signal = player.connect(
+            "progress",
+            self.on_track_progress_changed
+        )
+
+        # Track changed
+        self._disconnect_track_changed()
+        GLib.idle_add(self.on_track_changed, player)
+        self._track_changed_signal = player.connect(
+            "track-changed",
+            self.on_track_changed
+        )
+
+        # State changed
+        self._disconnect_state_changed()
+        GLib.idle_add(self.on_player_state_changed, player)
+        self._state_changed_signal = player.connect(
+            "state-changed",
+            self.on_player_state_changed
+        )
+
+    def on_unmapped(self, *args):
+        log.debug("mini player unmapped")
+
+        self._disconnect_progress()
+        self._disconnect_track_changed()
+        self._disconnect_state_changed()
+
+    def _disconnect_progress(self):
+        if self._progress_signal is None:
+            return
+        self._player.handler_disconnect(self._progress_signal)
+        self._progress_signal = None
+
+    def _disconnect_track_changed(self):
+        if self._track_changed_signal is None:
+            return
+        self._player.handler_disconnect(self._track_changed_signal)
+        self._track_changed_signal = None
+
+    def _disconnect_state_changed(self):
+        if self._state_changed_signal is None:
+            return
+        self._player.handler_disconnect(self._state_changed_signal)
+        self._state_changed_signal = None
+
+    def _set_current_progress(self):
+        progress = self._player.get_progress()
+        if progress is not None:
+            self.change_progress(progress)

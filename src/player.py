@@ -241,6 +241,17 @@ class Player(GObject.Object):
 
         return ns / dur
 
+    def get_progress(self):
+        '''
+            Returns the current playback progress in the [0:1] range or None if
+            there's nothing playing at the moment. The progress is gotten from the
+            currently active playbin.
+        '''
+        playbin = self._playbin
+        if playbin is None or not self.is_playing():
+            return None
+        return self._get_progress(self._playbin)
+
     def seek(self, position):
         '''
             Seek to a new position in the playbin. position
