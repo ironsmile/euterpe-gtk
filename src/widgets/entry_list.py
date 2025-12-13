@@ -84,7 +84,7 @@ class EuterpeEntryList(Gtk.ScrolledWindow):
             return
 
         _wleft, wtop = coords
-        wbottom = wtop + widget.get_allocation().height
+        wbottom = wtop + widget.get_allocation().height * 2
 
         top = self._vadj.get_value()
         bottom = top + self._vadj.get_page_size()
