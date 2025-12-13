@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, GLib
 from euterpe_gtk.utils import emit_signal
 from euterpe_gtk.widgets.entry import EuterpeEntry
 from functools import partial
@@ -38,6 +38,7 @@ class EuterpeEntryList(Gtk.ScrolledWindow):
         super().__init__(**kwargs)
         self._songs = []
         self._current_song = None
+        self._vadj = self.get_vadjustment()
 
     def add(self, song):
         if not isinstance(song, dict):
@@ -72,15 +73,23 @@ class EuterpeEntryList(Gtk.ScrolledWindow):
         song_widget = self._songs[index]
         self._current_song = song_widget
         song_widget.set_relief(Gtk.ReliefStyle.NORMAL)
-        self.scroll_to(song_widget)
+        GLib.idle_add(self.scroll_to, song_widget)
 
     def _on_track_clicked(self, index, *args):
         emit_signal(self, SIGNAL_TRACK_CLICKED, index)
 
     def scroll_to(self, widget):
-        vadj = self.get_vadjustment()
-        coords = widget.translate_coordinates(self, 0, 0)
+        coords = widget.translate_coordinates(self.entry_container, 0, 0)
         if coords is None:
             return
-        x, y = coords
-        vadj.set_value(min(y, vadj.get_upper()))
+
+        _wleft, wtop = coords
+        wbottom = wtop + widget.get_allocation().height
+
+        top = self._vadj.get_value()
+        bottom = top + self._vadj.get_page_size()
+
+        if wtop < top:
+            self._vadj.set_value(wtop)
+        elif wbottom > bottom:
+            self._vadj.set_value(wbottom - self._vadj.get_page_size())
