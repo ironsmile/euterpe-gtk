@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio, GLib
 from gi.repository.GdkPixbuf import Pixbuf
 from euterpe_gtk.player import Repeat, Shuffle
 from euterpe_gtk.utils import emit_signal, format_duration
@@ -68,7 +68,15 @@ class EuterpePlayerUI(Gtk.Viewport):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        self._player = None
+        app = Gio.Application.get_default()
+        if app is None:
+            raise Exception("There is no default application")
+
+        self._player = app.get_player()
+        # _player_signals is mapping between signal name and signal ID connected
+        # for self._player.
+        self._player_signals = {}
+
         self._track_len = None
         self._entry_list = EuterpeEntryList()
         self.playlist.add(self._entry_list)
@@ -103,39 +111,84 @@ class EuterpePlayerUI(Gtk.Viewport):
 
         self._async_artwork = AsyncArtwork(self.artwork, 200)
 
+        self.connect(
+            "map",
+            self.on_mapped
+        )
+        self.connect(
+            "unmap",
+            self.on_unmapped
+        )
+
     def _on_pan_down(self, *args):
         emit_signal(self, SIGNAL_PAN_DOWN)
 
     def get_pan_down_button(self):
         return self.pan_down_button
 
-    def set_player(self, player):
-        self._player = player
+    def on_mapped(self, *args):
+        log.debug("main player UI mapped")
 
-        self._player.connect(
+        self._connect_player_handler(
             "state-changed",
+            self.on_player_state_changed,
             self.on_player_state_changed
         )
-        self._player.connect(
-            "progress",
-            self.on_track_progress_changed
-        )
-        self._player.connect(
+        self._connect_player_handler(
             "track-changed",
+            self.on_track_changed,
             self.on_track_changed
         )
-        self._player.connect(
+        self._connect_player_handler(
+            "progress",
+            self.on_track_progress_changed,
+            self._set_current_progress
+        )
+        self._connect_player_handler(
             "playlist-changed",
+            self.on_player_playlist_changed,
             self.on_player_playlist_changed
         )
-        self._player.connect(
+        self._connect_player_handler(
             "repeat-changed",
+            self.on_repeat_changed,
             self.on_repeat_changed
         )
-        self._player.connect(
+        self._connect_player_handler(
             "shuffle-changed",
+            self.on_shuffle_changed,
             self.on_shuffle_changed
         )
+
+    def on_unmapped(self, *args):
+        log.debug("main player UI unmapped")
+
+        self._disconnect_player_handler("state-changed")
+        self._disconnect_player_handler("track-changed")
+        self._disconnect_player_handler("progress")
+        self._disconnect_player_handler("playlist-changed")
+        self._disconnect_player_handler("repeat-changed")
+        self._disconnect_player_handler("shuffle-changed")
+
+    def _disconnect_player_handler(self, name):
+        signal_id = self._player_signals.get(name, None)
+        if signal_id is None:
+            return
+        self._player.handler_disconnect(signal_id)
+        self._player_signals[name] = None
+
+    def _connect_player_handler(self, name, handler, restore_state):
+        '''
+        This method connects a handler to the named signal of the self._player.
+
+        First, it make sure that the player signal with name `name` is disconnected.
+        Then it schedules `restore_state` to be ran with self._player. And only
+        then connects the signal to the handler.
+        '''
+        self._disconnect_player_handler(name)
+        GLib.idle_add(restore_state, self._player)
+        signal_id = self._player.connect(name, handler)
+        self._player_signals[name] = signal_id
 
     def on_track_progress_changed(self, player, prog):
         self.change_progress(prog)
@@ -158,6 +211,11 @@ class EuterpePlayerUI(Gtk.Viewport):
 
         self.time_elapsed.set_label(elapsed)
         self.time_left.set_label(remainig)
+
+    def _set_current_progress(self, player):
+        progress = player.get_progress()
+        if progress is not None:
+            self.change_progress(progress)
 
     def on_player_state_changed(self, player):
         if player is not self._player:

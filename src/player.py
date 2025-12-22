@@ -73,6 +73,7 @@ class Player(GObject.Object):
         self._shuffle = Shuffle.NONE
         self._repeat = Repeat.NONE
         self._volume_level = 1.0
+        self._restored_progress = None
 
     def set_playlist(self, playlist):
         self.stop()
@@ -175,6 +176,7 @@ class Player(GObject.Object):
         volume.props.volume = self._volume_level
 
         self._playbin = pipeline
+        self._restored_progress = None
         self._volumebin = volume
         self._seek_to = None
         emit_signal(self, SIGNAL_TRACK_CHANGED)
@@ -245,11 +247,12 @@ class Player(GObject.Object):
         '''
             Returns the current playback progress in the [0:1] range or None if
             there's nothing playing at the moment. The progress is gotten from the
-            currently active playbin.
+            currently active playbin if available. Otherwise the progress from the
+            restored state is returned.
         '''
         playbin = self._playbin
         if playbin is None or not self.is_playing():
-            return None
+            return self._restored_progress
         return self._get_progress(self._playbin)
 
     def seek(self, position):
@@ -618,6 +621,7 @@ class Player(GObject.Object):
             return
 
         emit_signal(self, SIGNAL_PROGRESS, state['progress'])
+        self._restored_progress = state['progress']
 
         if 'position' in state and state['position'] is not None:
             self._seek_to = state['position']

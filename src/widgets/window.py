@@ -186,7 +186,6 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
             self._on_show_big_player
         )
         self.miniplayer_position.add(mini_player)
-        self._player_ui.set_player(self._player)
 
         self.logged_in_screen.bind_property(
             'folded',

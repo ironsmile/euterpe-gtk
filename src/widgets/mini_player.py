@@ -41,11 +41,10 @@ class EuterpeMiniPlayer(Gtk.Viewport):
     def __init__(self, player, **kwargs):
         super().__init__(**kwargs)
 
-        self._progress_signal = None
-        self._track_changed_signal = None
-        self._state_changed_signal = None
-        self._first_state_changed_signal = None
         self._player = player
+        # _player_signals is mapping between signal name and signal ID connected
+        # for self._player.
+        self._player_signals = {}
 
         self.show_big_player_button.connect(
             "clicked",
@@ -115,58 +114,51 @@ class EuterpeMiniPlayer(Gtk.Viewport):
 
     def on_mapped(self, *args):
         log.debug("mini player mapped")
-        player = self._player
 
-        # Track progress
-        self._disconnect_progress()
-        GLib.idle_add(self._set_current_progress)
-        self._progress_signal = player.connect(
+        self._connect_player_handler(
             "progress",
-            self.on_track_progress_changed
+            self.on_track_progress_changed,
+            self._set_current_progress
         )
-
-        # Track changed
-        self._disconnect_track_changed()
-        GLib.idle_add(self.on_track_changed, player)
-        self._track_changed_signal = player.connect(
+        self._connect_player_handler(
             "track-changed",
+            self.on_track_changed,
             self.on_track_changed
         )
-
-        # State changed
-        self._disconnect_state_changed()
-        GLib.idle_add(self.on_player_state_changed, player)
-        self._state_changed_signal = player.connect(
+        self._connect_player_handler(
             "state-changed",
+            self.on_player_state_changed,
             self.on_player_state_changed
         )
 
     def on_unmapped(self, *args):
         log.debug("mini player unmapped")
 
-        self._disconnect_progress()
-        self._disconnect_track_changed()
-        self._disconnect_state_changed()
+        self._disconnect_player_handler("state-changed")
+        self._disconnect_player_handler("progress")
+        self._disconnect_player_handler("track-changed")
 
-    def _disconnect_progress(self):
-        if self._progress_signal is None:
+    def _disconnect_player_handler(self, name):
+        signal_id = self._player_signals.get(name, None)
+        if signal_id is None:
             return
-        self._player.handler_disconnect(self._progress_signal)
-        self._progress_signal = None
+        self._player.handler_disconnect(signal_id)
+        self._player_signals[name] = None
 
-    def _disconnect_track_changed(self):
-        if self._track_changed_signal is None:
-            return
-        self._player.handler_disconnect(self._track_changed_signal)
-        self._track_changed_signal = None
+    def _connect_player_handler(self, name, handler, restore_state):
+        '''
+        This method connects a handler to the named signal of the self._player.
 
-    def _disconnect_state_changed(self):
-        if self._state_changed_signal is None:
-            return
-        self._player.handler_disconnect(self._state_changed_signal)
-        self._state_changed_signal = None
+        First, it make sure that the player signal with name `name` is disconnected.
+        Then it schedules `restore_state` to be ran with self._player. And only
+        then connects the signal to the handler.
+        '''
+        self._disconnect_player_handler(name)
+        GLib.idle_add(restore_state, self._player)
+        signal_id = self._player.connect(name, handler)
+        self._player_signals[name] = signal_id
 
-    def _set_current_progress(self):
-        progress = self._player.get_progress()
+    def _set_current_progress(self, player):
+        progress = player.get_progress()
         if progress is not None:
             self.change_progress(progress)
