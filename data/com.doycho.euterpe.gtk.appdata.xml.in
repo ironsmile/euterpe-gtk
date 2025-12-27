@@ -116,6 +116,23 @@
 	</requires>
 
 	<releases>
+		<release version="0.8.2" date="2025-12-27">
+			<description>
+				<p>
+					Another version with small improvements.
+				</p>
+				<ul>
+					<li>
+						Fixed the automatic scrolling to the currently playing song
+						in the play queue.
+					</li>
+					<li>
+						Reduce CPU usage from UI widgets which are not currently
+						visible.
+					</li>
+				</ul>
+			</description>
+		</release>
 		<release version="0.8.1" date="2025-09-08">
 			<description>
 				<p>
