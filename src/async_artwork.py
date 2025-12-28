@@ -15,6 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from functools import partial
+
 from gi.repository import Gio
 from gi.repository.GdkPixbuf import Pixbuf
 from euterpe_gtk.service import ArtworkSize
@@ -50,7 +52,7 @@ class AsyncArtwork(object):
             album_id,
             size,
             cancellable,
-            self._change_artwork,
+            partial(self._change_artwork, handler=self._on_artwork_pixbuf_change_image),
             album_id,
         )
 
@@ -69,11 +71,15 @@ class AsyncArtwork(object):
             artist_id,
             size,
             cancellable,
-            self._change_artwork,
+            partial(self._change_artwork, handler=self._on_artwork_pixbuf_change_image),
             artist_id,
         )
 
-    def _change_artwork(self, status, body_stream, cancel, artwork_id):
+    def _change_artwork(self, status, body_stream, cancel, artwork_id, handler=None):
+        if handler is None:
+            log.error("AsyncArtwork._change_artwork called with None handler")
+            return
+
         if status is None and body_stream is None:
             self._set_default_artwork()
             return
@@ -93,9 +99,9 @@ class AsyncArtwork(object):
             return
 
         Pixbuf.new_from_stream_at_scale_async(body_stream, self._size, self._size,
-            True, cancel, self._on_artwork_pixbuf_ready, artwork_id)
+            True, cancel, handler, artwork_id)
 
-    def _on_artwork_pixbuf_ready(self, obj, res, artwork_id):
+    def _on_artwork_pixbuf_change_image(self, obj, res, artwork_id):
         pb = Pixbuf.new_from_stream_finish(res)
         
         if pb is None:
