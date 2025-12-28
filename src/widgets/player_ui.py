@@ -63,6 +63,9 @@ class EuterpePlayerUI(Gtk.Viewport):
     big_player = Gtk.Template.Child()
     play_queue = Gtk.Template.Child()
 
+    artwork_overlay = Gtk.Template.Child()
+    player_controls = Gtk.Template.Child()
+
     artwork = Gtk.Template.Child()
 
     def __init__(self, **kwargs):
@@ -109,7 +112,7 @@ class EuterpePlayerUI(Gtk.Viewport):
             self._on_show_playlist_clicked
         )
 
-        self._async_artwork = AsyncArtwork(self.artwork, 200)
+        self._async_artwork = AsyncArtwork(self.artwork, 500)
 
         self.connect(
             "map",
@@ -119,6 +122,8 @@ class EuterpePlayerUI(Gtk.Viewport):
             "unmap",
             self.on_unmapped
         )
+
+        self.artwork_overlay.add_overlay(self.player_controls)
 
     def _on_pan_down(self, *args):
         emit_signal(self, SIGNAL_PAN_DOWN)

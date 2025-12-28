@@ -1,3 +1,10 @@
 .inherit-background {
 	background-color: inherit;
 }
+
+.overlay-bg {
+	background-color: @theme_base_color;
+	opacity: 0.9;
+	border-radius: 10px;
+	padding: 10px;
+}
