@@ -91,8 +91,8 @@
           <object class="GtkBox">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="margin-left">10</property>
-            <property name="margin-right">10</property>
+            <property name="margin-start">10</property>
+            <property name="margin-end">10</property>
             <property name="margin-top">10</property>
             <property name="margin-bottom">10</property>
             <property name="orientation">vertical</property>
@@ -141,7 +141,6 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="valign">start</property>
-                    <property name="margin-top">10</property>
                     <property name="margin-bottom">10</property>
                     <property name="homogeneous">True</property>
                     <property name="column-spacing">5</property>
