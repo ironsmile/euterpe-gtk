@@ -39,8 +39,15 @@ class EuterpeSmallPlaylist(Gtk.Viewport):
         super().__init__(**kwargs)
 
         self._playlist = playlist
-        self.playlist_name.set_label(playlist.get("name", "<Unnamed>"))
-        self.playlist_desc.set_label(playlist.get("description", ""))
+
+        name = playlist.get("name", "<Unnamed>")
+        self.playlist_name.set_label(name)
+        self.playlist_name.props.tooltip_text = name
+
+        desc = playlist.get("description", "")
+        self.playlist_desc.set_label(desc)
+        self.playlist_desc.props.tooltip_text = desc
+
         self.secondary_info.set_label(self._get_tracks_info())
 
         self.playlist_open_button.connect("clicked", self._on_next_button)

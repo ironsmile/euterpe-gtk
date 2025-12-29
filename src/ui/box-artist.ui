@@ -1,33 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.22.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <template class="EuterpeBoxArtist" parent="GtkViewport">
-    <property name="width_request">100</property>
-    <property name="height_request">100</property>
+    <property name="width-request">100</property>
+    <property name="height-request">100</property>
     <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="shadow_type">none</property>
+    <property name="can-focus">False</property>
+    <property name="shadow-type">none</property>
     <child>
       <object class="GtkButton" id="button">
-        <property name="width_request">100</property>
-        <property name="height_request">100</property>
+        <property name="width-request">100</property>
+        <property name="height-request">100</property>
         <property name="visible">True</property>
-        <property name="can_focus">True</property>
-        <property name="receives_default">True</property>
+        <property name="can-focus">True</property>
+        <property name="receives-default">True</property>
+        <property name="relief">none</property>
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="margin_top">5</property>
+            <property name="can-focus">False</property>
+            <property name="margin-top">5</property>
             <property name="orientation">vertical</property>
             <property name="spacing">5</property>
             <child>
               <object class="GtkImage" id="image">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="pixel_size">150</property>
-                <property name="icon_name">avatar-default-symbolic</property>
+                <property name="can-focus">False</property>
+                <property name="pixel-size">150</property>
+                <property name="icon-name">avatar-default-symbolic</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -38,13 +39,13 @@
             <child>
               <object class="GtkLabel" id="name">
                 <property name="visible">True</property>
-                <property name="can_focus">False</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">Arist Name</property>
                 <property name="justify">center</property>
                 <property name="wrap">True</property>
                 <property name="ellipsize">end</property>
-                <property name="width_chars">20</property>
-                <property name="max_width_chars">20</property>
+                <property name="width-chars">20</property>
+                <property name="max-width-chars">20</property>
               </object>
               <packing>
                 <property name="expand">False</property>
