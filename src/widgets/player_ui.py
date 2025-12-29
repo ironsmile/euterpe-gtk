@@ -281,7 +281,7 @@ class EuterpePlayerUI(Gtk.Viewport):
             log.warning("_change_artwork_image: track has no album_id")
             return
 
-        self._async_artwork.load_album_image(album_id)
+        self._async_artwork.load_album_picture_view(album_id)
 
     def on_repeat_changed(self, player):
         repeat = player.get_repeat()

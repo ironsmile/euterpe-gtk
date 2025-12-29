@@ -17,7 +17,7 @@
 
 from functools import partial
 
-from gi.repository import Gio
+from gi.repository import Gio, Gdk, Gtk
 from gi.repository.GdkPixbuf import Pixbuf
 from euterpe_gtk.service import ArtworkSize
 import euterpe_gtk.log as log
@@ -32,6 +32,8 @@ class AsyncArtwork(object):
 
         self._euterpe = app.get_euterpe()
         self._image = gtk_image
+        self._image_parent = gtk_image.get_parent()
+        self._pv = None
         self._size = size
         self._previous_request = None
         self._default_icon = gtk_image.get_icon_name()
@@ -52,7 +54,7 @@ class AsyncArtwork(object):
             album_id,
             size,
             cancellable,
-            partial(self._change_artwork, handler=self._on_artwork_pixbuf_change_image),
+            partial(self._change_artwork, handler=self._on_artwork_pixbuf_ready),
             album_id,
         )
 
@@ -71,8 +73,31 @@ class AsyncArtwork(object):
             artist_id,
             size,
             cancellable,
-            partial(self._change_artwork, handler=self._on_artwork_pixbuf_change_image),
+            partial(self._change_artwork, handler=self._on_artwork_pixbuf_ready),
             artist_id,
+        )
+
+    def load_album_picture_view(self, album_id, size=ArtworkSize.FULL, force=False):
+        '''
+        This is imilar to load_album_image but instead uses the self-resizing PictureView
+        element to display the pixel buffer instead of the default image.
+        '''
+        if force != True and self._displayed_artwork_id == album_id:
+            return
+
+        if self._previous_request is not None:
+            self._previous_request.cancel()
+
+        self._set_default_artwork()
+
+        cancellable = Gio.Cancellable.new()
+        self._previous_request = cancellable
+        self._euterpe.get_album_artwork(
+            album_id,
+            size,
+            cancellable,
+            partial(self._change_artwork, handler=self._on_artwork_pixbuf_pv),
+            album_id,
         )
 
     def _change_artwork(self, status, body_stream, cancel, artwork_id, handler=None):
@@ -101,9 +126,9 @@ class AsyncArtwork(object):
         Pixbuf.new_from_stream_at_scale_async(body_stream, self._size, self._size,
             True, cancel, handler, artwork_id)
 
-    def _on_artwork_pixbuf_change_image(self, obj, res, artwork_id):
+    def _on_artwork_pixbuf_ready(self, obj, res, artwork_id):
         pb = Pixbuf.new_from_stream_finish(res)
-        
+
         if pb is None:
             log.debug("_on_artwork_pixbuf_ready: pix buffer was None, id {}", artwork_id)
             self._set_default_artwork()
@@ -112,8 +137,32 @@ class AsyncArtwork(object):
         self._displayed_artwork_id = artwork_id
         self._image.set_from_pixbuf(pb)
 
+    def _on_artwork_pixbuf_pv(self, obj, res, artwork_id):
+        pb = Pixbuf.new_from_stream_finish(res)
+
+        if pb is None:
+            log.debug("_on_artwork_pixbuf_pv: pix buffer was None, id {}", artwork_id)
+            self._set_default_artwork()
+            return
+
+        if self._pv is not None:
+            self._image_parent.remove(self._pv)
+        else:
+            self._image_parent.remove(self._image)
+
+        self._displayed_artwork_id = artwork_id
+        pv = PictureView(pb)
+        pv.props.valign = Gtk.Align.CENTER
+        self._image_parent.add(pv)
+        pv.show()
+        self._pv = pv
+
     def _set_default_artwork(self):
         self._image.set_from_icon_name(*self._default_icon)
+        if self._pv is not None:
+            self._image_parent.remove(self._pv)
+            self._pv = None
+            self._image_parent.add(self._image)
 
     def cancel(self):
         if self._previous_request is None:
@@ -121,3 +170,28 @@ class AsyncArtwork(object):
 
         self._previous_request.cancel()
         self._previous_request = None
+
+class PictureView(Gtk.DrawingArea):
+    def __init__(self, pixbuf, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.pixbuf = pixbuf
+        self.img_surface = Gdk.cairo_surface_create_from_pixbuf(
+            self.pixbuf, 1, None
+        )
+
+    def get_useful_height(self):
+        aw = self.get_allocated_width()
+        pw = self.pixbuf.get_width()
+        ph = self.pixbuf.get_height()
+        return aw/pw * ph
+
+    def get_scale_factor(self):
+        return self.get_allocated_width() / self.pixbuf.get_width()
+
+    def do_draw(self, context):
+        sf = self.get_scale_factor()
+        context.scale(sf, sf)
+        context.set_source_surface(self.img_surface, 0, 0)
+        context.paint()
+        height = self.get_useful_height()
+        self.set_size_request(-1, height)
