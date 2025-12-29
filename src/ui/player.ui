@@ -16,8 +16,8 @@
   <object class="GtkImage" id="pause_icon">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="margin-left">10</property>
-    <property name="margin-right">10</property>
+    <property name="margin-start">10</property>
+    <property name="margin-end">10</property>
     <property name="margin-top">10</property>
     <property name="margin-bottom">10</property>
     <property name="pixel-size">50</property>
@@ -26,6 +26,8 @@
   <object class="GtkImage" id="play_icon">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
+    <property name="margin-start">10</property>
+    <property name="margin-end">10</property>
     <property name="margin-top">10</property>
     <property name="margin-bottom">10</property>
     <property name="pixel-size">50</property>
