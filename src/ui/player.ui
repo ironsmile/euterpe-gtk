@@ -242,13 +242,14 @@
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="valign">end</property>
+    <property name="margin-bottom">10</property>
     <property name="shadow-type">none</property>
     <child>
       <object class="HdyClamp">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
-        <property name="maximum-size">500</property>
-        <property name="tightening-threshold">500</property>
+        <property name="maximum-size">480</property>
+        <property name="tightening-threshold">480</property>
         <child>
           <object class="GtkBox">
             <property name="visible">True</property>
