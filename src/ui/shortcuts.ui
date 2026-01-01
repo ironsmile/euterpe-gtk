@@ -39,6 +39,13 @@
                 <property name="title" translatable="yes" context="shortcut window">Search</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="visible">1</property>
+                <property name="accelerator">&lt;alt&gt;Left</property>
+                <property name="title" translatable="yes" context="shortcut window">Go Back</property>
+              </object>
+            </child>
           </object>
         </child>
         <child>
