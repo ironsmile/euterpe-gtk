@@ -25,6 +25,7 @@ from euterpe_gtk.widgets.album import EuterpeAlbum
 from euterpe_gtk.widgets.artist import EuterpeArtist
 from euterpe_gtk.navigator import Navigator
 from euterpe_gtk.player import SIGNAL_TRACK_CHANGED
+from euterpe_gtk.widgets.paginated_box_list import PaginatedBoxList
 
 import euterpe_gtk.log as log
 
@@ -60,6 +61,9 @@ class EuterpeHomeScreen(Gtk.Viewport):
 
     recently_listened_artists_empty = Gtk.Template.Child()
     recently_listened_albums_empty = Gtk.Template.Child()
+
+    show_artists_button = Gtk.Template.Child()
+    show_albums_button = Gtk.Template.Child()
 
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
@@ -99,6 +103,14 @@ class EuterpeHomeScreen(Gtk.Viewport):
         self._player.connect(
             "track-changed",
             self._on_track_changed,
+        )
+        self.show_artists_button.connect(
+            "clicked",
+            self._on_browse_artists_button
+        )
+        self.show_albums_button.connect(
+            "clicked",
+            self._on_browse_albums_button
         )
 
     def set_added_albums(self, albums):
@@ -359,6 +371,43 @@ class EuterpeHomeScreen(Gtk.Viewport):
         artist_dict = artist_widget.get_artist()
         artist_screen = EuterpeArtist(artist_dict, self._win, self._nav)
         self._nav.show_screen(artist_screen)
+
+
+    def _on_browse_artists_button(self, btn):
+        '''
+        Copied from the browser page. To be moved into a common component.
+        '''
+        app = self._win.get_application()
+        bl = PaginatedBoxList(app, 'artist', self._create_artists_widget)
+        bl.set_title("Artists Browser")
+        self.screen_stack.add(bl)
+        self.screen_stack.set_visible_child(bl)
+
+    def _create_artists_widget(self, artist_info):
+        '''
+        Copied from the browser page. To be moved into a common component.
+        '''
+        artist_widget = EuterpeBoxArtist(artist_info)
+        artist_widget.connect("clicked", self._on_artist_click)
+        return artist_widget
+
+    def _on_browse_albums_button(self, btn):
+        '''
+        Copied from the browser page. To be moved into a common component.
+        '''
+        app = self._win.get_application()
+        bl = PaginatedBoxList(app, 'album', self._create_album_widget)
+        bl.set_title("Albums Browser")
+        self.screen_stack.add(bl)
+        self.screen_stack.set_visible_child(bl)
+
+    def _create_album_widget(self, album_info):
+        '''
+        Copied from the browser page. To be moved into a common component.
+        '''
+        album_widget = EuterpeBoxAlbum(album_info)
+        album_widget.connect("clicked", self._on_album_click)
+        return album_widget
 
 def _compare_artists(a, b):
     return a["artist_id"] == b["artist_id"]
