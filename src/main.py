@@ -106,6 +106,7 @@ class Application(Gtk.Application):
             "reference": self.on_show_help,
             "about_dialog": self.on_about_dialog,
             "search": self.on_search,
+            "show_playlists": self.on_show_playlists,
         }
 
         for action_name, handler in actions.items():
@@ -184,6 +185,15 @@ class Application(Gtk.Application):
             win.open_search_screen(*args)
         else:
             log.error("the main window has no 'open_search_screen' property")
+
+    def on_show_playlists(self, *args):
+        win = self.props.active_window
+        if win is None:
+            return
+        if win and hasattr(win, "open_playlists_screen"):
+            win.open_playlists_screen(*args)
+        else:
+            log.error("the main window has no 'open_playlists_screen' property")
 
     def get_player(self):
         return self._player

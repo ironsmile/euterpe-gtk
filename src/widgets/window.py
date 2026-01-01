@@ -472,6 +472,9 @@ class EuterpeGtkWindow(Handy.ApplicationWindow):
         self._search_widget.focus_search_input()
         self.main_stack.set_visible_child(self.search_screen)
 
+    def open_playlists_screen(self, *args):
+        self.main_stack.set_visible_child(self.playlists_screen)
+
     def _on_logout_requested(self, *args, **kwargs):
         self.logout()
 

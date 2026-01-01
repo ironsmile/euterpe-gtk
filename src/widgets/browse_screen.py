@@ -15,69 +15,168 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gi.repository import GObject, Gtk
+from gi.repository import GObject, Gtk, Gio
 from euterpe_gtk.utils import emit_signal
 from euterpe_gtk.widgets.paginated_box_list import PaginatedBoxList
 from euterpe_gtk.widgets.box_artist import EuterpeBoxArtist
 from euterpe_gtk.widgets.box_album import EuterpeBoxAlbum
 from euterpe_gtk.widgets.artist import EuterpeArtist
 from euterpe_gtk.widgets.album import EuterpeAlbum
+from euterpe_gtk.widgets.image_card import EuterpeImageCard
+from euterpe_gtk.widgets.carousel_item import EuterpeCarouselItem
 from euterpe_gtk.widgets.track import EuterpeTrack, PLAY_BUTTON_CLICKED, APPEND_BUTTON_CLICKED
 from euterpe_gtk.navigator import Navigator
+import euterpe_gtk.log as log
 
 
 @Gtk.Template(resource_path='/com/doycho/euterpe/gtk/ui/browse-screen.ui')
 class EuterpeBrowseScreen(Gtk.Viewport):
     __gtype_name__ = 'EuterpeBrowseScreen'
 
-
-    show_artists_button = Gtk.Template.Child()
-    show_albums_button = Gtk.Template.Child()
-    show_songs_button = Gtk.Template.Child()
-    show_offline_library_button = Gtk.Template.Child()
-
-    search_button = Gtk.Template.Child()
     browse_stack = Gtk.Template.Child()
 
     not_implemented = Gtk.Template.Child()
     browse_main = Gtk.Template.Child()
+
+    main_actions = Gtk.Template.Child()
+    random_albums = Gtk.Template.Child()
+    random_albums_loader = Gtk.Template.Child()
+
+    carousel_overlay = Gtk.Template.Child()
+    carousel_prev_button = Gtk.Template.Child()
+    carousel_next_button = Gtk.Template.Child()
 
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
 
         self._win = win
 
-        self.show_offline_library_button.connect(
-            "clicked",
-            self._show_not_implemented_screen,
-        )
+        app = Gio.Application.get_default()
+        if app is None:
+            raise Exception("There is no default application")
+        self._euterpe = app.get_euterpe()
 
-        self.show_songs_button.connect(
-            "clicked",
-            self._on_browse_songs_button,
-        )
+        cards  = [
+            {
+                "title": "Artists",
+                "icon": "avatar-default-symbolic",
+                "on_click": self._on_browse_artists_button,
+            },
+            {
+                "title":"Albums",
+                "icon": "media-optical-cd-audio-symbolic",
+                "on_click": self._on_browse_albums_button,
+            },
+            {
+                "title":"Songs",
+                "icon": "folder-music-symbolic",
+                "on_click": self._on_browse_songs_button,
+            },
+            {
+                "title":"Playlists",
+                "icon": "folder-music-symbolic",
+                "action": "app.show_playlists",
+            },
+            {
+                "title":"Offline Library",
+                "icon": "user-bookmarks-symbolic",
+                "on_click": self._show_not_implemented_screen,
+            },
+            {
+                "title":"Search",
+                "icon": "system-search-symbolic",
+                "action": "app.search",
+            },
+        ]
 
-        self.show_artists_button.connect(
-            "clicked",
-            self._on_browse_artists_button
-        )
-
-        self.show_albums_button.connect(
-            "clicked",
-            self._on_browse_albums_button
-        )
+        for cardInfo in cards:
+            card = EuterpeImageCard(**cardInfo)
+            self.main_actions.add(card)
 
         self._nav = Navigator(self.browse_stack, self.browse_main)
+        self._mapped = False
+        self.connect(
+            "map",
+            self._on_mapped
+        )
 
     def get_nav(self):
         return self._nav
+
+    def _on_mapped(self, *args):
+        if self._mapped:
+            return
+
+        self._mapped = True
+        log.debug("browse screen mapped for the first time")
+        self._euterpe.get_random_list(
+            "album",
+            self._on_random_albums_callback,
+            per_page=6,
+        )
+        self.carousel_overlay.add_overlay(self.carousel_next_button)
+        self.carousel_overlay.add_overlay(self.carousel_prev_button)
+
+        self.carousel_next_button.connect("clicked", self._on_carousel_next)
+        self.carousel_prev_button.connect("clicked", self._on_carousel_prev)
+
+    def _on_carousel_next(self, btn):
+        pos = self.random_albums.get_position()
+        pages = self.random_albums.get_n_pages()
+        if pos+1 >= pages:
+            return
+        children = self.random_albums.get_children()
+        # children is 0-based index while positions in the carousel are 1-based.
+        next_pos = int(pos+1)
+        self.random_albums.scroll_to(children[next_pos])
+
+    def _on_carousel_prev(self, btn):
+        pos = self.random_albums.get_position()
+        if pos <= 0:
+            return
+        children = self.random_albums.get_children()
+        # children is 0-based index while positions in the carousel are 1-based.
+        prev_pos = int(pos-1)
+        self.random_albums.scroll_to(children[prev_pos])
+
+    def _on_random_albums_callback(self, status, body):
+        if status != 200:
+            self._show_error(
+                self.random_albums_loader,
+                "Error, HTTP response code {}".format(status),
+            )
+            return
+
+        if body is None or 'data' not in body:
+            self._show_error(
+                self.random_albums_loader,
+                "Unexpected response from server.",
+            )
+            return
+
+        self._show_albums_in_carousel(body['data'])
+
+    def _show_albums_in_carousel(self, albums):
+        if len(albums) < 1:
+            self._show_error(self.random_albums_loader, "No albums found.")
+            return
+
+        self.random_albums.foreach(
+            self.random_albums.remove
+        )
+
+        for album in albums:
+            album_widget = EuterpeCarouselItem(album)
+            album_widget.connect("clicked", self._on_album_click)
+            self.random_albums.add(album_widget)
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
 
     def _on_browse_songs_button(self, btn):
         app = self._win.get_application()
         bl = PaginatedBoxList(app, 'song', self._create_song_widget)
         bl.set_title("Songs Browser")
-        self.browse_stack.add(bl)
-        self.browse_stack.set_visible_child(bl)
+        self._nav.show_screen(bl)
 
     def _create_song_widget(self, track_info):
         song_widget = EuterpeTrack(track_info)
@@ -100,8 +199,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         app = self._win.get_application()
         bl = PaginatedBoxList(app, 'artist', self._create_artists_widget)
         bl.set_title("Artists Browser")
-        self.browse_stack.add(bl)
-        self.browse_stack.set_visible_child(bl)
+        self._nav.show_screen(bl)
 
     def _create_artists_widget(self, artist_info):
         artist_widget = EuterpeBoxArtist(artist_info)
@@ -117,8 +215,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         app = self._win.get_application()
         bl = PaginatedBoxList(app, 'album', self._create_album_widget)
         bl.set_title("Albums Browser")
-        self.browse_stack.add(bl)
-        self.browse_stack.set_visible_child(bl)
+        self._nav.show_screen(bl)
 
     def _create_album_widget(self, album_info):
         album_widget = EuterpeBoxAlbum(album_info)
@@ -131,5 +228,4 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self._nav.show_screen(album_screen)
 
     def _show_not_implemented_screen(self, btn):
-        self.browse_stack.add(self.not_implemented)
-        self.browse_stack.set_visible_child(self.not_implemented)
+        self._nav.show_screen(self.not_implemented)

@@ -3,41 +3,6 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <requires lib="libhandy" version="1.8"/>
-  <object class="GtkImage" id="browse-albums-button-image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">go-next-symbolic</property>
-  </object>
-  <object class="GtkImage" id="browse-artists-button-image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">go-next-symbolic</property>
-  </object>
-  <object class="GtkImage" id="browse-offline-library-image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">go-next-symbolic</property>
-  </object>
-  <object class="GtkImage" id="browse-songs-button-image">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">go-next-symbolic</property>
-  </object>
-  <object class="HdyStatusPage" id="not_implemented">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">dialog-warning-symbolic</property>
-    <property name="title" translatable="yes">Not Implemented</property>
-    <property name="description" translatable="yes">This feature is meant to be here at some point but I hadn't time to get to it yet!</property>
-    <child>
-      <placeholder/>
-    </child>
-  </object>
-  <object class="GtkImage" id="search-button-icon">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">system-search-symbolic</property>
-  </object>
   <template class="EuterpeBrowseScreen" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -51,28 +16,54 @@
           <object class="HdyClamp" id="browse_main">
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="maximum-size">400</property>
+            <property name="maximum-size">800</property>
+            <property name="tightening-threshold">800</property>
             <child>
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="valign">center</property>
-                <property name="margin-left">10</property>
-                <property name="margin-right">10</property>
+                <property name="valign">start</property>
+                <property name="margin-start">10</property>
+                <property name="margin-end">10</property>
+                <property name="margin-top">45</property>
                 <property name="orientation">vertical</property>
                 <property name="spacing">5</property>
                 <child>
-                  <object class="GtkLabel">
+                  <object class="GtkOverlay" id="carousel_overlay">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="margin-top">15</property>
-                    <property name="margin-bottom">15</property>
-                    <property name="label" translatable="yes">Not sure what exactly to you feel like listening to? I have an advice for you. Just browse around your music and in no time you will find something. Promise!</property>
-                    <property name="justify">center</property>
-                    <property name="wrap">True</property>
-                    <style>
-                      <class name="dim-label"/>
-                    </style>
+                    <child>
+                      <object class="HdyCarousel" id="random_albums">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="allow-scroll-wheel">False</property>
+                        <property name="allow-long-swipes">True</property>
+                        <child>
+                          <object class="GtkScrolledWindow" id="random_albums_loader">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="min-content-height">120</property>
+                            <child>
+                              <object class="GtkViewport">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="shadow-type">none</property>
+                                <child>
+                                  <object class="GtkSpinner">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="active">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="index">-1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -81,56 +72,10 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
+                  <object class="HdyCarouselIndicatorDots" id="random_albums_dots">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">avatar-default-symbolic</property>
-                        <property name="icon_size">3</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Browse Artists</property>
-                        <property name="ellipsize">end</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="show_artists_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="focus-on-click">False</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">View a list with all artists</property>
-                        <property name="image">browse-artists-button-image</property>
-                        <property name="always-show-image">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
+                    <property name="carousel">random_albums</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -139,217 +84,36 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
+                  <object class="GtkFlowBox" id="main_actions">
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">media-optical-cd-audio-symbolic</property>
-                        <property name="icon_size">3</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Browse Albums</property>
-                        <property name="ellipsize">end</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="show_albums_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="focus-on-click">False</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">View a list with all albums</property>
-                        <property name="image">browse-albums-button-image</property>
-                        <property name="always-show-image">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
+                    <property name="can-focus">True</property>
+                    <property name="margin-top">10</property>
+                    <property name="homogeneous">True</property>
+                    <property name="column-spacing">10</property>
+                    <property name="row-spacing">10</property>
+                    <property name="min-children-per-line">2</property>
+                    <property name="max-children-per-line">3</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
+                    <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">folder-music-symbolic</property>
-                        <property name="icon_size">3</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Browse Songs</property>
-                        <property name="ellipsize">end</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="show_songs_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="focus-on-click">False</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">View a list with all tracks</property>
-                        <property name="image">browse-songs-button-image</property>
-                        <property name="always-show-image">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">3</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkBox">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="spacing">5</property>
-                    <child>
-                      <object class="GtkImage">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="icon-name">user-bookmarks-symbolic</property>
-                        <property name="icon_size">3</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Offline Library</property>
-                        <property name="ellipsize">end</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkButton" id="show_offline_library_button">
-                        <property name="visible">True</property>
-                        <property name="can-focus">True</property>
-                        <property name="focus-on-click">False</property>
-                        <property name="receives-default">True</property>
-                        <property name="tooltip-text" translatable="yes">View the songs available offline</property>
-                        <property name="image">browse-offline-library-image</property>
-                        <property name="always-show-image">True</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">4</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="margin-top">15</property>
-                    <property name="margin-bottom">15</property>
-                    <property name="label" translatable="yes">Don't feel like going through all of your music? No problem with that! Try searching:</property>
-                    <property name="justify">center</property>
-                    <property name="wrap">True</property>
-                    <style>
-                      <class name="dim-label"/>
-                    </style>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">5</property>
-                  </packing>
+                  <placeholder/>
                 </child>
                 <child>
-                  <object class="GtkButton" id="search_button">
-                    <property name="label" translatable="yes">Search</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="focus-on-click">False</property>
-                    <property name="receives-default">True</property>
-                    <property name="tooltip-text" translatable="yes">Go to the search screen</property>
-                    <property name="halign">center</property>
-                    <property name="margin-bottom">15</property>
-                    <property name="action-name">app.search</property>
-                    <property name="image">search-button-icon</property>
-                    <property name="always-show-image">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">6</property>
-                  </packing>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
                 </child>
               </object>
             </child>
@@ -362,4 +126,53 @@
       </object>
     </child>
   </template>
+  <object class="GtkImage" id="next_image">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-next-symbolic</property>
+  </object>
+  <object class="GtkButton" id="carousel_next_button">
+    <property name="visible">True</property>
+    <property name="can-focus">True</property>
+    <property name="receives-default">True</property>
+    <property name="halign">end</property>
+    <property name="valign">center</property>
+    <property name="margin-end">10</property>
+    <property name="image">next_image</property>
+    <property name="relief">none</property>
+    <property name="image-position">right</property>
+    <property name="always-show-image">True</property>
+    <style>
+      <class name="circular"/>
+    </style>
+  </object>
+  <object class="HdyStatusPage" id="not_implemented">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">dialog-warning-symbolic</property>
+    <property name="title" translatable="yes">Not Implemented</property>
+    <property name="description" translatable="yes">This feature is meant to be here at some point but I hadn't time to get to it yet!</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
+  <object class="GtkImage" id="prev_image">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-previous-symbolic</property>
+  </object>
+  <object class="GtkButton" id="carousel_prev_button">
+    <property name="visible">True</property>
+    <property name="can-focus">True</property>
+    <property name="receives-default">True</property>
+    <property name="halign">start</property>
+    <property name="valign">center</property>
+    <property name="margin-start">10</property>
+    <property name="image">prev_image</property>
+    <property name="relief">none</property>
+    <property name="always-show-image">True</property>
+    <style>
+      <class name="circular"/>
+    </style>
+  </object>
 </interface>

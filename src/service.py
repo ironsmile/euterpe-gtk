@@ -201,7 +201,7 @@ class Euterpe(GObject.Object):
         req.delete(*args)
 
     def get_recently_added(self, what, callback):
-        if what not in ['album', 'artist']:
+        if what not in ['album', 'artist', 'song']:
             log.warning("unknown rencently added type: {}", what)
             return
 
@@ -210,6 +210,42 @@ class Euterpe(GObject.Object):
         address = "{}?by={}&per-page=10&order-by=id&order=desc".format(
             address,
             urllib.parse.quote(what, safe='')
+        )
+        req = self._create_request(address, cb)
+        req.get()
+
+    def get_frequently_played(self, what, callback, per_page=12):
+        '''
+        Get a list of frequently played items.
+        '''
+        if what not in ['album', 'song']:
+            log.warning("unknown frequently played type: {}", what)
+            return
+
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_BROWSE)
+        address = "{}?by={}&per-page={}&order-by=frequency&order=desc".format(
+            address,
+            urllib.parse.quote(what, safe=''),
+            per_page
+        )
+        req = self._create_request(address, cb)
+        req.get()
+
+    def get_random_list(self, what, callback, per_page=12):
+        '''
+        Get a list of random items.
+        '''
+        if what not in ['album', 'song', 'artist']:
+            log.warning("unknown random list type: {}", what)
+            return
+
+        cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
+        address = Euterpe.build_url(self._remote_address, ENDPOINT_BROWSE)
+        address = "{}?by={}&per-page={}&order-by=random".format(
+            address,
+            urllib.parse.quote(what, safe=''),
+            per_page
         )
         req = self._create_request(address, cb)
         req.get()

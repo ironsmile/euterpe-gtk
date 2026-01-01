@@ -8,3 +8,12 @@
 	border-radius: 10px;
 	padding: 10px;
 }
+
+.card {
+	padding: 10px 5px;
+}
+
+.card > label {
+	font-size: 18px;
+	font-weight: bold;
+}
