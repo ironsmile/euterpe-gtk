@@ -3,129 +3,6 @@
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <requires lib="libhandy" version="1.8"/>
-  <template class="EuterpeBrowseScreen" parent="GtkViewport">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="shadow-type">none</property>
-    <child>
-      <object class="GtkStack" id="browse_stack">
-        <property name="visible">True</property>
-        <property name="can-focus">False</property>
-        <property name="transition-type">slide-left-right</property>
-        <child>
-          <object class="HdyClamp" id="browse_main">
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="maximum-size">800</property>
-            <property name="tightening-threshold">800</property>
-            <child>
-              <object class="GtkBox">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="valign">start</property>
-                <property name="margin-start">10</property>
-                <property name="margin-end">10</property>
-                <property name="margin-top">45</property>
-                <property name="orientation">vertical</property>
-                <property name="spacing">5</property>
-                <child>
-                  <object class="GtkOverlay" id="carousel_overlay">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <child>
-                      <object class="HdyCarousel" id="random_albums">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="allow-scroll-wheel">False</property>
-                        <property name="allow-long-swipes">True</property>
-                        <child>
-                          <object class="GtkScrolledWindow" id="random_albums_loader">
-                            <property name="visible">True</property>
-                            <property name="can-focus">True</property>
-                            <property name="min-content-height">120</property>
-                            <child>
-                              <object class="GtkViewport">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="shadow-type">none</property>
-                                <child>
-                                  <object class="GtkSpinner">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="active">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="index">-1</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="HdyCarouselIndicatorDots" id="random_albums_dots">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="carousel">random_albums</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">True</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkFlowBox" id="main_actions">
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="margin-top">10</property>
-                    <property name="homogeneous">True</property>
-                    <property name="column-spacing">10</property>
-                    <property name="row-spacing">10</property>
-                    <property name="min-children-per-line">2</property>
-                    <property name="max-children-per-line">3</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="name">browse</property>
-            <property name="title" translatable="yes">Browse</property>
-          </packing>
-        </child>
-      </object>
-    </child>
-  </template>
   <object class="GtkImage" id="next_image">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -174,5 +51,279 @@
     <style>
       <class name="circular"/>
     </style>
+  </object>
+  <object class="GtkImage" id="refresh_freq_played_albums_icon">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">view-refresh-symbolic</property>
+  </object>
+  <template class="EuterpeBrowseScreen" parent="GtkViewport">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="shadow-type">none</property>
+    <child>
+      <object class="GtkStack" id="browse_stack">
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+        <property name="transition-type">slide-left-right</property>
+        <child>
+          <object class="GtkScrolledWindow" id="browse_main">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <child>
+              <object class="GtkViewport">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="shadow-type">none</property>
+                <child>
+                  <object class="HdyClamp">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="maximum-size">800</property>
+                    <property name="tightening-threshold">800</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <property name="valign">start</property>
+                        <property name="margin-start">10</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-top">45</property>
+                        <property name="margin-bottom">10</property>
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkOverlay" id="carousel_overlay">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <child>
+                              <object class="HdyCarousel" id="random_albums">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="allow-scroll-wheel">False</property>
+                                <property name="allow-long-swipes">True</property>
+                                <child>
+                                  <object class="GtkScrolledWindow" id="random_albums_loader">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">True</property>
+                                    <property name="min-content-height">120</property>
+                                    <child>
+                                      <object class="GtkViewport">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="shadow-type">none</property>
+                                        <child>
+                                          <object class="GtkSpinner">
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">False</property>
+                                            <property name="active">True</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="index">-1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HdyCarouselIndicatorDots" id="random_albums_dots">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="carousel">random_albums</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFlowBox" id="main_actions">
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="margin-top">20</property>
+                            <property name="homogeneous">True</property>
+                            <property name="column-spacing">10</property>
+                            <property name="row-spacing">10</property>
+                            <property name="min-children-per-line">2</property>
+                            <property name="max-children-per-line">3</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-top">20</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label" translatable="yes">Frequently Played Albums</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single-line-mode">True</property>
+                                <style>
+                                  <class name="title-3"/>
+                                </style>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="refresh_frequently_played_albums">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <property name="tooltip-text" translatable="yes">Refresh frequently played albums</property>
+                                <property name="image">refresh_freq_played_albums_icon</property>
+                                <property name="relief">none</property>
+                                <property name="always-show-image">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="pack-type">end</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinner" id="frequently_played_albums_spinner">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="active">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">4</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFlowBox" id="frequently_played_albums">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="min-children-per-line">1</property>
+                            <property name="max-children-per-line">6</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">5</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-top">20</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label" translatable="yes">Frequently Played Songs</property>
+                                <property name="ellipsize">end</property>
+                                <property name="single-line-mode">True</property>
+                                <style>
+                                  <class name="title-3"/>
+                                </style>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="refresh_frequently_played_songs">
+                                <property name="visible">True</property>
+                                <property name="can-focus">True</property>
+                                <property name="receives-default">True</property>
+                                <property name="tooltip-text" translatable="yes">Refresh requently played songs</property>
+                                <property name="image">refresh_freq_played_songs_icon</property>
+                                <property name="relief">none</property>
+                                <property name="always-show-image">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="pack-type">end</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">6</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinner" id="frequently_played_songs_spinner">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="active">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">7</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkFlowBox" id="frequently_played_songs">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="min-children-per-line">1</property>
+                            <property name="max-children-per-line">1</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">8</property>
+                          </packing>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="name">browse</property>
+            <property name="title" translatable="yes">Browse</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+  </template>
+  <object class="GtkImage" id="refresh_freq_played_songs_icon">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">view-refresh-symbolic</property>
   </object>
 </interface>

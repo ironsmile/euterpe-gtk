@@ -46,6 +46,15 @@ class EuterpeBrowseScreen(Gtk.Viewport):
     carousel_prev_button = Gtk.Template.Child()
     carousel_next_button = Gtk.Template.Child()
 
+    frequently_played_songs = Gtk.Template.Child()
+    frequently_played_albums = Gtk.Template.Child()
+
+    frequently_played_albums_spinner = Gtk.Template.Child()
+    frequently_played_songs_spinner = Gtk.Template.Child()
+
+    refresh_frequently_played_albums = Gtk.Template.Child()
+    refresh_frequently_played_songs = Gtk.Template.Child()
+
     def __init__(self, win, **kwargs):
         super().__init__(**kwargs)
 
@@ -120,6 +129,40 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self.carousel_next_button.connect("clicked", self._on_carousel_next)
         self.carousel_prev_button.connect("clicked", self._on_carousel_prev)
 
+        self._refresh_frequent_albums()
+        self._refresh_frequent_songs()
+
+        self.refresh_frequently_played_albums.connect(
+            "clicked",
+            self._refresh_frequent_albums,
+        )
+        self.refresh_frequently_played_songs.connect(
+            "clicked",
+            self._refresh_frequent_songs,
+        )
+
+    def _refresh_frequent_albums(self, *args):
+        self.frequently_played_albums.foreach(
+            self.frequently_played_albums.remove
+        )
+        self.frequently_played_albums_spinner.start()
+        self._euterpe.get_frequently_played(
+            "album",
+            self._on_frequently_played_albums_callback,
+            per_page=12,
+        )
+
+    def _refresh_frequent_songs(self, *args):
+        self.frequently_played_songs.foreach(
+            self.frequently_played_songs.remove
+        )
+        self.frequently_played_songs_spinner.start()
+        self._euterpe.get_frequently_played(
+            "song",
+            self._on_frequently_played_songs_callback,
+            per_page=12,
+        )
+
     def _on_carousel_next(self, btn):
         pos = self.random_albums.get_position()
         pages = self.random_albums.get_n_pages()
@@ -169,6 +212,75 @@ class EuterpeBrowseScreen(Gtk.Viewport):
             album_widget = EuterpeCarouselItem(album)
             album_widget.connect("clicked", self._on_album_click)
             self.random_albums.add(album_widget)
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
+
+    def _on_frequently_played_albums_callback(self, status, body):
+        self.frequently_played_albums_spinner.stop()
+
+        if status != 200:
+            self._show_error(
+                self.frequently_played_albums,
+                "Error, HTTP response code {}".format(status),
+            )
+            return
+
+        if body is None or 'data' not in body:
+            self._show_error(
+                self.frequently_played_albums,
+                "Unexpected response from server.",
+            )
+            return
+
+        self._show_albums_in_frequently_played(body['data'])
+
+    def _show_albums_in_frequently_played(self, albums):
+        if len(albums) < 1:
+            self._show_error(self.frequently_played_albums, "No albums found.")
+            return
+
+        self.frequently_played_albums.foreach(
+            self.frequently_played_albums.remove
+        )
+
+        for album in albums:
+            album_widget = EuterpeBoxAlbum(album)
+            album_widget.connect("clicked", self._on_album_click)
+            self.frequently_played_albums.add(album_widget)
+            while (Gtk.events_pending()):
+                Gtk.main_iteration()
+
+    def _on_frequently_played_songs_callback(self, status, body):
+        self.frequently_played_songs_spinner.stop()
+
+        if status != 200:
+            self._show_error(
+                self.frequently_played_songs,
+                "Error, HTTP response code {}".format(status),
+            )
+            return
+
+        if body is None or 'data' not in body:
+            self._show_error(
+                self.frequently_played_songs,
+                "Unexpected response from server.",
+            )
+            return
+
+        self._show_songs_in_frequently_played(body['data'])
+
+    def _show_songs_in_frequently_played(self, songs):
+        if len(songs) < 1:
+            self._show_error(self.frequently_played_songs, "No songs found.")
+            return
+
+        self.frequently_played_songs.foreach(
+            self.frequently_played_songs.remove
+        )
+
+        for song in songs:
+            song_widget = self._create_song_widget(song)
+            self.frequently_played_songs.add(song_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
@@ -229,3 +341,17 @@ class EuterpeBrowseScreen(Gtk.Viewport):
 
     def _show_not_implemented_screen(self, btn):
         self._nav.show_screen(self.not_implemented)
+
+    def _show_error(self, container, error_widget_or_text):
+        container.foreach(container.remove)
+
+        if isinstance(error_widget_or_text, Gtk.Widget):
+            container.add(error_widget_or_text)
+            return
+
+        err = Gtk.Label.new()
+        err.set_label(error_widget_or_text)
+        err.set_line_wrap(True)
+        err.set_justify(Gtk.Justification.CENTER)
+        container.add(err)
+        err.show()
