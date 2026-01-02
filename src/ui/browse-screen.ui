@@ -12,6 +12,7 @@
     <property name="visible">True</property>
     <property name="can-focus">True</property>
     <property name="receives-default">True</property>
+    <property name="tooltip-text" translatable="yes">Next</property>
     <property name="halign">end</property>
     <property name="valign">center</property>
     <property name="margin-end">10</property>
@@ -42,6 +43,7 @@
     <property name="visible">True</property>
     <property name="can-focus">True</property>
     <property name="receives-default">True</property>
+    <property name="tooltip-text" translatable="yes">Previous</property>
     <property name="halign">start</property>
     <property name="valign">center</property>
     <property name="margin-start">10</property>
