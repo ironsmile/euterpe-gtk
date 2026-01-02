@@ -200,16 +200,17 @@ class Euterpe(GObject.Object):
         req = self._create_request(address, cb)
         req.delete(*args)
 
-    def get_recently_added(self, what, callback):
+    def get_recently_added(self, what, callback, per_page=12):
         if what not in ['album', 'artist', 'song']:
             log.warning("unknown rencently added type: {}", what)
             return
 
         cb = TokenExpirationCallback(self, JSONBodyCallback(callback))
         address = Euterpe.build_url(self._remote_address, ENDPOINT_BROWSE)
-        address = "{}?by={}&per-page=10&order-by=id&order=desc".format(
+        address = "{}?by={}&per-page={}&order-by=id&order=desc".format(
             address,
-            urllib.parse.quote(what, safe='')
+            urllib.parse.quote(what, safe=''),
+            per_page,
         )
         req = self._create_request(address, cb)
         req.get()

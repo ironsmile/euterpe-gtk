@@ -2,7 +2,16 @@
 <!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <requires lib="libhandy" version="1.8"/>
+  <object class="GtkImage" id="browse-albums-button-image1">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-next-symbolic</property>
+  </object>
+  <object class="GtkImage" id="browse-artists-button-image">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">go-next-symbolic</property>
+  </object>
   <template class="EuterpeHomeScreen" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -49,7 +58,6 @@
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="halign">center</property>
                         <property name="spacing">5</property>
                         <child>
                           <object class="GtkImage">
@@ -69,11 +77,11 @@
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">ARTISTS</property>
+                            <property name="label" translatable="yes">Recently Added Artists</property>
                             <property name="ellipsize">end</property>
-                            <attributes>
-                              <attribute name="weight" value="bold"/>
-                            </attributes>
+                            <style>
+                              <class name="title-3"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -83,19 +91,21 @@
                         </child>
                         <child>
                           <object class="GtkButton" id="show_artists_button">
-                            <property name="label" translatable="yes">Browse</property>
+                            <property name="label" translatable="yes">Show All</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="focus-on-click">False</property>
                             <property name="receives-default">True</property>
                             <property name="tooltip-text" translatable="yes">View a list with all artists</property>
                             <property name="image">browse-artists-button-image</property>
+                            <property name="relief">none</property>
                             <property name="image-position">right</property>
                             <property name="always-show-image">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
+                            <property name="pack-type">end</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
@@ -107,17 +117,15 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel">
+                      <object class="GtkFlowBox" id="recently_added_artists">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="valign">start</property>
-                        <property name="label" translatable="yes">Recently Added</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
+                        <property name="homogeneous">True</property>
+                        <property name="column-spacing">10</property>
+                        <property name="row-spacing">10</property>
+                        <property name="min-children-per-line">1</property>
+                        <property name="max-children-per-line">6</property>
+                        <property name="selection-mode">none</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -126,31 +134,58 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="HdyCarousel" id="recently_added_artists">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="spacing">10</property>
-                        <property name="allow-scroll-wheel">False</property>
-                        <property name="allow-long-swipes">True</property>
+                        <property name="margin-top">40</property>
+                        <property name="spacing">5</property>
                         <child>
-                          <object class="GtkSpinner">
+                          <object class="GtkImage">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="active">True</property>
+                            <property name="icon-name">avatar-default-symbolic</property>
+                            <property name="icon_size">3</property>
                           </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Recently Played Artists</property>
+                            <property name="ellipsize">end</property>
+                            <style>
+                              <class name="title-3"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="HdyCarouselIndicatorDots">
+                      <object class="GtkFlowBox" id="recently_listened_to_artists">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="carousel">recently_added_artists</property>
+                        <property name="homogeneous">True</property>
+                        <property name="column-spacing">10</property>
+                        <property name="row-spacing">10</property>
+                        <property name="min-children-per-line">1</property>
+                        <property name="max-children-per-line">6</property>
+                        <property name="selection-mode">none</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -159,69 +194,10 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="label" translatable="yes">Recently Played</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">5</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="HdyCarousel" id="recently_listened_to_artists">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="spacing">10</property>
-                        <property name="allow-scroll-wheel">False</property>
-                        <property name="allow-long-swipes">True</property>
-                        <child>
-                          <object class="GtkLabel" id="recently_listened_artists_empty">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">You havent listened to anything yet.
-Artist history will be listed here once you play some tracks.</property>
-                            <property name="justify">center</property>
-                            <property name="wrap">True</property>
-                            <property name="selectable">True</property>
-                            <style>
-                              <class name="dim-label"/>
-                            </style>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">6</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="HdyCarouselIndicatorDots">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="carousel">recently_listened_to_artists</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">7</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="margin-top">20</property>
+                        <property name="margin-top">40</property>
                         <property name="spacing">5</property>
                         <child>
                           <object class="GtkImage">
@@ -241,11 +217,11 @@ Artist history will be listed here once you play some tracks.</property>
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
                             <property name="halign">start</property>
-                            <property name="label" translatable="yes">ALBUMS</property>
+                            <property name="label" translatable="yes">Recently Added Albums</property>
                             <property name="ellipsize">end</property>
-                            <attributes>
-                              <attribute name="weight" value="bold"/>
-                            </attributes>
+                            <style>
+                              <class name="title-3"/>
+                            </style>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -255,40 +231,25 @@ Artist history will be listed here once you play some tracks.</property>
                         </child>
                         <child>
                           <object class="GtkButton" id="show_albums_button">
-                            <property name="label" translatable="yes">Browse</property>
+                            <property name="label" translatable="yes">Show All</property>
                             <property name="visible">True</property>
                             <property name="can-focus">True</property>
                             <property name="focus-on-click">False</property>
                             <property name="receives-default">True</property>
                             <property name="tooltip-text" translatable="yes">View a list with all albums</property>
-                            <property name="image">browse-albums-button-image</property>
+                            <property name="halign">start</property>
+                            <property name="image">browse-albums-button-image1</property>
+                            <property name="relief">none</property>
                             <property name="image-position">right</property>
                             <property name="always-show-image">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
                             <property name="fill">True</property>
+                            <property name="pack-type">end</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">8</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="label" translatable="yes">Recently Added</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -297,19 +258,15 @@ Artist history will be listed here once you play some tracks.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="HdyCarousel" id="recently_added_albums">
+                      <object class="GtkFlowBox" id="recently_added_albums">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="spacing">10</property>
-                        <property name="allow-scroll-wheel">False</property>
-                        <property name="allow-long-swipes">True</property>
-                        <child>
-                          <object class="GtkSpinner">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="active">True</property>
-                          </object>
-                        </child>
+                        <property name="homogeneous">True</property>
+                        <property name="column-spacing">10</property>
+                        <property name="row-spacing">10</property>
+                        <property name="min-children-per-line">1</property>
+                        <property name="max-children-per-line">6</property>
+                        <property name="selection-mode">none</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -318,28 +275,41 @@ Artist history will be listed here once you play some tracks.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="HdyCarouselIndicatorDots">
+                      <object class="GtkBox">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="carousel">recently_added_albums</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">11</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="halign">center</property>
-                        <property name="label" translatable="yes">Recently Played</property>
-                        <property name="justify">center</property>
-                        <property name="wrap">True</property>
-                        <attributes>
-                          <attribute name="weight" value="bold"/>
-                        </attributes>
+                        <property name="margin-top">40</property>
+                        <property name="spacing">5</property>
+                        <child>
+                          <object class="GtkImage">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="icon-name">media-optical-cd-audio-symbolic</property>
+                            <property name="icon_size">3</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="halign">start</property>
+                            <property name="label" translatable="yes">Recently Played Albums</property>
+                            <property name="ellipsize">end</property>
+                            <style>
+                              <class name="title-3"/>
+                            </style>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -348,38 +318,15 @@ Artist history will be listed here once you play some tracks.</property>
                       </packing>
                     </child>
                     <child>
-                      <object class="HdyCarousel" id="recently_listened_to_albums">
+                      <object class="GtkFlowBox" id="recently_listened_to_albums">
                         <property name="visible">True</property>
                         <property name="can-focus">False</property>
-                        <property name="spacing">10</property>
-                        <property name="allow-scroll-wheel">False</property>
-                        <property name="allow-long-swipes">True</property>
-                        <child>
-                          <object class="GtkLabel" id="recently_listened_albums_empty">
-                            <property name="visible">True</property>
-                            <property name="can-focus">False</property>
-                            <property name="label" translatable="yes">You havent listened to anything yet.
-Artist history will be listed here once you play some tracks. We need better wrapping around here.</property>
-                            <property name="justify">center</property>
-                            <property name="wrap">True</property>
-                            <property name="selectable">True</property>
-                            <style>
-                              <class name="dim-label"/>
-                            </style>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">13</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="HdyCarouselIndicatorDots">
-                        <property name="visible">True</property>
-                        <property name="can-focus">False</property>
-                        <property name="carousel">recently_listened_to_albums</property>
+                        <property name="homogeneous">True</property>
+                        <property name="column-spacing">10</property>
+                        <property name="row-spacing">10</property>
+                        <property name="min-children-per-line">1</property>
+                        <property name="max-children-per-line">6</property>
+                        <property name="selection-mode">none</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -400,14 +347,28 @@ Artist history will be listed here once you play some tracks. We need better wra
       </object>
     </child>
   </template>
-  <object class="GtkImage" id="browse-albums-button-image">
+  <object class="GtkLabel" id="recently_listened_albums_empty">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">go-next-symbolic</property>
+    <property name="label" translatable="yes">You havent listened to anything yet.
+Artist history will be listed here once you play some tracks. We need better wrapping around here.</property>
+    <property name="justify">center</property>
+    <property name="wrap">True</property>
+    <property name="selectable">True</property>
+    <style>
+      <class name="dim-label"/>
+    </style>
   </object>
-  <object class="GtkImage" id="browse-artists-button-image">
+  <object class="GtkLabel" id="recently_listened_artists_empty">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">go-next-symbolic</property>
+    <property name="label" translatable="yes">You havent listened to anything yet.
+Artist history will be listed here once you play some tracks.</property>
+    <property name="justify">center</property>
+    <property name="wrap">True</property>
+    <property name="selectable">True</property>
+    <style>
+      <class name="dim-label"/>
+    </style>
   </object>
 </interface>

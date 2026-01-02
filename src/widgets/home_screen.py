@@ -79,8 +79,8 @@ class EuterpeHomeScreen(Gtk.Viewport):
         self._recently_added_artists = []
         self._recently_added_albums = []
 
-        self._recently_listened_artists = RingList(10, _compare_artists)
-        self._recently_listened_albums = RingList(10, _compare_albums)
+        self._recently_listened_artists = RingList(12, _compare_artists)
+        self._recently_listened_albums = RingList(12, _compare_albums)
 
         self._nav = Navigator(self.screen_stack, self.main_screen)
 
@@ -112,6 +112,17 @@ class EuterpeHomeScreen(Gtk.Viewport):
             "clicked",
             self._on_browse_albums_button
         )
+        self.recently_listened_to_artists.add(self.recently_listened_artists_empty)
+        self.recently_listened_to_albums.add(self.recently_listened_albums_empty)
+
+        with_spinners = [
+            self.recently_added_artists,
+            self.recently_added_albums,
+        ]
+        for container in with_spinners:
+            spinner = Gtk.Spinner.new()
+            container.add(spinner)
+            spinner.start()
 
     def set_added_albums(self, albums):
         self._recently_added_albums = albums
@@ -130,12 +141,10 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self.recently_added_artists.remove
         )
 
-        for ind, artist in enumerate(self._recently_added_artists):
+        for artist in self._recently_added_artists:
             artist_widget = EuterpeBoxArtist(artist)
             artist_widget.connect("clicked", self._on_artist_click)
             self.recently_added_artists.add(artist_widget)
-            if ind == 1:
-                self.recently_added_artists.scroll_to(artist_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
@@ -148,12 +157,10 @@ class EuterpeHomeScreen(Gtk.Viewport):
             self.recently_added_albums.remove
         )
 
-        for ind, album in enumerate(self._recently_added_albums):
+        for album in self._recently_added_albums:
             album_widget = EuterpeBoxAlbum(album)
             album_widget.connect("clicked", self._on_album_click)
             self.recently_added_albums.add(album_widget)
-            if ind == 1:
-                self.recently_added_albums.scroll_to(album_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
 
@@ -190,7 +197,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
         rc = RemovedAlbumCache(self.recently_listened_to_albums, album_boxes)
         self.recently_listened_to_albums.foreach(rc.remove_and_store)
 
-        for ind, album in enumerate(albums_list):
+        for album in albums_list:
             album_id = album.get("album_id", None)
             album_widget = None
 
@@ -201,8 +208,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
                 album_widget.connect("clicked", self._on_album_click)
 
             self.recently_listened_to_albums.add(album_widget)
-            if ind == 1:
-                self.recently_listened_to_albums.scroll_to(album_widget)
 
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
@@ -218,7 +223,7 @@ class EuterpeHomeScreen(Gtk.Viewport):
         rc = RemovedArtistCache(self.recently_listened_to_artists, artist_boxes)
         self.recently_listened_to_artists.foreach(rc.remove_and_store)
 
-        for ind, artist in enumerate(artists_list):
+        for artist in artists_list:
             artist_id = artist.get("artist_id", None)
             artist_widget = None
 
@@ -229,8 +234,6 @@ class EuterpeHomeScreen(Gtk.Viewport):
                 artist_widget.connect("clicked", self._on_artist_click)
 
             self.recently_listened_to_artists.add(artist_widget)
-            if ind == 1:
-                self.recently_listened_to_artists.scroll_to(artist_widget)
 
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
@@ -378,7 +381,8 @@ class EuterpeHomeScreen(Gtk.Viewport):
         Copied from the browser page. To be moved into a common component.
         '''
         app = self._win.get_application()
-        bl = PaginatedBoxList(app, 'artist', self._create_artists_widget)
+        order = {"order_by": "id", "order": "desc"}
+        bl = PaginatedBoxList(app, 'artist', self._create_artists_widget, **order)
         bl.set_title("Artists Browser")
         self.screen_stack.add(bl)
         self.screen_stack.set_visible_child(bl)
@@ -396,7 +400,8 @@ class EuterpeHomeScreen(Gtk.Viewport):
         Copied from the browser page. To be moved into a common component.
         '''
         app = self._win.get_application()
-        bl = PaginatedBoxList(app, 'album', self._create_album_widget)
+        order = {"order_by": "id", "order": "desc"}
+        bl = PaginatedBoxList(app, 'album', self._create_album_widget, **order)
         bl.set_title("Albums Browser")
         self.screen_stack.add(bl)
         self.screen_stack.set_visible_child(bl)

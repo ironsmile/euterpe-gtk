@@ -52,7 +52,7 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
     browse_settings_button = Gtk.Template.Child()
     header_box = Gtk.Template.Child()
 
-    def __init__(self, app, list_type, create_item_func, **kwargs):
+    def __init__(self, app, list_type, create_item_func, order_by=None, order=None, **kwargs):
         super().__init__(**kwargs)
 
         self._list_type = list_type
@@ -79,7 +79,12 @@ class PaginatedBoxList(Gtk.ScrolledWindow):
 
         self._cfg_namespace = "browse_sorting"
         self._browse_cfg = self._cfg_store.get_object(self._list_type, self._cfg_namespace)
-        if self._browse_cfg is None or type(self._browse_cfg) is not dict or \
+        if order_by is not None and order is not None:
+            self._browse_cfg = {
+                "order_by": order_by,
+                "order": order,
+            }
+        elif self._browse_cfg is None or type(self._browse_cfg) is not dict or \
             "order_by" not in self._browse_cfg or "order" not in self._browse_cfg:
 
             self._browse_cfg = {
