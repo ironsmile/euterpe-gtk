@@ -118,11 +118,7 @@ class EuterpeBrowseScreen(Gtk.Viewport):
 
         self._mapped = True
         log.debug("browse screen mapped for the first time")
-        self._euterpe.get_random_list(
-            "album",
-            self._on_random_albums_callback,
-            per_page=6,
-        )
+        self._refresh_random_list()
         self.carousel_overlay.add_overlay(self.carousel_next_button)
         self.carousel_overlay.add_overlay(self.carousel_prev_button)
 
@@ -139,6 +135,13 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         self.refresh_frequently_played_songs.connect(
             "clicked",
             self._refresh_frequent_songs,
+        )
+
+    def _refresh_random_list(self, *args):
+        self._euterpe.get_random_list(
+            "album",
+            self._on_random_albums_callback,
+            per_page=6,
         )
 
     def _refresh_frequent_albums(self, *args):
@@ -209,11 +212,19 @@ class EuterpeBrowseScreen(Gtk.Viewport):
         )
 
         for album in albums:
-            album_widget = EuterpeCarouselItem(album)
+            album_widget = EuterpeCarouselItem(album=album)
             album_widget.connect("clicked", self._on_album_click)
             self.random_albums.add(album_widget)
             while (Gtk.events_pending()):
                 Gtk.main_iteration()
+
+        refresh = EuterpeCarouselItem(
+            title="New Random",
+            desc="Get a new set of random albums",
+            icon_name="view-refresh-symbolic",
+        )
+        refresh.connect("clicked", self._refresh_random_list)
+        self.random_albums.add(refresh)
 
     def _on_frequently_played_albums_callback(self, status, body):
         self.frequently_played_albums_spinner.stop()

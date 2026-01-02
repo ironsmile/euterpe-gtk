@@ -32,9 +32,26 @@ class EuterpeCarouselItem(Gtk.Button):
     title = Gtk.Template.Child()
     description = Gtk.Template.Child()
 
-    def __init__(self, album, **kwargs):
+    def __init__(self, album=None, title=None, icon_name=None, desc=None, **kwargs):
         super().__init__(**kwargs)
 
+        self._album = None
+        self._artwork_loader = None
+        if album is not None:
+            self.set_album(album)
+        elif title is not None:
+            self.set_static(title, icon_name, desc)
+
+        self.connect("destroy", self._on_destroy)
+
+    def set_static(self, title, icon_name, description):
+        self.title.set_label(title)
+        if description is not None:
+            self.description.set_label(description)
+        if icon_name is not None:
+            self.image.set_from_icon_name(icon_name, 128)
+
+    def set_album(self, album):
         self._album = album
 
         self.title.set_label(album.get("album", "N/A"))
@@ -50,20 +67,15 @@ class EuterpeCarouselItem(Gtk.Button):
 
         self.description.set_label(desc)
 
-        self._album_loader = None
+        self._artwork_loader = None
         album_id = album.get("album_id", None)
         if album_id is not None:
-            self._album_loader = AsyncArtwork(self.image, 128)
-            self._album_loader.load_album_image(album_id)
-
-        self.connect("destroy", self._on_destroy)
-
-    def get_image_widget(self):
-        return self.image
+            self._artwork_loader = AsyncArtwork(self.image, 128)
+            self._artwork_loader.load_album_image(album_id)
 
     def get_album(self):
         return self._album
 
     def _on_destroy(self, *args):
-        if self._album_loader is not None:
-            self._album_loader.cancel()
+        if self._artwork_loader is not None:
+            self._artwork_loader.cancel()
