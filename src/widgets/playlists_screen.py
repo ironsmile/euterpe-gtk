@@ -66,10 +66,19 @@ class EuterpePlaylistsScreen(Gtk.Viewport):
         )
 
         self._nav = Navigator(self.screen_stack, self._main_widget)
-        self._show_initial_screen()
+        self._mapped = False
+        self.connect("map", self._on_mapped)
 
     def get_nav(self):
         return self._nav
+
+    def _on_mapped(self, *args):
+        if self._mapped:
+            return
+
+        self._mapped = True
+        log.debug("playlist screen mapped for the first time")
+        self._show_initial_screen()
 
     def _show_initial_screen(self):
         app = self._win.get_application()
