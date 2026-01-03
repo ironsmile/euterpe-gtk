@@ -130,6 +130,7 @@
                       <object class="GtkScrolledWindow">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
+                        <property name="min-content-width">64</property>
                         <property name="min-content-height">200</property>
                         <child>
                           <object class="GtkViewport">
@@ -140,8 +141,6 @@
                               <object class="GtkImage" id="artwork">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
-                                <property name="hexpand">True</property>
-                                <property name="vexpand">True</property>
                                 <property name="pixel-size">180</property>
                                 <property name="icon-name">media-optical-cd-audio-symbolic</property>
                                 <property name="icon_size">5</property>

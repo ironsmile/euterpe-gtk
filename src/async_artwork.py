@@ -152,7 +152,8 @@ class AsyncArtwork(object):
 
         self._displayed_artwork_id = artwork_id
         pv = PictureView(pb)
-        pv.props.valign = Gtk.Align.CENTER
+        pv.props.valign = Gtk.Align.FILL
+        pv.props.halign = Gtk.Align.FILL
         self._image_parent.add(pv)
         pv.show()
         self._pv = pv
@@ -172,6 +173,10 @@ class AsyncArtwork(object):
         self._previous_request = None
 
 class PictureView(Gtk.DrawingArea):
+    '''
+    Draws an image in the center on the picture view while making sure to keep
+    its aspect ratio and to keep the image within the parent container allocation.
+    '''
     def __init__(self, pixbuf, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.pixbuf = pixbuf
@@ -179,19 +184,33 @@ class PictureView(Gtk.DrawingArea):
             self.pixbuf, 1, None
         )
 
-    def get_useful_height(self):
-        aw = self.get_allocated_width()
+    def get_useful_height(self, aw):
         pw = self.pixbuf.get_width()
         ph = self.pixbuf.get_height()
         return aw/pw * ph
 
-    def get_scale_factor(self):
-        return self.get_allocated_width() / self.pixbuf.get_width()
-
     def do_draw(self, context):
-        sf = self.get_scale_factor()
+        size = self.get_allocated_size().allocation
+        height = self.get_useful_height(size.width)
+
+        parent = self.get_parent()
+        if parent is not None:
+            pheight = parent.get_allocated_height()
+            if pheight < height:
+                height = pheight
+
+        sfw = size.width / self.pixbuf.get_width()
+        sfh = height / self.pixbuf.get_height()
+
+        sf = sfw
+        if sfh < sf:
+            sf = sfh
+
+        woffset = 0
+        if size.width is not None:
+            woffset = (size.width - self.pixbuf.get_width() * sf) / 2
+
         context.scale(sf, sf)
-        context.set_source_surface(self.img_surface, 0, 0)
+        context.set_source_surface(self.img_surface, woffset / sf, 0)
         context.paint()
-        height = self.get_useful_height()
         self.set_size_request(-1, height)
