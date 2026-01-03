@@ -54,7 +54,7 @@ class EuterpeBoxAlbum(Gtk.Viewport):
             log.warning("EuterpeBoxAlbum: no album ID found for {}", album)
             return
 
-        self._artwork_loader = AsyncArtwork(self.image, 150)
+        self._artwork_loader = AsyncArtwork(self.image, 120)
         self._artwork_loader.load_album_image(album_id)
 
     def _on_click(self, pb):

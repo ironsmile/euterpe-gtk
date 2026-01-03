@@ -52,7 +52,7 @@ class EuterpeBoxArtist(Gtk.Viewport):
             log.warning("EuterpeBoxArtist: no artist ID found for {}", artist)
             return
 
-        self._artwork_loader = AsyncArtwork(self.image, 150)
+        self._artwork_loader = AsyncArtwork(self.image, 120)
         self._artwork_loader.load_artist_image(artist_id)
 
     def _on_click(self, pb):

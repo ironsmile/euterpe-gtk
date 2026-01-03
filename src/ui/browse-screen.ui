@@ -59,6 +59,11 @@
     <property name="can-focus">False</property>
     <property name="icon-name">view-refresh-symbolic</property>
   </object>
+  <object class="GtkImage" id="refresh_freq_played_songs_icon">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">view-refresh-symbolic</property>
+  </object>
   <template class="EuterpeBrowseScreen" parent="GtkViewport">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -228,7 +233,7 @@
                           <object class="GtkFlowBox" id="frequently_played_albums">
                             <property name="visible">True</property>
                             <property name="can-focus">False</property>
-                            <property name="min-children-per-line">1</property>
+                            <property name="min-children-per-line">2</property>
                             <property name="max-children-per-line">6</property>
                           </object>
                           <packing>
@@ -323,9 +328,4 @@
       </object>
     </child>
   </template>
-  <object class="GtkImage" id="refresh_freq_played_songs_icon">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">view-refresh-symbolic</property>
-  </object>
 </interface>
