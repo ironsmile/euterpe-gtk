@@ -126,6 +126,9 @@
                         <property name="min-children-per-line">1</property>
                         <property name="max-children-per-line">6</property>
                         <property name="selection-mode">none</property>
+                        <style>
+                          <class name="home-box"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -186,6 +189,9 @@
                         <property name="min-children-per-line">1</property>
                         <property name="max-children-per-line">6</property>
                         <property name="selection-mode">none</property>
+                        <style>
+                          <class name="home-box"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -267,6 +273,9 @@
                         <property name="min-children-per-line">1</property>
                         <property name="max-children-per-line">6</property>
                         <property name="selection-mode">none</property>
+                        <style>
+                          <class name="home-box"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -327,6 +336,9 @@
                         <property name="min-children-per-line">1</property>
                         <property name="max-children-per-line">6</property>
                         <property name="selection-mode">none</property>
+                        <style>
+                          <class name="home-box"/>
+                        </style>
                       </object>
                       <packing>
                         <property name="expand">False</property>
