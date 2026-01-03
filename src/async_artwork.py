@@ -145,15 +145,24 @@ class AsyncArtwork(object):
             self._set_default_artwork()
             return
 
+        self._displayed_artwork_id = artwork_id
+        try:
+            pv = PictureView(pb)
+        except TypeError as err:
+            log.error("PictureView error, check if Cairo is installed", err)
+            return
+        except Exception as err:
+            log.error("failed to create PictureView", err)
+            return
+
+        pv.props.valign = Gtk.Align.FILL
+        pv.props.halign = Gtk.Align.FILL
+
         if self._pv is not None:
             self._image_parent.remove(self._pv)
         else:
             self._image_parent.remove(self._image)
 
-        self._displayed_artwork_id = artwork_id
-        pv = PictureView(pb)
-        pv.props.valign = Gtk.Align.FILL
-        pv.props.halign = Gtk.Align.FILL
         self._image_parent.add(pv)
         pv.show()
         self._pv = pv
