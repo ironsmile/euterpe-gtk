@@ -116,6 +116,19 @@
 	</requires>
 
 	<releases>
+		<release version="0.8.3" date="2026-01-03">
+			<description>
+				<p>
+					This version improves the "Home" and "Browse" screens. The aim
+					is for less wasted space in both of them. The "Browse" screen
+					now includes a lot of more options.
+				</p>
+				<p>
+					Additionally, the artwork show in the main player area is now
+					much bigger and kept behind the player controls.
+				</p>
+			</description>
+		</release>
 		<release version="0.8.2" date="2025-12-27">
 			<description>
 				<p>
